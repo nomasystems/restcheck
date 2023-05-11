@@ -1,0 +1,7 @@
+{application, restcheck, [
+    {description, "An automatic REST API contract testing tool"},
+    {vsn, "0.0.1"},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []}
+]}.
