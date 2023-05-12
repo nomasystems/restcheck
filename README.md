@@ -1,7 +1,7 @@
 # restcheck
 ![restcheck ci](https://github.com/nomasystems/restcheck/actions/workflows/ci.yml/badge.svg)
 
-An automatic REST API contract testing tool.
+An automatic REST API contract testing tool based on property-based testing techniques.
 
 ## License
 
