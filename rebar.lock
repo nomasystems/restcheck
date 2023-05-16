@@ -1,8 +1,36 @@
-[{<<"ncalendar">>,
+{"1.2.0",
+[{<<"buoy">>,
+  {git,"git@github.com:lpgauth/buoy.git",
+       {ref,"d7b62c15bc512b87c7544714e562b90a347eb929"}},
+  0},
+ {<<"foil">>,
+  {git,"https://github.com/lpgauth/foil.git",
+       {ref,"b55c30ff8b21daf89a85d1565d4b836c7f9e549b"}},
+  1},
+ {<<"granderl">>,
+  {git,"https://github.com/tokenrove/granderl.git",
+       {ref,"baafd1bc825cb1fc022760eae913f774fa6af91b"}},
+  2},
+ {<<"metal">>,{pkg,<<"metal">>,<<"0.1.1">>},2},
+ {<<"ncalendar">>,
   {git,"git@github.com:nomasystems/ncalendar.git",
        {ref,"5a85b4a879305e7656cc96b04131189dc9f2e612"}},
   1},
  {<<"ndto">>,
   {git,"git@github.com:nomasystems/ndto.git",
        {ref,"37191df3f650e305c60409b4c208d2e79eee49a8"}},
-  0}].
+  0},
+ {<<"njson">>,
+  {git,"git@github.com:nomasystems/njson.git",
+       {ref,"c8c62839a853ea92cd6ef1f72b9b75e3c4aca6fa"}},
+  0},
+ {<<"shackle">>,
+  {git,"https://github.com/lpgauth/shackle.git",
+       {ref,"3bd5df0f06e415fe0c3122b9f5387d2959b944ec"}},
+  1}]}.
+[
+{pkg_hash,[
+ {<<"metal">>, <<"5D3D1322DA7BCD34B94FED5486F577973685298883954F7A3E517EF5EF6953F5">>}]},
+{pkg_hash_ext,[
+ {<<"metal">>, <<"88B82B634998A1A768DEDCD372C2F7E657B19445325C0AF5CCBAC62C77210F1D">>}]}
+].

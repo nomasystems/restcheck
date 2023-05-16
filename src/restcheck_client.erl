@@ -13,12 +13,16 @@
 %% limitations under the License
 %
 %% @private
-%% @doc <code>restcheck</code>'s HTTP client.
+%% @doc <code>restcheck</code>'s HTTP client. <br/>
+%% It internally uses the <code>buoy</code> HTTP client.
 -module(restcheck_client).
+
+%%% INCLUDE FILES
+-include_lib("buoy/include/buoy.hrl").
+-include_lib("kernel/include/logger.hrl").
 
 %%% START/STOP EXPORTS
 -export([
-    start_link/1,
     start_link/2,
     stop/1
 ]).
@@ -29,11 +33,18 @@
     request/2
 ]).
 
+%%% INTERNAL EXPORTS
+-export([
+    init/1
+]).
+
 %%% TYPES
--type req_config() :: #{
-    host => binary(),
+-type client_config() :: #{
+    host := binary(),
     port => integer(),
-    ssl => boolean(),
+    ssl => boolean()
+}.
+-type req_config() :: #{
     headers => #{binary() => binary()},
     parameters => #{binary() => binary()},
     body => binary() | map(),
@@ -58,48 +69,76 @@
 -type response() :: #{
     status := 100..599,
     headers => #{binary() => term()},
-    body => #{binary() => term()}
+    body => undefined | #{binary() => term()} | binary()
 }.
+
+%%% MACROS
+-define(PERSISTENT_TERM(Name),
+    (erlang:binary_to_atom(<<"restcheck_client_pt_", (erlang:atom_to_binary(Name))/binary>>))
+).
+-define(SOCKET_OPTIONS, [
+    binary,
+    {packet, line},
+    {packet, raw},
+    {send_timeout, 50},
+    {send_timeout_close, true}
+]).
 
 %%%-----------------------------------------------------------------------------
 %%% START/STOP EXPORTS
 %%%-----------------------------------------------------------------------------
-% TODO: remove this when implemented
--dialyzer({no_return, start_link/1}).
--spec start_link(Name) -> Result when
+-spec start_link(Name, ClientConfig) -> Result when
     Name :: atom(),
-    Result :: {ok, Pid} | {error, Reason},
-    Pid :: pid(),
-    Reason :: term().
-%% @equiv start_link(Name, #{})
-start_link(Name) ->
-    start_link(Name, #{}).
-
--spec start_link(Name, BaseConfig) -> Result when
-    Name :: atom(),
-    BaseConfig :: req_config(),
-    Result :: {ok, Pid} | {error, Reason},
-    Pid :: pid(),
-    Reason :: term().
-%% @doc Starts a new client with given name and base config.
-start_link(_Name, _BaseConfig) ->
-    %% TODO: Implement
-    erlang:error({not_implemented, 'restcheck_client:start_link/2'}).
+    ClientConfig :: client_config(),
+    Result :: supervisor:startlink_ret().
+%% @doc Starts a new client with given name and config.
+start_link(Name, ClientConfig) ->
+    supervisor:start_link({local, Name}, ?MODULE, [Name, ClientConfig]).
 
 -spec stop(Name) -> Result when
     Name :: atom(),
     Result :: ok | {error, Reason},
     Reason :: term().
 %% @doc Stops the client with given name.
-stop(_Name) ->
-    %% TODO: Implement
-    erlang:error({not_implemented, 'restcheck_client:stop/1'}).
+stop(Name) ->
+    case persistent_term:get(?PERSISTENT_TERM(Name), undefined) of
+        undefined ->
+            {error, {restcheck_client_not_started, Name}};
+        ClientConfig ->
+            Protocol = protocol(maps:get(ssl, ClientConfig, false)),
+            Host = maps:get(host, ClientConfig),
+            Port = maps:get(port, ClientConfig, 80),
+            BuoyUrl = #buoy_url{
+                protocol = Protocol,
+                hostname = Host,
+                port = Port,
+                % Ignored by buoy but needed to correct record construction
+                host = <<Host/binary, ":", (erlang:integer_to_binary(Port))/binary>>,
+                % Ignored by buoy but needed to correct record construction
+                path = <<"/">>
+            },
+            case buoy_pool:stop(BuoyUrl) of
+                ok ->
+                    case persistent_term:erase(?PERSISTENT_TERM(Name)) of
+                        true ->
+                            case erlang:whereis(Name) of
+                                undefined ->
+                                    {error, {restcheck_client_not_started, Name}};
+                                Pid ->
+                                    true = erlang:exit(Pid, normal),
+                                    ok
+                            end;
+                        false ->
+                            {error, {restcheck_client_not_started, Name}}
+                    end;
+                {error, _Reason} ->
+                    {error, {restcheck_client_not_started, Name}}
+            end
+    end.
 
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
-% TODO: remove this when implemented
--dialyzer({no_return, request/1}).
 -spec request(Name) -> Result when
     Name :: atom(),
     Result :: {ok, Response} | {error, Reason},
@@ -115,7 +154,156 @@ request(Name) ->
     Result :: {ok, Response} | {error, Reason},
     Response :: response(),
     Reason :: term().
-%% @doc Sends a request. Given config is merged with base config.
-request(_Name, _Config) ->
-    %% TODO: Implement
-    erlang:error({not_implemented, 'restcheck_client:request/2'}).
+%% @doc Sends a request.
+request(Name, Config) ->
+    case persistent_term:get(?PERSISTENT_TERM(Name), undefined) of
+        undefined ->
+            {error, {restcheck_client_not_started, Name}};
+        ClientConfig ->
+            RawMethod = maps:get(method, Config, 'GET'),
+            Method = method(RawMethod),
+            Host = maps:get(host, ClientConfig),
+            Port = maps:get(port, ClientConfig),
+            Protocol = protocol(maps:get(ssl, ClientConfig, false)),
+            RawPath = maps:get(path, Config, <<"/">>),
+            Path =
+                case maps:get(parameters, Config, undefined) of
+                    undefined ->
+                        RawPath;
+                    Parameters ->
+                        QueryString =
+                            case uri_string:compose_query(maps:to_list(Parameters)) of
+                                Binary when is_binary(Binary) ->
+                                    Binary;
+                                String when is_list(String) ->
+                                    erlang:list_to_binary(String);
+                                Error ->
+                                    ?LOG_WARNING(
+                                        "[restcheck_client] Failed to compose query string for request to ~s. Error: ~p.",
+                                        [RawPath, Error]
+                                    ),
+                                    <<>>
+                            end,
+                        <<RawPath/binary, "?", (QueryString)/binary>>
+                end,
+            RawHeaders = maps:get(headers, Config, #{}),
+            Headers =
+                case maps:get(auth, Config, undefined) of
+                    undefined ->
+                        RawHeaders;
+                    #{username := Username, password := Password} ->
+                        RawHeaders#{
+                            <<"Authorization">> =>
+                                <<"Basic ",
+                                    (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
+                        }
+                end,
+            Body = maps:get(body, Config, <<>>),
+            Timeout = maps:get(timeout, Config, 5000),
+            BuoyUrl = #buoy_url{
+                protocol = Protocol,
+                hostname = Host,
+                port = Port,
+                host = <<Host/binary, ":", (erlang:integer_to_binary(Port))/binary>>,
+                path = Path
+            },
+            BuoyOpts = #{
+                body => Body,
+                headers => maps:to_list(Headers),
+                timeout => Timeout
+            },
+            case buoy:request(Method, BuoyUrl, BuoyOpts) of
+                {ok, BuoyResp} ->
+                    RespStatus = BuoyResp#buoy_resp.status_code,
+                    RespHeaders = headers(BuoyResp#buoy_resp.headers),
+                    RespBody = body(
+                        maps:get(<<"content-type">>, RespHeaders, undefined),
+                        BuoyResp#buoy_resp.body
+                    ),
+                    Response = #{
+                        status => RespStatus,
+                        headers => RespHeaders,
+                        body => RespBody
+                    },
+                    {ok, Response};
+                {error, Reason} ->
+                    {error, Reason}
+            end
+    end.
+
+%%%-----------------------------------------------------------------------------
+%%% INTERNAL EXPORTS
+%%%-----------------------------------------------------------------------------
+init([Name, ClientConfig]) ->
+    ok = persistent_term:put(?PERSISTENT_TERM(Name), ClientConfig),
+    Protocol = protocol(maps:get(ssl, ClientConfig, false)),
+    Host = maps:get(host, ClientConfig),
+    Port = maps:get(port, ClientConfig, 80),
+    BuoyUrl = #buoy_url{
+        protocol = Protocol,
+        hostname = Host,
+        port = Port,
+        % Ignored by buoy but needed to correct record construction
+        host = <<Host/binary, ":", (erlang:integer_to_binary(Port))/binary>>,
+        % Ignored by buoy but needed to correct record construction
+        path = <<"/">>
+    },
+    SocketOptions =
+        case Protocol of
+            http ->
+                ?SOCKET_OPTIONS;
+            https ->
+                ?SOCKET_OPTIONS ++ [{log_level, error}]
+        end,
+    case buoy_pool:start(BuoyUrl, [{socket_options, SocketOptions}]) of
+        ok ->
+            {ok, {#{}, []}};
+        {error, Reason} ->
+            erlang:exit(Reason)
+    end.
+
+%%%-----------------------------------------------------------------------------
+%%% INTERNAL FUNCTIONS
+%%%-----------------------------------------------------------------------------
+body(<<"application/json">>, BuoyBody) ->
+    njson:decode(BuoyBody);
+body(_ContentType, BuoyBody) ->
+    BuoyBody.
+
+headers(BuoyHeaders) ->
+    lists:foldl(
+        fun(Header, Acc) ->
+            [RawName, RawValue] = binary:split(Header, <<":">>),
+            Name = string:casefold(string:trim(RawName, both)),
+            Value = string:trim(RawValue, both),
+            Acc#{Name => Value}
+        end,
+        #{},
+        BuoyHeaders
+    ).
+
+method('GET') ->
+    get;
+method('POST') ->
+    post;
+method('PUT') ->
+    put;
+method('HEAD') ->
+    head;
+method('DELETE') ->
+    {custom, <<"DELETE">>};
+method('PATCH') ->
+    {custom, <<"PATCH">>};
+method('OPTIONS') ->
+    {custom, <<"OPTIONS">>};
+method('TRACE') ->
+    {custom, <<"TRACE">>};
+method('CONNECT') ->
+    {custom, <<"CONNECT">>};
+method(Other) ->
+    {custom, erlang:atom_to_binary(Other)}.
+
+protocol(true) ->
+    https;
+protocol(false) ->
+    http.
