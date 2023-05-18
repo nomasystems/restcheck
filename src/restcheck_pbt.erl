@@ -11,13 +11,13 @@
 %% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %% See the License for the specific language governing permissions and
 %% limitations under the License
+%
+%% @doc Property-based testing interface for <code>restcheck</code>.
 -module(restcheck_pbt).
 
 %%% EXTERNAL EXPORTS
 -export([
-    dto/1,
     dto/2,
-    quickcheck/1,
     quickcheck/2
 ]).
 
@@ -38,13 +38,6 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec dto(Schema) -> Generator when
-    Schema :: schema(),
-    Generator :: generator().
-%% @equiv dto(Schema, restcheck_triq)
-dto(Schema) ->
-    dto(Schema, restcheck_triq).
-
 -spec dto(Schema, Backend) -> Generator when
     Schema :: schema(),
     Backend :: backend(),
@@ -52,14 +45,6 @@ dto(Schema) ->
 %% @doc Asks the given backend for a DTO generator from a given schema.
 dto(Schema, Backend) ->
     Backend:dto(Schema).
-
--spec quickcheck(Property) -> Result when
-    Property :: property(),
-    Result :: ok | {error, Reason},
-    Reason :: term().
-%% @equiv quickcheck(Property, restcheck_triq)
-quickcheck(Property) ->
-    quickcheck(Property, restcheck_triq).
 
 -spec quickcheck(Property, Backend) -> Result when
     Property :: property(),
