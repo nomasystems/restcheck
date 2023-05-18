@@ -55,15 +55,15 @@
     },
     path => binary(),
     method =>
-        'GET'
-        | 'POST'
-        | 'PUT'
-        | 'DELETE'
-        | 'PATCH'
-        | 'HEAD'
-        | 'OPTIONS'
-        | 'TRACE'
-        | 'CONNECT'
+        get
+        | post
+        | put
+        | delete
+        | patch
+        | head
+        | options
+        | trace
+        | connect
         | binary()
 }.
 -type response() :: #{
@@ -198,7 +198,7 @@ request(Name, Config) ->
                                     (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
                         }
                 end,
-            Body = maps:get(body, Config, <<>>),
+            Body = body(maps:get(body, Config, <<>>)),
             Timeout = maps:get(timeout, Config, 5000),
             BuoyUrl = #buoy_url{
                 protocol = Protocol,
@@ -265,6 +265,11 @@ init([Name, ClientConfig]) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
+body(Map) when is_map(Map) ->
+    njson:encode(Map);
+body(Body) ->
+    Body.
+
 body(<<"application/json">>, BuoyBody) ->
     njson:decode(BuoyBody);
 body(_ContentType, BuoyBody) ->
@@ -282,26 +287,26 @@ headers(BuoyHeaders) ->
         BuoyHeaders
     ).
 
-method('GET') ->
+method(get) ->
     get;
-method('POST') ->
+method(post) ->
     post;
-method('PUT') ->
+method(put) ->
     put;
-method('HEAD') ->
+method(head) ->
     head;
-method('DELETE') ->
+method(delete) ->
     {custom, <<"DELETE">>};
-method('PATCH') ->
+method(patch) ->
     {custom, <<"PATCH">>};
-method('OPTIONS') ->
+method(options) ->
     {custom, <<"OPTIONS">>};
-method('TRACE') ->
+method(trace) ->
     {custom, <<"TRACE">>};
-method('CONNECT') ->
+method(connect) ->
     {custom, <<"CONNECT">>};
 method(Other) ->
-    {custom, erlang:atom_to_binary(Other)}.
+    Other.
 
 protocol(true) ->
     https;
