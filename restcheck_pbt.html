@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-CEC01225.js"></script>
+    <script src="dist/sidebar_items-286B9EF0.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -96,7 +96,7 @@ restcheck
 </button>
 
 
-    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L14" title="View Source" class="icon-action" rel="help">
+    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L16" title="View Source" class="icon-action" rel="help">
       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
       <span class="sr-only">View Source</span>
     </a>
@@ -106,6 +106,10 @@ restcheck
 
 </h1>
 
+
+  <section id="moduledoc">
+Property-based testing interface for <a href="restcheck.html"><code>restcheck</code></a>.
+  </section>
 
 
   <section id="summary" class="details-list">
@@ -161,31 +165,11 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/1" translate="no">dto(Schema)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Equivalent to <a href="#dto/2">dto(Schema, restcheck_triq)</a>.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#dto/2" translate="no">dto(Schema, Backend)</a>
 
       </div>
 
         <div class="summary-synopsis">Asks the given backend for a DTO generator from a given schema.</div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#quickcheck/1" translate="no">quickcheck(Property)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Equivalent to <a href="#quickcheck/2">quickcheck(Property, restcheck_triq)</a>.</p></div>
 
     </div>
 
@@ -338,34 +322,6 @@ Types
 Functions
     </h1>
     <div class="functions-list">
-<section class="detail" id="dto/1">
-
-  <div class="detail-header">
-    <a href="#dto/1" class="detail-link" title="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <h1 class="signature" translate="no">dto(Schema)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L45" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
-
-
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">-spec</span> dto(Schema) -> Generator when Schema :: <a href="#t:schema/0">schema</a>(), Generator :: <a href="#t:generator/0">generator</a>().</pre>
-
-      </div>
-
-<p>Equivalent to <a href="#dto/2">dto(Schema, restcheck_triq)</a>.</p>
-  </section>
-</section>
 <section class="detail" id="dto/2">
 
   <div class="detail-header">
@@ -375,7 +331,7 @@ Functions
     </a>
     <h1 class="signature" translate="no">dto(Schema, Backend)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L53" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L46" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -395,35 +351,6 @@ Functions
 Asks the given backend for a DTO generator from a given schema.
   </section>
 </section>
-<section class="detail" id="quickcheck/1">
-
-  <div class="detail-header">
-    <a href="#quickcheck/1" class="detail-link" title="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <h1 class="signature" translate="no">quickcheck(Property)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L61" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
-
-
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">-spec</span> quickcheck(Property) -> Result
-              when Property :: <a href="#t:property/0">property</a>(), Result :: ok | {error, Reason}, Reason :: term().</pre>
-
-      </div>
-
-<p>Equivalent to <a href="#quickcheck/2">quickcheck(Property, restcheck_triq)</a>.</p>
-  </section>
-</section>
 <section class="detail" id="quickcheck/2">
 
   <div class="detail-header">
@@ -433,7 +360,7 @@ Asks the given backend for a DTO generator from a given schema.
     </a>
     <h1 class="signature" translate="no">quickcheck(Property, Backend)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L70" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L55" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
