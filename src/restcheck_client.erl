@@ -195,8 +195,8 @@ request(Name, Config) ->
                         [
                             {
                                 <<"Authorization">>,
-                                    <<"Basic ",
-                                        (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
+                                <<"Basic ",
+                                    (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
                             }
                             | RawHeaders
                         ]
