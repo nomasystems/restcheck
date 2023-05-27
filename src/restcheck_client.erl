@@ -45,8 +45,8 @@
     ssl => boolean()
 }.
 -type req_config() :: #{
-    headers => #{binary() => binary()},
-    parameters => #{binary() => binary()},
+    headers => [{binary(), binary()}],
+    query_parameters => [{binary(), binary()}],
     body => binary() | map(),
     timeout => non_neg_integer(),
     auth => #{
@@ -67,8 +67,8 @@
         | binary()
 }.
 -type response() :: #{
-    status := 100..599,
-    headers => #{binary() => term()},
+    status := inet:status_code(),
+    headers => [{binary(), term()}],
     body => undefined | #{binary() => term()} | binary()
 }.
 
@@ -160,19 +160,19 @@ request(Name, Config) ->
         undefined ->
             {error, {restcheck_client_not_started, Name}};
         ClientConfig ->
-            RawMethod = maps:get(method, Config, 'GET'),
+            RawMethod = maps:get(method, Config, get),
             Method = method(RawMethod),
             Host = maps:get(host, ClientConfig),
             Port = maps:get(port, ClientConfig),
             Protocol = protocol(maps:get(ssl, ClientConfig, false)),
             RawPath = maps:get(path, Config, <<"/">>),
             Path =
-                case maps:get(parameters, Config, undefined) of
+                case maps:get(query_parameters, Config, undefined) of
                     undefined ->
                         RawPath;
-                    Parameters ->
+                    QueryParameters ->
                         QueryString =
-                            case uri_string:compose_query(maps:to_list(Parameters)) of
+                            case uri_string:compose_query(QueryParameters) of
                                 Binary when is_binary(Binary) ->
                                     Binary;
                                 String when is_list(String) ->
@@ -186,17 +186,20 @@ request(Name, Config) ->
                             end,
                         <<RawPath/binary, "?", (QueryString)/binary>>
                 end,
-            RawHeaders = maps:get(headers, Config, #{}),
+            RawHeaders = maps:get(headers, Config, []),
             Headers =
                 case maps:get(auth, Config, undefined) of
                     undefined ->
                         RawHeaders;
                     #{username := Username, password := Password} ->
-                        RawHeaders#{
-                            <<"Authorization">> =>
+                        [
+                            {
+                                <<"Authorization">>,
                                 <<"Basic ",
                                     (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
-                        }
+                            }
+                            | RawHeaders
+                        ]
                 end,
             Body = body(maps:get(body, Config, <<>>)),
             Timeout = maps:get(timeout, Config, 5000),
@@ -209,7 +212,7 @@ request(Name, Config) ->
             },
             BuoyOpts = #{
                 body => Body,
-                headers => maps:to_list(Headers),
+                headers => Headers,
                 timeout => Timeout
             },
             case buoy:request(Method, BuoyUrl, BuoyOpts) of
@@ -217,7 +220,7 @@ request(Name, Config) ->
                     RespStatus = BuoyResp#buoy_resp.status_code,
                     RespHeaders = headers(BuoyResp#buoy_resp.headers),
                     RespBody = body(
-                        maps:get(<<"content-type">>, RespHeaders, undefined),
+                        proplists:get_value(<<"content-type">>, RespHeaders, undefined),
                         BuoyResp#buoy_resp.body
                     ),
                     Response = #{
@@ -276,14 +279,13 @@ body(_ContentType, BuoyBody) ->
     BuoyBody.
 
 headers(BuoyHeaders) ->
-    lists:foldl(
-        fun(Header, Acc) ->
+    lists:map(
+        fun(Header) ->
             [RawName, RawValue] = binary:split(Header, <<":">>),
             Name = string:casefold(string:trim(RawName, both)),
             Value = string:trim(RawValue, both),
-            Acc#{Name => Value}
+            {Name, Value}
         end,
-        #{},
         BuoyHeaders
     ).
 
