@@ -18,12 +18,14 @@
 %%% EXTERNAL EXPORTS
 -export([
     dto/2,
+    forall/3,
     quickcheck/2
 ]).
 
 %%% TYPES
 -type backend() :: restcheck_backend:t().
 -type generator() :: term().
+-type prop() :: fun((term()) -> boolean()).
 -type property() :: term().
 -type schema() :: ndto:schema().
 
@@ -38,19 +40,28 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec dto(Schema, Backend) -> Generator when
-    Schema :: schema(),
+-spec dto(Backend, Schema) -> Generator when
     Backend :: backend(),
+    Schema :: schema(),
     Generator :: generator().
 %% @doc Asks the given backend for a DTO generator from a given schema.
-dto(Schema, Backend) ->
+dto(Backend, Schema) ->
     Backend:dto(Schema).
 
--spec quickcheck(Property, Backend) -> Result when
-    Property :: property(),
+-spec forall(Backend, Generators, Prop) -> ForAll when
     Backend :: backend(),
+    Generators :: [generator()],
+    Prop :: prop(),
+    ForAll :: property().
+%% @doc Wraps a <code>forall</code> property in the given backend format.
+forall(Backend, Generators, Prop) ->
+    Backend:forall(Generators, Prop).
+
+-spec quickcheck(Backend, Property) -> Result when
+    Backend :: backend(),
+    Property :: property(),
     Result :: ok | {error, Reason},
     Reason :: term().
 %% @doc Runs a property-based test using the given backend.
-quickcheck(Property, Backend) ->
+quickcheck(Backend, Property) ->
     Backend:quickcheck(Property).
