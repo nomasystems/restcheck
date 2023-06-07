@@ -28,6 +28,12 @@
     Generator :: restcheck_pbt:generator().
 %% Returns a DTO generator from a given schema.
 
+-callback forall(Generators, Prop) -> ForAll when
+    Generators :: [restcheck_pbt:generator()],
+    Prop :: restcheck_pbt:prop(),
+    ForAll :: restcheck_pbt:property().
+%% Wraps a <code>forall</code> property.
+
 -callback quickcheck(Property) -> Result when
     Property :: restcheck_pbt:property(),
     Result :: ok | {error, Reason},
