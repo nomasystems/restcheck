@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-286B9EF0.js"></script>
+    <script src="dist/sidebar_items-8B32C5BE.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -149,6 +149,16 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#c:forall/2" translate="no">forall/2</a>
+
+      </div>
+
+        <div class="summary-synopsis">Wraps a forall property.</div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#c:quickcheck/1" translate="no">quickcheck/1</a>
 
       </div>
@@ -241,6 +251,38 @@ Callbacks
 Returns a DTO generator from a given schema.
   </section>
 </section>
+<section class="detail" id="c:forall/2">
+
+  <div class="detail-header">
+    <a href="#c:forall/2" class="detail-link" title="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this callback</span>
+    </a>
+    <h1 class="signature" translate="no">forall/2</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L31" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-callback</span> forall(Generators, Prop) -> ForAll
+          when
+              Generators :: [<a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>()],
+              Prop :: <a href="restcheck_pbt.html#t:prop/0">restcheck_pbt:prop</a>(),
+              ForAll :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>().</pre>
+
+      </div>
+
+Wraps a forall property.
+  </section>
+</section>
 <section class="detail" id="c:quickcheck/1">
 
   <div class="detail-header">
@@ -250,7 +292,7 @@ Returns a DTO generator from a given schema.
     </a>
     <h1 class="signature" translate="no">quickcheck/1</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L31" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L37" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
