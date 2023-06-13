@@ -103,20 +103,28 @@ request(_Conf) ->
         status := 200,
         body := #{<<"foo">> := <<"bar">>}
     }} =
-        restcheck_client:request(restcheck_client, #{path => <<"/foo">>}),
+        restcheck_client:request(restcheck_client, #{path => <<"/foo">>}, #{}),
 
     {ok, #{
         status := 200,
         body := #{<<"bar">> := [<<"foo">>]}
     }} =
-        restcheck_client:request(restcheck_client, #{
-            path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, <<"1">>}]
-        }),
+        restcheck_client:request(
+            restcheck_client,
+            #{
+                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, <<"1">>}]
+            },
+            #{}
+        ),
     % Invalid query parameter (must be binary)
     {ok, #{status := 400, body := undefined}} =
-        restcheck_client:request(restcheck_client, #{
-            path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 1}]
-        }),
+        restcheck_client:request(
+            restcheck_client,
+            #{
+                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 1}]
+            },
+            #{}
+        ),
 
     ok = restcheck_client:stop(restcheck_client),
 

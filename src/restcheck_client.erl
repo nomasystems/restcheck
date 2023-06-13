@@ -29,8 +29,7 @@
 
 %%% EXTERNAL EXPORTS
 -export([
-    request/1,
-    request/2
+    request/3
 ]).
 
 %%% INTERNAL EXPORTS
@@ -39,6 +38,12 @@
 ]).
 
 %%% TYPES
+-type basic_auth() :: #{
+    username := binary(),
+    password := binary()
+}.
+-type response_body() ::
+    boolean() | integer() | float() | binary() | [response_body()] | #{binary() => response_body()}.
 -type client_config() :: #{
     host := binary(),
     port => integer(),
@@ -48,11 +53,7 @@
     headers => [{binary(), binary()}],
     query_parameters => [{binary(), binary()}],
     body => binary() | map(),
-    timeout => non_neg_integer(),
-    auth => #{
-        username := binary(),
-        password := binary()
-    },
+    auth => basic_auth(),
     path => binary(),
     method =>
         get
@@ -66,10 +67,13 @@
         | connect
         | binary()
 }.
+-type req_opts() :: #{
+    timeout => non_neg_integer()
+}.
 -type response() :: #{
     status := inet:status_code(),
     headers => [{binary(), term()}],
-    body => undefined | #{binary() => term()} | binary()
+    body => undefined | response_body()
 }.
 
 %%% MACROS
@@ -139,23 +143,15 @@ stop(Name) ->
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec request(Name) -> Result when
-    Name :: atom(),
-    Result :: {ok, Response} | {error, Reason},
-    Response :: response(),
-    Reason :: term().
-%% @equiv request(Name, #{})
-request(Name) ->
-    request(Name, #{}).
-
--spec request(Name, Config) -> Result when
+-spec request(Name, Config, Opts) -> Result when
     Name :: atom(),
     Config :: req_config(),
+    Opts :: req_opts(),
     Result :: {ok, Response} | {error, Reason},
     Response :: response(),
     Reason :: term().
 %% @doc Sends a request.
-request(Name, Config) ->
+request(Name, Config, Opts) ->
     case persistent_term:get(?PERSISTENT_TERM(Name), undefined) of
         undefined ->
             {error, {restcheck_client_not_started, Name}};
@@ -189,8 +185,6 @@ request(Name, Config) ->
             RawHeaders = maps:get(headers, Config, []),
             Headers =
                 case maps:get(auth, Config, undefined) of
-                    undefined ->
-                        RawHeaders;
                     #{username := Username, password := Password} ->
                         [
                             {
@@ -199,10 +193,18 @@ request(Name, Config) ->
                                     (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
                             }
                             | RawHeaders
-                        ]
+                        ];
+                    _Auth ->
+                        RawHeaders
                 end,
             Body = body(maps:get(body, Config, <<>>)),
-            Timeout = maps:get(timeout, Config, 5000),
+            Timeout =
+                case maps:get(timeout, Opts, undefined) of
+                    undefined ->
+                        5000;
+                    TimeoutOpt ->
+                        TimeoutOpt
+                end,
             BuoyUrl = #buoy_url{
                 protocol = Protocol,
                 hostname = Host,
@@ -256,7 +258,7 @@ init([Name, ClientConfig]) ->
             http ->
                 ?SOCKET_OPTIONS;
             https ->
-                ?SOCKET_OPTIONS ++ [{log_level, error}]
+                [{log_level, error} | ?SOCKET_OPTIONS]
         end,
     case buoy_pool:start(BuoyUrl, [{socket_options, SocketOptions}]) of
         ok ->
@@ -268,11 +270,13 @@ init([Name, ClientConfig]) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
-body(Map) when is_map(Map) ->
-    njson:encode(Map);
+body(Body) when is_binary(Body) ->
+    Body;
 body(Body) ->
-    Body.
+    njson:encode(Body).
 
+body(_ContentType, undefined) ->
+    undefined;
 body(<<"application/json">>, BuoyBody) ->
     njson:decode(BuoyBody);
 body(_ContentType, BuoyBody) ->
@@ -308,7 +312,7 @@ method(trace) ->
 method(connect) ->
     {custom, <<"CONNECT">>};
 method(Other) ->
-    Other.
+    {custom, Other}.
 
 protocol(true) ->
     https;
