@@ -38,6 +38,7 @@
 ]).
 
 %%% TYPES
+-type auth() :: basic_auth().
 -type basic_auth() :: #{
     username := binary(),
     password := binary()
@@ -53,7 +54,7 @@
     headers => [{binary(), binary()}],
     query_parameters => [{binary(), binary()}],
     body => binary() | map(),
-    auth => basic_auth(),
+    auth => auth(),
     path => binary(),
     method =>
         get
@@ -75,6 +76,11 @@
     headers => [{binary(), term()}],
     body => undefined | response_body()
 }.
+
+%%% EXPORT TYPES
+-export_type([
+    auth/0
+]).
 
 %%% MACROS
 -define(PERSISTENT_TERM(Name),

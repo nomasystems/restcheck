@@ -3,6 +3,6 @@
         "An automatic REST API contract testing tool based on property-based testing techniques"},
     {vsn, "0.0.1"},
     {registered, []},
-    {applications, [kernel, stdlib, buoy, ndto, njson]},
+    {applications, [kernel, stdlib, buoy, erf, ndto, njson]},
     {env, []}
 ]}.
