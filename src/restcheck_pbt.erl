@@ -34,6 +34,7 @@
     backend/0,
     generator/0,
     property/0,
+    prop/0,
     schema/0
 ]).
 

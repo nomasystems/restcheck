@@ -335,7 +335,7 @@ one_of(#{<<"oneOf">> := Subschemas}, MaxDepth) ->
 string(#{<<"pattern">> := _Pattern}) ->
     erlang:throw(not_implemented);
 string(Schema) ->
-    MinLength = maps:get(<<"minLength">>, Schema, 0),
+    MinLength = maps:get(<<"minLength">>, Schema, 1),
     MaxLength = maps:get(<<"maxLength">>, Schema, 255),
     Format = maps:get(<<"format">>, Schema, undefined),
     triq_dom:bind(
