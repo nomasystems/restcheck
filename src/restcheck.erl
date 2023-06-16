@@ -11,11 +11,48 @@
 %% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %% See the License for the specific language governing permissions and
 %% limitations under the License
+
+%% @doc <code>restcheck</code>'s main module.
 -module(restcheck).
 
 %%% EXTERNAL EXPORTS
--export([]).
+-export([
+    test/1
+]).
+
+%%% TYPES
+-type conf() :: #{
+    spec_path := binary(),
+    spec_format => erf:spec_format(),
+    pbt_backend := restcheck_pbt:backend(),
+    host => binary(),
+    port => inet:port_number(),
+    ssl => boolean(),
+    certfile => binary(),
+    keyfile => binary(),
+    auth => restcheck_client:auth(),
+    timeout => non_neg_integer()
+}.
+
+%%% EXPORT TYPES
+-export_type([
+    conf/0
+]).
 
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
+-spec test(Conf) -> Result when
+    Conf :: conf(),
+    Result :: ok | {error, Reason},
+    Reason :: term().
+test(Conf) ->
+    SpecPath = maps:get(spec_path, Conf),
+    SpecFormat = maps:get(spec_format, Conf, oas_3_0),
+    case erf_parser:parse(SpecPath, SpecFormat) of
+        {ok, API} ->
+            Backend = maps:get(pbt_backend, Conf),
+            restcheck_runner:run(Conf, API, Backend);
+        {error, Reason} ->
+            {error, Reason}
+    end.

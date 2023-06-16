@@ -61,7 +61,7 @@ forall(Backend, Generators, Prop) ->
 -spec quickcheck(Backend, Property) -> Result when
     Backend :: backend(),
     Property :: property(),
-    Result :: ok | {error, Reason},
+    Result :: true | {false, Reason},
     Reason :: term().
 %% @doc Runs a property-based test using the given backend.
 quickcheck(Backend, Property) ->
