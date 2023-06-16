@@ -7,7 +7,7 @@
     <meta name="generator" content="ExDoc v0.29.1">
     <meta name="project" content="restcheck v0.0.1">
 
-    <title>restcheck_backend — restcheck v0.0.1</title>
+    <title>restcheck_suite — restcheck v0.0.1</title>
     <link rel="stylesheet" href="dist/html-erlang-6FXMBT73.css" />
 
 
@@ -21,7 +21,7 @@
 
 
   </head>
-  <body data-type="modules" class="page-behaviour">
+  <body data-type="modules" class="page-module">
     <script>
 
       try {
@@ -96,16 +96,20 @@ restcheck
 </button>
 
 
-    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L14" title="View Source" class="icon-action" rel="help">
+    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_suite.erl#L16" title="View Source" class="icon-action" rel="help">
       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
       <span class="sr-only">View Source</span>
     </a>
 
-  <span translate="no">restcheck_backend</span> <small>behaviour</small>
+  <span translate="no">restcheck_suite</span> 
   <small class="app-vsn" translate="no">(restcheck v0.0.1)</small>
 
 </h1>
 
+
+  <section id="moduledoc">
+Test suite generation interface for <a href="restcheck.html"><code>restcheck</code></a>.
+  </section>
 
 
   <section id="summary" class="details-list">
@@ -127,43 +131,41 @@ restcheck
 
       </div>
 
-        <div class="summary-synopsis">A module that implements this behaviour.</div>
-
     </div>
 
 </div>
-<div class="summary-callbacks summary">
+<div class="summary-functions summary">
   <h2>
-    <a href="#callbacks">Callbacks</a>
+    <a href="#functions">Functions</a>
   </h2>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:dto/1" translate="no">dto/1</a>
+        <a href="#generate/1" translate="no">generate(API)</a>
 
       </div>
 
-        <div class="summary-synopsis">Returns a DTO generator from a given schema.</div>
+        <div class="summary-synopsis">Generates a <a href="restcheck.html"><code>restcheck</code></a> test suite from an API AST.</div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:forall/2" translate="no">forall/2</a>
+        <a href="#load/1" translate="no">load(Suite)</a>
 
       </div>
 
-        <div class="summary-synopsis">Wraps a forall property.</div>
+        <div class="summary-synopsis"><p>Equivalent to <a href="#load/2">load(Suite, [])</a>.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:quickcheck/1" translate="no">quickcheck/1</a>
+        <a href="#load/2" translate="no">load(Suite, Options)</a>
 
       </div>
 
-        <div class="summary-synopsis">Runs a property-based test.</div>
+        <div class="summary-synopsis">Loads a <a href="restcheck.html"><code>restcheck</code></a> test suite into the Erlang Runtime System</div>
 
     </div>
 
@@ -190,7 +192,7 @@ Types
     </a>
     <h1 class="signature" translate="no">t/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L17" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_suite.erl#L29" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -202,36 +204,36 @@ Types
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-type</span> t() :: module().</pre>
+          <pre translate="no"><span class="attribute">-type</span> t() :: erl_syntax:syntaxTree().</pre>
 
       </div>
 
-A module that implements this behaviour.
+
   </section>
 </section>
 
     </div>
   </section>
 
-  <section id="callbacks" class="details-list">
+  <section id="functions" class="details-list">
     <h1 class="section-heading">
-      <a class="hover-link" href="#callbacks">
+      <a class="hover-link" href="#functions">
         <i class="ri-link-m" aria-hidden="true"></i>
         <span class="sr-only">Link to this section</span>
       </a>
-Callbacks
+Functions
     </h1>
-    <div class="callbacks-list">
-<section class="detail" id="c:dto/1">
+    <div class="functions-list">
+<section class="detail" id="generate/1">
 
   <div class="detail-header">
-    <a href="#c:dto/1" class="detail-link" title="Link to this callback">
+    <a href="#generate/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this callback</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">dto/1</h1>
+    <h1 class="signature" translate="no">generate(API)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L26" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_suite.erl#L40" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -243,24 +245,28 @@ Callbacks
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-callback</span> dto(Schema) -> Generator
-       when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> generate(API) -> Result
+            when
+                API :: <a href="https://hexdocs.pm/erf/erf_parser.html#t:api/0">erf_parser:api</a>(),
+                Result :: {ModuleName, Suite},
+                ModuleName :: module(),
+                Suite :: <a href="#t:t/0">t</a>().</pre>
 
       </div>
 
-Returns a DTO generator from a given schema.
+Generates a <a href="restcheck.html"><code>restcheck</code></a> test suite from an API AST.
   </section>
 </section>
-<section class="detail" id="c:forall/2">
+<section class="detail" id="load/1">
 
   <div class="detail-header">
-    <a href="#c:forall/2" class="detail-link" title="Link to this callback">
+    <a href="#load/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this callback</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">forall/2</h1>
+    <h1 class="signature" translate="no">load(Suite)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L31" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_suite.erl#L173" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -272,27 +278,28 @@ Returns a DTO generator from a given schema.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-callback</span> forall(Generators, Prop) -> ForAll
-          when
-              Generators :: [<a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>()],
-              Prop :: <a href="restcheck_pbt.html#t:prop/0">restcheck_pbt:prop</a>(),
-              ForAll :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> load(Suite) -> Result
+        when
+            Suite :: <a href="#t:t/0">t</a>(),
+            Result :: ok | {ok, Warnings} | error | {error, {Errors, Warnings}},
+            Errors :: [term()],
+            Warnings :: [term()].</pre>
 
       </div>
 
-Wraps a forall property.
+<p>Equivalent to <a href="#load/2">load(Suite, [])</a>.</p>
   </section>
 </section>
-<section class="detail" id="c:quickcheck/1">
+<section class="detail" id="load/2">
 
   <div class="detail-header">
-    <a href="#c:quickcheck/1" class="detail-link" title="Link to this callback">
+    <a href="#load/2" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this callback</span>
+      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">quickcheck/1</h1>
+    <h1 class="signature" translate="no">load(Suite, Options)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L37" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_suite.erl#L183" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -304,15 +311,17 @@ Wraps a forall property.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-callback</span> quickcheck(Property) -> Result
-              when
-                  Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
-                  Result :: ok | {error, Reason},
-                  Reason :: term().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> load(Suite, Options) -> Result
+        when
+            Suite :: <a href="#t:t/0">t</a>(),
+            Options :: [<a href="https://www.erlang.org/doc/man/compile.html#type-option">compile:option</a>()],
+            Result :: ok | {ok, Warnings} | error | {error, {Errors, Warnings}},
+            Errors :: [term()],
+            Warnings :: [term()].</pre>
 
       </div>
 
-Runs a property-based test.
+Loads a <a href="restcheck.html"><code>restcheck</code></a> test suite into the Erlang Runtime System
   </section>
 </section>
 
@@ -327,7 +336,7 @@ Runs a property-based test.
 
               <a href="https://preview.hex.pm/preview/restcheck/0.0.1">Hex Preview</a>
 
-                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck_backend.erl">current file</a>)
+                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck_suite.erl">current file</a>)
 
             </span>
 

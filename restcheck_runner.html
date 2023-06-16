@@ -7,7 +7,7 @@
     <meta name="generator" content="ExDoc v0.29.1">
     <meta name="project" content="restcheck v0.0.1">
 
-    <title>restcheck — restcheck v0.0.1</title>
+    <title>restcheck_runner — restcheck v0.0.1</title>
     <link rel="stylesheet" href="dist/html-erlang-6FXMBT73.css" />
 
 
@@ -96,20 +96,16 @@ restcheck
 </button>
 
 
-    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L16" title="View Source" class="icon-action" rel="help">
+    <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_runner.erl#L14" title="View Source" class="icon-action" rel="help">
       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
       <span class="sr-only">View Source</span>
     </a>
 
-  <span translate="no">restcheck</span> 
+  <span translate="no">restcheck_runner</span> 
   <small class="app-vsn" translate="no">(restcheck v0.0.1)</small>
 
 </h1>
 
-
-  <section id="moduledoc">
-<a href="restcheck.html#content"><code>restcheck</code></a>'s main module.
-  </section>
 
 
   <section id="summary" class="details-list">
@@ -120,20 +116,6 @@ restcheck
       </a>
       Summary
     </h1>
-<div class="summary-types summary">
-  <h2>
-    <a href="#types">Types</a>
-  </h2>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:conf/0" translate="no">conf/0</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -141,7 +123,7 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#test/1" translate="no">test(Conf)</a>
+        <a href="#run/3" translate="no">run(Conf, API, Backend)</a>
 
       </div>
 
@@ -151,57 +133,6 @@ restcheck
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h1 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-        <span class="sr-only">Link to this section</span>
-      </a>
-Types
-    </h1>
-    <div class="types-list">
-<section class="detail" id="t:conf/0">
-
-  <div class="detail-header">
-    <a href="#t:conf/0" class="detail-link" title="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this type</span>
-    </a>
-    <h1 class="signature" translate="no">conf/0</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L24" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
-
-
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">-type</span> conf() ::
-    #{spec_path := binary(),
-      spec_format => <a href="https://hexdocs.pm/erf/erf.html#t:spec_format/0">erf:spec_format</a>(),
-      pbt_backend := <a href="restcheck_pbt.html#t:backend/0">restcheck_pbt:backend</a>(),
-      host => binary(),
-      port => <a href="https://www.erlang.org/doc/man/inet.html#type-port_number">inet:port_number</a>(),
-      ssl => boolean(),
-      certfile => binary(),
-      keyfile => binary(),
-      auth => <a href="restcheck_client.html#t:auth/0">restcheck_client:auth</a>(),
-      timeout => non_neg_integer()}.</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
@@ -212,16 +143,16 @@ Types
 Functions
     </h1>
     <div class="functions-list">
-<section class="detail" id="test/1">
+<section class="detail" id="run/3">
 
   <div class="detail-header">
-    <a href="#test/1" class="detail-link" title="Link to this function">
+    <a href="#run/3" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">test(Conf)</h1>
+    <h1 class="signature" translate="no">run(Conf, API, Backend)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L49" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_runner.erl#L38" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -233,7 +164,13 @@ Functions
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> test(Conf) -> Result when Conf :: <a href="#t:conf/0">conf</a>(), Result :: ok | {error, Reason}, Reason :: term().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> run(Conf, API, Backend) -> Result
+       when
+           Conf :: <a href="restcheck.html#t:conf/0">restcheck:conf</a>(),
+           API :: <a href="https://hexdocs.pm/erf/erf.html#t:api/0">erf:api</a>(),
+           Backend :: <a href="restcheck_pbt.html#t:backend/0">restcheck_pbt:backend</a>(),
+           Result :: ok | {error, Reason},
+           Reason :: term().</pre>
 
       </div>
 
@@ -252,7 +189,7 @@ Functions
 
               <a href="https://preview.hex.pm/preview/restcheck/0.0.1">Hex Preview</a>
 
-                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck.erl">current file</a>)
+                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck_runner.erl">current file</a>)
 
             </span>
 
