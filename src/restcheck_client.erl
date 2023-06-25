@@ -43,8 +43,8 @@
     username := binary(),
     password := binary()
 }.
--type response_body() ::
-    boolean() | integer() | float() | binary() | [response_body()] | #{binary() => response_body()}.
+-type request_body() :: njson:t().
+-type response_body() :: njson:t().
 -type client_config() :: #{
     host := binary(),
     port => integer(),
@@ -53,7 +53,7 @@
 -type req_config() :: #{
     headers => [{binary(), binary()}],
     query_parameters => [{binary(), binary()}],
-    body => binary() | map(),
+    body => request_body(),
     auth => auth(),
     path => binary(),
     method =>
@@ -73,8 +73,8 @@
 }.
 -type response() :: #{
     status := inet:status_code(),
-    headers => [{binary(), term()}],
-    body => undefined | response_body()
+    headers => [{binary(), binary()}],
+    body => response_body()
 }.
 
 %%% EXPORT TYPES
@@ -276,8 +276,6 @@ init([Name, ClientConfig]) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
-body(Body) when is_binary(Body) ->
-    Body;
 body(Body) ->
     njson:encode(Body).
 

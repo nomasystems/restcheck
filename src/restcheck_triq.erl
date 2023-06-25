@@ -24,7 +24,7 @@
     dto/1,
     dto/2,
     forall/2,
-    quickcheck/1
+    quickcheck/2
 ]).
 
 %%% TYPES
@@ -74,17 +74,19 @@ dto(_Schema, MaxDepth) ->
     Generators :: [restcheck_pbt:generator()],
     Prop :: restcheck_pbt:prop(),
     ForAll :: restcheck_pbt:property().
+%% @doc Wraps a <code>forall</code> property in <code>triq</code> format.
 forall(Generators, Prop) ->
     %% TODO: explore ways to stringify prop patterns and body
     {'prop:forall', Generators, "Generated", Prop, "begin property_body end"}.
 
--spec quickcheck(Property) -> Result when
+-spec quickcheck(Property, NumTests) -> Result when
     Property :: restcheck_pbt:property(),
+    NumTests :: restcheck_pbt:num_tests(),
     Result :: ok | {error, Reason},
     Reason :: term().
 %% @doc Runs a property-based test using <code>triq</code>.
-quickcheck(Property) ->
-    triq:quickcheck(Property).
+quickcheck(Property, NumTests) ->
+    triq:quickcheck({'prop:numtests', NumTests, Property}).
 
 %%%-----------------------------------------------------------------------------
 %%% GENERATORS

@@ -23,15 +23,14 @@
 %%% TYPES
 -type conf() :: #{
     spec_path := binary(),
-    spec_format => erf:spec_format(),
-    pbt_backend := restcheck_pbt:backend(),
+    spec_parser => module(),
+    pbt_backend => restcheck_pbt:backend(),
     host => binary(),
     port => inet:port_number(),
     ssl => boolean(),
-    certfile => binary(),
-    keyfile => binary(),
     auth => restcheck_client:auth(),
-    timeout => non_neg_integer()
+    timeout => non_neg_integer(),
+    num_requests => pos_integer()
 }.
 
 %%% EXPORT TYPES
@@ -48,10 +47,10 @@
     Reason :: term().
 test(Conf) ->
     SpecPath = maps:get(spec_path, Conf),
-    SpecFormat = maps:get(spec_format, Conf, oas_3_0),
-    case erf_parser:parse(SpecPath, SpecFormat) of
+    SpecParser = maps:get(spec_format, Conf, erf_oas_3_0),
+    case erf_parser:parse(SpecPath, SpecParser) of
         {ok, API} ->
-            Backend = maps:get(pbt_backend, Conf),
+            Backend = maps:get(pbt_backend, Conf, restcheck_triq),
             restcheck_runner:run(Conf, API, Backend);
         {error, Reason} ->
             {error, Reason}

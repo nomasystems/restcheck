@@ -34,8 +34,9 @@
     ForAll :: restcheck_pbt:property().
 %% Wraps a <code>forall</code> property.
 
--callback quickcheck(Property) -> Result when
+-callback quickcheck(Property, NumTests) -> Result when
     Property :: restcheck_pbt:property(),
+    NumTests :: restcheck_pbt:num_tests(),
     Result :: ok | {error, Reason},
     Reason :: term().
 %% Runs a property-based test.
