@@ -25,6 +25,12 @@
         utf8
     ))
 ).
+-define(PROP_NAME(OperationId),
+    (erlang:binary_to_atom(
+        erf_util:to_snake_case(<<"prop_", (OperationId)/binary>>),
+        utf8
+    ))
+).
 
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
@@ -37,7 +43,11 @@
     Reason :: term().
 run(Conf, API, Backend) ->
     ClientName = ?CLIENT_NAME(maps:get(name, API)),
-    TestOpts = #{},
+    NumRequests = maps:get(num_requests, Conf, 100),
+    TestOpts = #{
+        auth => maps:get(auth, Conf, undefined),
+        timeout => maps:get(timeout, Conf, 5000)
+    },
     Host = maps:get(host, Conf, <<"localhost">>),
     Port = maps:get(port, Conf, 8080),
     SSL = maps:get(ssl, Conf, false),
@@ -56,15 +66,10 @@ run(Conf, API, Backend) ->
             lists:foreach(
                 fun(Operation) ->
                     OperationId = maps:get(id, Operation),
-                    Function = erlang:binary_to_atom(
-                        erf_util:to_snake_case(<<"prop_", OperationId/binary>>),
-                        utf8
-                    ),
-                    % TODO: Add a way to configure the number of tests
-                    ForAll = SuiteName:Function(Backend, ClientName, TestOpts),
+                    Property = ?PROP_NAME(OperationId),
+                    ForAll = SuiteName:Property(Backend, ClientName, TestOpts),
                     % TODO: Improve the result reporting
-                    true = restcheck_pbt:quickcheck(Backend, ForAll),
-                    ok
+                    restcheck_pbt:quickcheck(Backend, ForAll, NumRequests)
                 end,
                 maps:get(operations, Endpoint, [])
             )

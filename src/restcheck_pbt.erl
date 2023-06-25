@@ -19,12 +19,13 @@
 -export([
     dto/2,
     forall/3,
-    quickcheck/2
+    quickcheck/3
 ]).
 
 %%% TYPES
 -type backend() :: restcheck_backend:t().
 -type generator() :: term().
+-type num_tests() :: pos_integer().
 -type prop() :: fun((term()) -> boolean()).
 -type property() :: term().
 -type schema() :: ndto:schema().
@@ -33,6 +34,7 @@
 -export_type([
     backend/0,
     generator/0,
+    num_tests/0,
     property/0,
     prop/0,
     schema/0
@@ -58,11 +60,12 @@ dto(Backend, Schema) ->
 forall(Backend, Generators, Prop) ->
     Backend:forall(Generators, Prop).
 
--spec quickcheck(Backend, Property) -> Result when
+-spec quickcheck(Backend, Property, NumTests) -> Result when
     Backend :: backend(),
     Property :: property(),
+    NumTests :: num_tests(),
     Result :: true | {false, Reason},
     Reason :: term().
 %% @doc Runs a property-based test using the given backend.
-quickcheck(Backend, Property) ->
-    Backend:quickcheck(Property).
+quickcheck(Backend, Property, NumTests) ->
+    Backend:quickcheck(Property, NumTests).

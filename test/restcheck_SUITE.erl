@@ -13,6 +13,9 @@
 %% limitations under the License
 -module(restcheck_SUITE).
 
+%%% INCLUDE FILES
+-include_lib("stdlib/include/assert.hrl").
+
 %%% EXTERNAL EXPORTS
 -compile([export_all, nowarn_export_all]).
 
@@ -116,15 +119,25 @@ petstore(_Conf) ->
         spec_path => unicode:characters_to_binary(
             code:priv_dir(restcheck) ++ "/oas/3.0/examples/petstore.json"
         ),
-        spec_format => oas_3_0,
+        spec_format => erf_oas_3_0,
         pbt_backend => restcheck_triq,
         host => <<"localhost">>,
         port => 8080,
         ssl => false,
-        timeout => 5000
+        timeout => 5000,
+        num_requests => 10
     },
 
-    ok = restcheck:test(Conf),
+    meck:new([restcheck_client], [passthrough]),
+
+    ?assertEqual(ok, restcheck:test(Conf)),
+
+    ?assertEqual(
+        10,
+        meck:num_calls(restcheck_client, request, ['_', #{path => <<"/pets">>, method => get}, '_'])
+    ),
+
+    meck:unload(restcheck_client),
 
     ok.
 
