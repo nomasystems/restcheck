@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-65357A63.js"></script>
+    <script src="dist/sidebar_items-4727B6F1.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -184,15 +184,14 @@ Types
 
           <pre translate="no"><span class="attribute">-type</span> conf() ::
     #{spec_path := binary(),
-      spec_format => <a href="https://hexdocs.pm/erf/erf.html#t:spec_format/0">erf:spec_format</a>(),
-      pbt_backend := <a href="restcheck_pbt.html#t:backend/0">restcheck_pbt:backend</a>(),
+      spec_parser => module(),
+      pbt_backend => <a href="restcheck_pbt.html#t:backend/0">restcheck_pbt:backend</a>(),
       host => binary(),
       port => <a href="https://www.erlang.org/doc/man/inet.html#type-port_number">inet:port_number</a>(),
       ssl => boolean(),
-      certfile => binary(),
-      keyfile => binary(),
       auth => <a href="restcheck_client.html#t:auth/0">restcheck_client:auth</a>(),
-      timeout => non_neg_integer()}.</pre>
+      timeout => non_neg_integer(),
+      num_requests => pos_integer()}.</pre>
 
       </div>
 
@@ -221,7 +220,7 @@ Functions
     </a>
     <h1 class="signature" translate="no">test(Conf)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L49" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L48" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
