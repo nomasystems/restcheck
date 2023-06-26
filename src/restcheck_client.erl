@@ -172,7 +172,21 @@ request(Name, Config, Opts) ->
                 case maps:get(query_parameters, Config, undefined) of
                     undefined ->
                         RawPath;
-                    QueryParameters ->
+                    RawQueryParameters ->
+                        QueryParameters =
+                            lists:map(
+                                fun
+                                    ({Key, Atom}) when is_atom(Atom) ->
+                                        {Key, erlang:atom_to_binary(Atom)};
+                                    ({Key, Integer}) when is_integer(Integer) ->
+                                        {Key, erlang:integer_to_binary(Integer)};
+                                    ({Key, Float}) when is_float(Float) ->
+                                        {Key, erlang:float_to_binary(Float)};
+                                    ({Key, Value}) ->
+                                        {Key, Value}
+                                end,
+                                RawQueryParameters
+                            ),
                         QueryString =
                             case uri_string:compose_query(QueryParameters) of
                                 Binary when is_binary(Binary) ->

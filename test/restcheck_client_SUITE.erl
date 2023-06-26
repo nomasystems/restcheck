@@ -112,16 +112,15 @@ request(_Conf) ->
         restcheck_client:request(
             restcheck_client,
             #{
-                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, <<"1">>}]
+                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 1}]
             },
             #{}
         ),
-    % Invalid query parameter (must be binary)
     {ok, #{status := 400, body := undefined}} =
         restcheck_client:request(
             restcheck_client,
             #{
-                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 1}]
+                path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 2}]
             },
             #{}
         ),
