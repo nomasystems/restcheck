@@ -113,6 +113,7 @@ quickcheck(Property, NumTests, OutputFun) ->
 -spec report(Event, Term) -> ok when
     Event :: testing | pass | skip | fail | check_failed | counterexample | success,
     Term :: term().
+%% @private
 report(Event, Term) ->
     Fun = application:get_env(triq, reporter_output_fun, fun io:format/2),
     do_report(Fun, Event, Term).
@@ -121,6 +122,7 @@ report(Event, Term) ->
     Event :: testing | pass | skip | fail | check_failed | counterexample | success,
     Term :: term(),
     IsShrinking :: boolean().
+%% @private
 report(_Subject, _Data, true) -> ok;
 report(Subject, Data, false) -> report(Subject, Data).
 
