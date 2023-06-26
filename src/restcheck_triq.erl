@@ -52,6 +52,8 @@ dto(Schema) ->
     Schema :: restcheck_pbt:schema(),
     Generator :: restcheck_pbt:generator().
 %% @doc Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
+dto(undefined, _MaxDepth) ->
+    'undefined'();
 dto(#{<<"enum">> := _Enum} = Schema, _MaxDepth) ->
     enum(Schema);
 dto(#{<<"type">> := <<"boolean">>} = Schema, _MaxDepth) ->
@@ -443,6 +445,9 @@ string_format(<<"iso8601-datetime">>, _Length) ->
             )
         end
     ).
+
+'undefined'() ->
+    triq_dom:return(undefined).
 
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS

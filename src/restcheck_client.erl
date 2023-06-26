@@ -202,7 +202,10 @@ request(Name, Config, Opts) ->
                             end,
                         <<RawPath/binary, "?", (QueryString)/binary>>
                 end,
-            RawHeaders = maps:get(headers, Config, []),
+            RawHeaders = [
+                {<<"content-type">>, <<"application/json">>}
+                | maps:get(headers, Config, [])
+            ],
             Headers =
                 case maps:get(auth, Config, undefined) of
                     #{username := Username, password := Password} ->
