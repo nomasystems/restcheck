@@ -70,14 +70,22 @@ generate(API) ->
                                     )
                                 ),
                                 Schema = schema_ast(maps:get(Ref, Schemas)),
-                                Generator = erl_syntax:application(
-                                    erl_syntax:atom(restcheck_pbt),
-                                    erl_syntax:atom(dto),
-                                    [
-                                        erl_syntax:variable('Backend'),
-                                        Schema
-                                    ]
-                                ),
+                                Generator =
+                                    erl_syntax:application(
+                                        erl_syntax:atom(restcheck_pbt),
+                                        erl_syntax:atom(noshrink),
+                                        [
+                                            erl_syntax:variable('Backend'),
+                                            erl_syntax:application(
+                                                erl_syntax:atom(restcheck_pbt),
+                                                erl_syntax:atom(dto),
+                                                [
+                                                    erl_syntax:variable('Backend'),
+                                                    Schema
+                                                ]
+                                            )
+                                        ]
+                                    ),
                                 {[Value | ValuesAcc], [Generator | GeneratorsAcc]}
                             end,
                             {[], []},
@@ -100,7 +108,7 @@ generate(API) ->
                     {Values, Generators} = {[RequestBodyValue | RawValues], [
                         RequestBodyGenerator | RawGenerators
                     ]},
-                    Prop = prop_ast(PropName, Path, Method, Parameters, RequestBody, Responses),
+                    Prop = prop_ast(Path, Method, Parameters, RequestBody, Responses),
                     erl_syntax:function(
                         erl_syntax:atom(PropName),
                         [
@@ -280,15 +288,14 @@ path_ast([$} | Rest], Acc, StepAcc) ->
 path_ast([C | Rest], Acc, StepAcc) ->
     path_ast(Rest, Acc, [C | StepAcc]).
 
--spec prop_ast(PropName, RawPath, Method, Parameters, RequestBody, Responses) -> PropAST when
-    PropName :: atom(),
+-spec prop_ast(RawPath, Method, Parameters, RequestBody, Responses) -> PropAST when
     RawPath :: binary(),
     Method :: atom(),
     Parameters :: [erf_parser:parameter()],
     RequestBody :: erf_parser:ref(),
     Responses :: #{'*' | 100..599 => erf_parser:ref()},
     PropAST :: [erl_syntax:syntaxTree()].
-prop_ast(PropName, RawPath, Method, Parameters, RequestBody, Responses) ->
+prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
     Path = path_ast(RawPath),
     Headers = lists:filter(
         fun
@@ -326,8 +333,8 @@ prop_ast(PropName, RawPath, Method, Parameters, RequestBody, Responses) ->
                                 erl_syntax:tuple([
                                     erl_syntax:atom(false),
                                     erl_syntax:tuple([
-                                        erl_syntax:atom(PropName),
-                                        erl_syntax:atom(invalid_response_body)
+                                        erl_syntax:atom(invalid_response_body),
+                                        erl_syntax:variable('ResponseBody')
                                     ])
                                 ])
                             ]
@@ -502,45 +509,101 @@ prop_ast(PropName, RawPath, Method, Parameters, RequestBody, Responses) ->
                     [
                         erl_syntax:case_expr(
                             erl_syntax:variable('ResponseStatus'),
-                            lists:map(
-                                fun({StatusCode, Ref}) ->
-                                    erl_syntax:clause(
-                                        [erl_syntax:integer(StatusCode)],
-                                        none,
-                                        [
-                                            erl_syntax:case_expr(
-                                                erl_syntax:application(
-                                                    erl_syntax:atom(erlang:binary_to_atom(Ref)),
-                                                    erl_syntax:atom(is_valid),
-                                                    [
-                                                        erl_syntax:variable('ResponseBody')
-                                                    ]
+                            [
+                                erl_syntax:clause(
+                                    [erl_syntax:integer(400)],
+                                    none,
+                                    [
+                                        erl_syntax:tuple([
+                                            erl_syntax:atom(false),
+                                            erl_syntax:tuple([
+                                                erl_syntax:atom(
+                                                    'bad_request'
                                                 ),
-                                                [
-                                                    erl_syntax:clause(
-                                                        [erl_syntax:atom(false)],
-                                                        none,
+                                                erl_syntax:variable('ReqConfig')
+                                            ])
+                                        ])
+                                    ]
+                                ),
+                                erl_syntax:clause(
+                                    [erl_syntax:integer(405)],
+                                    none,
+                                    [
+                                        erl_syntax:tuple([
+                                            erl_syntax:atom(false),
+                                            erl_syntax:tuple([
+                                                erl_syntax:atom(
+                                                    'method_not_allowed'
+                                                ),
+                                                erl_syntax:tuple([
+                                                    erl_syntax:variable('Path'),
+                                                    erl_syntax:variable('Method')
+                                                ])
+                                            ])
+                                        ])
+                                    ]
+                                ),
+                                erl_syntax:clause(
+                                    [erl_syntax:variable('ServerError')],
+                                    erl_syntax:infix_expr(
+                                        erl_syntax:variable('ServerError'),
+                                        erl_syntax:operator('>='),
+                                        erl_syntax:integer(500)
+                                    ),
+                                    [
+                                        erl_syntax:tuple([
+                                            erl_syntax:atom(false),
+                                            erl_syntax:tuple([
+                                                erl_syntax:atom(
+                                                    'server_error'
+                                                ),
+                                                erl_syntax:variable('ServerError')
+                                            ])
+                                        ])
+                                    ]
+                                )
+                                | lists:map(
+                                    fun({StatusCode, Ref}) ->
+                                        erl_syntax:clause(
+                                            [erl_syntax:integer(StatusCode)],
+                                            none,
+                                            [
+                                                erl_syntax:case_expr(
+                                                    erl_syntax:application(
+                                                        erl_syntax:atom(erlang:binary_to_atom(Ref)),
+                                                        erl_syntax:atom(is_valid),
                                                         [
-                                                            erl_syntax:tuple([
-                                                                erl_syntax:atom(false),
-                                                                erl_syntax:atom(
-                                                                    'invalid_response_body'
-                                                                )
-                                                            ])
+                                                            erl_syntax:variable('ResponseBody')
                                                         ]
                                                     ),
-                                                    erl_syntax:clause(
-                                                        [erl_syntax:atom(true)],
-                                                        none,
-                                                        [erl_syntax:atom(true)]
-                                                    )
-                                                ]
-                                            )
-                                        ]
-                                    )
-                                end,
-                                maps:to_list(StatusResponses)
-                            ) ++
+                                                    [
+                                                        erl_syntax:clause(
+                                                            [erl_syntax:atom(false)],
+                                                            none,
+                                                            [
+                                                                erl_syntax:tuple([
+                                                                    erl_syntax:atom(
+                                                                        'invalid_response_body'
+                                                                    ),
+                                                                    erl_syntax:variable(
+                                                                        'ResponseBody'
+                                                                    )
+                                                                ])
+                                                            ]
+                                                        ),
+                                                        erl_syntax:clause(
+                                                            [erl_syntax:atom(true)],
+                                                            none,
+                                                            [erl_syntax:atom(true)]
+                                                        )
+                                                    ]
+                                                )
+                                            ]
+                                        )
+                                    end,
+                                    maps:to_list(StatusResponses)
+                                )
+                            ] ++
                                 [
                                     erl_syntax:clause(
                                         [erl_syntax:variable('_Default')],

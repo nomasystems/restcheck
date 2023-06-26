@@ -24,7 +24,14 @@
     dto/1,
     dto/2,
     forall/2,
-    quickcheck/2
+    noshrink/1,
+    quickcheck/3
+]).
+
+%%% TRIQ REPORTER EXPORTS
+-export([
+    report/2,
+    report/3
 ]).
 
 %%% TYPES
@@ -79,14 +86,41 @@ forall(Generators, Prop) ->
     %% TODO: explore ways to stringify prop patterns and body
     {'prop:forall', Generators, "Generated", Prop, "begin property_body end"}.
 
--spec quickcheck(Property, NumTests) -> Result when
+-spec noshrink(Generator) -> NoShrinkGenerator when
+    Generator :: restcheck_pbt:generator(),
+    NoShrinkGenerator :: restcheck_pbt:generator().
+%% @doc Prevents a <code>triq</code> generator from shrinking.
+noshrink(Generator) ->
+    triq_dom:noshrink(Generator).
+
+-spec quickcheck(Property, NumTests, OutputFun) -> Result when
     Property :: restcheck_pbt:property(),
     NumTests :: restcheck_pbt:num_tests(),
+    OutputFun :: restcheck_pbt:output_fun(),
     Result :: ok | {error, Reason},
     Reason :: term().
 %% @doc Runs a property-based test using <code>triq</code>.
-quickcheck(Property, NumTests) ->
+quickcheck(Property, NumTests, OutputFun) ->
+    application:set_env(triq, reporter_module, ?MODULE),
+    application:set_env(triq, reporter_output_fun, OutputFun),
     triq:quickcheck({'prop:numtests', NumTests, Property}).
+
+%%%-----------------------------------------------------------------------------
+%%% TRIQ REPORTER EXPORTS
+%%%-----------------------------------------------------------------------------
+-spec report(Event, Term) -> ok when
+    Event :: testing | pass | skip | fail | check_failed | counterexample | success,
+    Term :: term().
+report(Event, Term) ->
+    Fun = application:get_env(triq, reporter_output_fun, fun io:format/2),
+    do_report(Fun, Event, Term).
+
+-spec report(Event, Term, IsShrinking) -> ok when
+    Event :: testing | pass | skip | fail | check_failed | counterexample | success,
+    Term :: term(),
+    IsShrinking :: boolean().
+report(_Subject, _Data, true) -> ok;
+report(Subject, Data, false) -> report(Subject, Data).
 
 %%%-----------------------------------------------------------------------------
 %%% GENERATORS
@@ -304,7 +338,7 @@ object([], true, Missing, MaxDepth, Acc) ->
 %%% currently it complains:
 %%% - The variable on line 232 at column 65 is expected to have type #{binary() => term()}
 %%% but it has type false | true | schema()
-object([], ExtraSchema, Missing, MaxDepth, Acc) when is_map(ExtraSchema) ->
+object([], ExtraSchema, Missing, MaxDepth, Acc) ->
     NewAcc =
         triq_dom:bind(
             {triq_dom:non_empty(triq_dom:unicode_binary()), dto(ExtraSchema, MaxDepth - 1), Acc},
@@ -335,7 +369,7 @@ one_of(#{<<"oneOf">> := Subschemas}, MaxDepth) ->
     Schema :: ndto:string_schema(),
     Dom :: restcheck_pbt:generator().
 string(#{<<"pattern">> := _Pattern}) ->
-    erlang:throw(not_implemented);
+    erlang:throw({restcheck_triq, pattern, not_implemented});
 string(Schema) ->
     MinLength = maps:get(<<"minLength">>, Schema, 1),
     MaxLength = maps:get(<<"maxLength">>, Schema, 255),
@@ -422,6 +456,29 @@ base64_chars() ->
             lists:seq(97, 122)
         ]
     ).
+
+do_report(Fun, testing, [Module, Fun]) ->
+    Fun("Testing ~p:~p/0~n", [Module, Fun]);
+do_report(Fun, pass, _) ->
+    Fun(".", []);
+do_report(Fun, skip, _) ->
+    Fun("x", []);
+do_report(Fun, fail, false) ->
+    Fun("Failed!~n", []);
+do_report(Fun, fail, Value) ->
+    Fun("Failed with: ~p~n", [Value]);
+do_report(Fun, check_failed, [Count, Error]) ->
+    Fun("~nFailed after ~p tests with ~p~n", [Count, Error]);
+do_report(Fun, counterexample, CounterExample) ->
+    Fun("Simplified:~n", []),
+    lists:foreach(
+        fun({Syntax, _Fun, Val, _Dom}) ->
+            Fun("\t~s = ~w~n", [Syntax, Val])
+        end,
+        CounterExample
+    );
+do_report(Fun, success, Count) ->
+    Fun("~nRan ~p tests~n", [Count]).
 
 multiples(MultipleOf, undefined, Max) ->
     multiples(MultipleOf, ?MIN_INT, Max);

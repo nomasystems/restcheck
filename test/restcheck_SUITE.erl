@@ -69,9 +69,13 @@ end_per_testcase(Case, Conf) ->
 %%% TEST CASES
 %%%-----------------------------------------------------------------------------
 petstore(_Conf) ->
-    Error = #{
+    ServerError = #{
         <<"code">> => 500,
         <<"message">> => <<"Internal Server Error">>
+    },
+    BadRequestError = #{
+        <<"code">> => 400,
+        <<"message">> => <<"Bad Request">>
     },
     meck:expect(
         restcheck_client_server,
@@ -83,34 +87,13 @@ petstore(_Conf) ->
                     #{<<"id">> => 2, <<"name">> => <<"Bar">>}
                 ],
                 {Code, Headers, Response} =
-                    lists:nth(
-                        rand:uniform(2),
-                        [
-                            {200, [{<<"x-next">>, <<"/pets?nextPage=2">>}], njson:encode(Pets)},
-                            {500, [], njson:encode(Error)}
-                        ]
-                    ),
+                    {200, [{<<"x-next">>, <<"/pets?nextPage=2">>}], njson:encode(Pets)},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response};
             ([<<"pets">>], 'POST', _Headers, _QueryParameters, _Body) ->
-                {Code, Headers, Response} =
-                    lists:nth(
-                        rand:uniform(2),
-                        [
-                            {201, [], njson:encode(undefined)},
-                            {500, [], njson:encode(Error)}
-                        ]
-                    ),
+                {Code, Headers, Response} = {500, [], njson:encode(ServerError)},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response};
             ([<<"pets">>, _PetId], 'GET', _Headers, _QueryParameters, _Body) ->
-                Pet = #{<<"id">> => 1, <<"name">> => <<"Foo">>},
-                {Code, Headers, Response} =
-                    lists:nth(
-                        rand:uniform(2),
-                        [
-                            {200, [], njson:encode(Pet)},
-                            {500, [], njson:encode(Error)}
-                        ]
-                    ),
+                {Code, Headers, Response} = {400, [], njson:encode(BadRequestError)},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response}
         end
     ),
@@ -130,7 +113,14 @@ petstore(_Conf) ->
 
     meck:new([restcheck_client], [passthrough]),
 
-    ?assertEqual(ok, restcheck:test(Conf)),
+    ?assertMatch(
+        {ok, [
+            {<<"list_pets">>, true},
+            {<<"create_pets">>, {false, {server_error, _InternalServerError}}},
+            {<<"show_pet_by_id">>, {false, {bad_request, _BadRequestError}}}
+        ]},
+        restcheck:run(Conf)
+    ),
 
     ?assertEqual(
         10,

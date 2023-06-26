@@ -19,14 +19,17 @@
 -export([
     dto/2,
     forall/3,
-    quickcheck/3
+    noshrink/2,
+    quickcheck/3,
+    quickcheck/4
 ]).
 
 %%% TYPES
 -type backend() :: restcheck_backend:t().
 -type generator() :: term().
 -type num_tests() :: pos_integer().
--type prop() :: fun((term()) -> boolean()).
+-type output_fun() :: fun((string(), [term()]) -> ok).
+-type prop() :: fun((term()) -> true | {false, Reason :: term()}).
 -type property() :: term().
 -type schema() :: ndto:schema().
 
@@ -35,6 +38,7 @@
     backend/0,
     generator/0,
     num_tests/0,
+    output_fun/0,
     property/0,
     prop/0,
     schema/0
@@ -60,12 +64,31 @@ dto(Backend, Schema) ->
 forall(Backend, Generators, Prop) ->
     Backend:forall(Generators, Prop).
 
+-spec noshrink(Backend, Generator) -> NoShrinkGenerator when
+    Backend :: backend(),
+    Generator :: generator(),
+    NoShrinkGenerator :: generator().
+%% @doc Disables shrinking for a given generator for a given backend.
+noshrink(Backend, Generator) ->
+    Backend:noshrink(Generator).
+
 -spec quickcheck(Backend, Property, NumTests) -> Result when
     Backend :: backend(),
     Property :: property(),
     NumTests :: num_tests(),
     Result :: true | {false, Reason},
     Reason :: term().
-%% @doc Runs a property-based test using the given backend.
+%% @equiv quickcheck(Backend, Property, NumTests, fun(Format, Data) -> io:format(Format, Data) end)
 quickcheck(Backend, Property, NumTests) ->
-    Backend:quickcheck(Property, NumTests).
+    quickcheck(Backend, Property, NumTests, fun(Format, Data) -> io:format(Format, Data) end).
+
+-spec quickcheck(Backend, Property, NumTests, OutputFun) -> Result when
+    Backend :: backend(),
+    Property :: property(),
+    NumTests :: num_tests(),
+    OutputFun :: output_fun(),
+    Result :: true | {false, Reason},
+    Reason :: term().
+%% @doc Runs a property-based test using the given backend.
+quickcheck(Backend, Property, NumTests, OutputFun) ->
+    Backend:quickcheck(Property, NumTests, OutputFun).
