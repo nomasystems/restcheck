@@ -434,14 +434,8 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
         ),
         erl_syntax:match_expr(
             erl_syntax:variable('Body'),
-            erl_syntax:application(
-                erl_syntax:atom('njson'),
-                erl_syntax:atom(encode),
-                [
-                    erl_syntax:variable(
-                        erlang:binary_to_atom(erf_util:to_pascal_case(RequestBody))
-                    )
-                ]
+            erl_syntax:variable(
+                erlang:binary_to_atom(erf_util:to_pascal_case(RequestBody))
             )
         ),
         erl_syntax:match_expr(
@@ -582,12 +576,15 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
                                                             none,
                                                             [
                                                                 erl_syntax:tuple([
-                                                                    erl_syntax:atom(
-                                                                        'invalid_response_body'
-                                                                    ),
-                                                                    erl_syntax:variable(
-                                                                        'ResponseBody'
-                                                                    )
+                                                                    erl_syntax:atom(false),
+                                                                    erl_syntax:tuple([
+                                                                        erl_syntax:atom(
+                                                                            'invalid_response_body'
+                                                                        ),
+                                                                        erl_syntax:variable(
+                                                                            'ResponseBody'
+                                                                        )
+                                                                    ])
                                                                 ])
                                                             ]
                                                         ),

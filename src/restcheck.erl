@@ -223,11 +223,11 @@ do(State) ->
                         false ->
                             ok;
                         true ->
-                            file_log(LogFile, "All restcheck tests passed for ~s. ~B/~B.", [
+                            file_log(LogFile, "All restcheck tests passed for ~s. (~B/~B)", [
                                 APIName, Passed, Passed
                             ])
                     end,
-                    rebar_api:info("All restcheck tests passed for ~s. ~B/~B.", [
+                    rebar_api:info("All restcheck tests passed for ~s. (~B/~B)", [
                         APIName, Passed, Passed
                     ]);
                 {Passed, Failed} ->
@@ -263,6 +263,8 @@ format_error({method_not_allowed, {_Path, _Method}}) ->
     "Method not allowed";
 format_error({server_error, _StatusCode}) ->
     "Server error";
+format_error({invalid_response_body, _RespondeBody}) ->
+    "Invalid response body";
 format_error(Reason) ->
     erlang:term_to_binary(Reason).
 

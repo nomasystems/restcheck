@@ -52,6 +52,8 @@ dto(Schema) ->
     Schema :: restcheck_pbt:schema(),
     Generator :: restcheck_pbt:generator().
 %% @doc Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
+dto(undefined, _MaxDepth) ->
+    'undefined'();
 dto(#{<<"enum">> := _Enum} = Schema, _MaxDepth) ->
     enum(Schema);
 dto(#{<<"type">> := <<"boolean">>} = Schema, _MaxDepth) ->
@@ -111,6 +113,7 @@ quickcheck(Property, NumTests, OutputFun) ->
 -spec report(Event, Term) -> ok when
     Event :: testing | pass | skip | fail | check_failed | counterexample | success,
     Term :: term().
+%% @private
 report(Event, Term) ->
     Fun = application:get_env(triq, reporter_output_fun, fun io:format/2),
     do_report(Fun, Event, Term).
@@ -119,6 +122,7 @@ report(Event, Term) ->
     Event :: testing | pass | skip | fail | check_failed | counterexample | success,
     Term :: term(),
     IsShrinking :: boolean().
+%% @private
 report(_Subject, _Data, true) -> ok;
 report(Subject, Data, false) -> report(Subject, Data).
 
@@ -443,6 +447,9 @@ string_format(<<"iso8601-datetime">>, _Length) ->
             )
         end
     ).
+
+'undefined'() ->
+    triq_dom:return(undefined).
 
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
