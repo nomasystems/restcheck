@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-4727B6F1.js"></script>
+    <script src="dist/sidebar_items-CCCA6497.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -167,11 +167,37 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#quickcheck/2" translate="no">quickcheck(Property, NumTests)</a>
+        <a href="#noshrink/1" translate="no">noshrink(Generator)</a>
+
+      </div>
+
+        <div class="summary-synopsis">Prevents a <code>triq</code> generator from shrinking.</div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#quickcheck/3" translate="no">quickcheck(Property, NumTests, OutputFun)</a>
 
       </div>
 
         <div class="summary-synopsis">Runs a property-based test using <code>triq</code>.</div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#report/2" translate="no">report(Event, Term)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#report/3" translate="no">report(Event, Term, IsShrinking)</a>
+
+      </div>
 
     </div>
 
@@ -198,7 +224,7 @@ Types
     </a>
     <h1 class="signature" translate="no">recursion_max_depth/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L31" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L38" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -239,7 +265,7 @@ Functions
     </a>
     <h1 class="signature" translate="no">dto(Schema)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L40" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L47" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -268,7 +294,7 @@ Functions
     </a>
     <h1 class="signature" translate="no">dto(Schema, MaxDepth)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L48" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L55" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -300,7 +326,7 @@ Returns a <code>triq</code> generator of DTOs from a given schema and maximum re
     </a>
     <h1 class="signature" translate="no">forall(Generators, Prop)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L78" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L85" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -323,16 +349,16 @@ Returns a <code>triq</code> generator of DTOs from a given schema and maximum re
 Wraps a <code>forall</code> property in <code>triq</code> format.
   </section>
 </section>
-<section class="detail" id="quickcheck/2">
+<section class="detail" id="noshrink/1">
 
   <div class="detail-header">
-    <a href="#quickcheck/2" class="detail-link" title="Link to this function">
+    <a href="#noshrink/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">quickcheck(Property, NumTests)</h1>
+    <h1 class="signature" translate="no">noshrink(Generator)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L88" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L93" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -344,16 +370,111 @@ Wraps a <code>forall</code> property in <code>triq</code> format.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> quickcheck(Property, NumTests) -> Result
+          <pre translate="no"><span class="attribute">-spec</span> noshrink(Generator) -> NoShrinkGenerator
+            when
+                Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>(),
+                NoShrinkGenerator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+
+      </div>
+
+Prevents a <code>triq</code> generator from shrinking.
+  </section>
+</section>
+<section class="detail" id="quickcheck/3">
+
+  <div class="detail-header">
+    <a href="#quickcheck/3" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">quickcheck(Property, NumTests, OutputFun)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L103" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> quickcheck(Property, NumTests, OutputFun) -> Result
               when
                   Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
                   NumTests :: <a href="restcheck_pbt.html#t:num_tests/0">restcheck_pbt:num_tests</a>(),
+                  OutputFun :: <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>(),
                   Result :: ok | {error, Reason},
                   Reason :: term().</pre>
 
       </div>
 
 Runs a property-based test using <code>triq</code>.
+  </section>
+</section>
+<section class="detail" id="report/2">
+
+  <div class="detail-header">
+    <a href="#report/2" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">report(Event, Term)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L114" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> report(Event, Term) -> ok
+          when
+              Event :: testing | pass | skip | fail | check_failed | counterexample | success,
+              Term :: term().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="report/3">
+
+  <div class="detail-header">
+    <a href="#report/3" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">report(Event, Term, IsShrinking)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_triq.erl#L122" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> report(Event, Term, IsShrinking) -> ok
+          when
+              Event :: testing | pass | skip | fail | check_failed | counterexample | success,
+              Term :: term(),
+              IsShrinking :: boolean().</pre>
+
+      </div>
+
+
   </section>
 </section>
 

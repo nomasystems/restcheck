@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-4727B6F1.js"></script>
+    <script src="dist/sidebar_items-CCCA6497.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -133,6 +133,14 @@ restcheck
 
     </div>
 
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:test_result/0" translate="no">test_result/0</a>
+
+      </div>
+
+    </div>
+
 </div>
 <div class="summary-functions summary">
   <h2>
@@ -141,7 +149,31 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#test/1" translate="no">test(Conf)</a>
+        <a href="#do/1" translate="no">do(State)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#format_error/1" translate="no">format_error(Reason)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#init/1" translate="no">init(State)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#run/1" translate="no">run(Conf)</a>
 
       </div>
 
@@ -170,7 +202,7 @@ Types
     </a>
     <h1 class="signature" translate="no">conf/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L24" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L31" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -191,7 +223,36 @@ Types
       ssl => boolean(),
       auth => <a href="restcheck_client.html#t:auth/0">restcheck_client:auth</a>(),
       timeout => non_neg_integer(),
-      num_requests => pos_integer()}.</pre>
+      num_requests => pos_integer(),
+      output_fun => <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:test_result/0">
+
+  <div class="detail-header">
+    <a href="#t:test_result/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">test_result/0</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L43" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> test_result() :: {OperationId :: binary(), Result :: ok | {error, Reason :: term()}}.</pre>
 
       </div>
 
@@ -211,16 +272,16 @@ Types
 Functions
     </h1>
     <div class="functions-list">
-<section class="detail" id="test/1">
+<section class="detail" id="do/1">
 
   <div class="detail-header">
-    <a href="#test/1" class="detail-link" title="Link to this function">
+    <a href="#do/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">test(Conf)</h1>
+    <h1 class="signature" translate="no">do(State)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L48" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L105" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -232,7 +293,102 @@ Functions
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> test(Conf) -> Result when Conf :: <a href="#t:conf/0">conf</a>(), Result :: ok | {error, Reason}, Reason :: term().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> do(State) -> Result
+      when
+          State :: rebar_state:t(),
+          Result :: {ok, NewState} | {error, Reason},
+          NewState :: rebar_state:t(),
+          Reason :: string().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="format_error/1">
+
+  <div class="detail-header">
+    <a href="#format_error/1" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">format_error(Reason)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L260" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> format_error(Reason) -> Result when Reason :: any(), Result :: iodata().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="init/1">
+
+  <div class="detail-header">
+    <a href="#init/1" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">init(State)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L72" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> init(State) -> Result
+        when State :: rebar_state:t(), Result :: {ok, NewState}, NewState :: rebar_state:t().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="run/1">
+
+  <div class="detail-header">
+    <a href="#run/1" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">run(Conf)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck.erl#L277" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> run(Conf) -> Result
+       when
+           Conf :: <a href="#t:conf/0">conf</a>(),
+           Result :: {ok, TestResults} | {error, Reason},
+           TestResults :: [<a href="#t:test_result/0">test_result</a>()],
+           Reason :: term().</pre>
 
       </div>
 

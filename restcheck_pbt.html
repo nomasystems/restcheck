@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-4727B6F1.js"></script>
+    <script src="dist/sidebar_items-CCCA6497.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -151,6 +151,14 @@ Property-based testing interface for <a href="restcheck.html"><code>restcheck</c
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#t:output_fun/0" translate="no">output_fun/0</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#t:prop/0" translate="no">prop/0</a>
 
       </div>
@@ -201,7 +209,27 @@ Property-based testing interface for <a href="restcheck.html"><code>restcheck</c
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#noshrink/2" translate="no">noshrink(Backend, Generator)</a>
+
+      </div>
+
+        <div class="summary-synopsis">Disables shrinking for a given generator for a given backend.</div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#quickcheck/3" translate="no">quickcheck(Backend, Property, NumTests)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Equivalent to <a href="#quickcheck/4">quickcheck(Backend, Property, NumTests, fun (Format, Data) -&gt; io:format(Format, Data) end)</a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#quickcheck/4" translate="no">quickcheck(Backend, Property, NumTests, OutputFun)</a>
 
       </div>
 
@@ -232,7 +260,7 @@ Types
     </a>
     <h1 class="signature" translate="no">backend/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L26" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L28" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -260,7 +288,7 @@ Types
     </a>
     <h1 class="signature" translate="no">generator/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L27" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L29" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -288,7 +316,7 @@ Types
     </a>
     <h1 class="signature" translate="no">num_tests/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L28" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L30" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -307,16 +335,16 @@ Types
 
   </section>
 </section>
-<section class="detail" id="t:prop/0">
+<section class="detail" id="t:output_fun/0">
 
   <div class="detail-header">
-    <a href="#t:prop/0" class="detail-link" title="Link to this type">
+    <a href="#t:output_fun/0" class="detail-link" title="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this type</span>
     </a>
-    <h1 class="signature" translate="no">prop/0</h1>
+    <h1 class="signature" translate="no">output_fun/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L29" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L31" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -328,7 +356,35 @@ Types
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-type</span> prop() :: fun((term()) -> boolean()).</pre>
+          <pre translate="no"><span class="attribute">-type</span> output_fun() :: fun((string(), [term()]) -> ok).</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:prop/0">
+
+  <div class="detail-header">
+    <a href="#t:prop/0" class="detail-link" title="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature" translate="no">prop/0</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L32" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> prop() :: fun((term()) -> true | {false, Reason :: term()}).</pre>
 
       </div>
 
@@ -344,7 +400,7 @@ Types
     </a>
     <h1 class="signature" translate="no">property/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L30" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L33" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -372,7 +428,7 @@ Types
     </a>
     <h1 class="signature" translate="no">schema/0</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L31" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L34" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -413,7 +469,7 @@ Functions
     </a>
     <h1 class="signature" translate="no">dto(Backend, Schema)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L51" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L55" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -442,7 +498,7 @@ Asks the given backend for a DTO generator from a given schema.
     </a>
     <h1 class="signature" translate="no">forall(Backend, Generators, Prop)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L60" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L64" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -466,6 +522,35 @@ Asks the given backend for a DTO generator from a given schema.
 Wraps a <code>forall</code> property in the given backend format.
   </section>
 </section>
+<section class="detail" id="noshrink/2">
+
+  <div class="detail-header">
+    <a href="#noshrink/2" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">noshrink(Backend, Generator)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L72" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> noshrink(Backend, Generator) -> NoShrinkGenerator
+            when Backend :: <a href="#t:backend/0">backend</a>(), Generator :: <a href="#t:generator/0">generator</a>(), NoShrinkGenerator :: <a href="#t:generator/0">generator</a>().</pre>
+
+      </div>
+
+Disables shrinking for a given generator for a given backend.
+  </section>
+</section>
 <section class="detail" id="quickcheck/3">
 
   <div class="detail-header">
@@ -475,7 +560,7 @@ Wraps a <code>forall</code> property in the given backend format.
     </a>
     <h1 class="signature" translate="no">quickcheck(Backend, Property, NumTests)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L70" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L82" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -492,6 +577,41 @@ Wraps a <code>forall</code> property in the given backend format.
                   Backend :: <a href="#t:backend/0">backend</a>(),
                   Property :: <a href="#t:property/0">property</a>(),
                   NumTests :: <a href="#t:num_tests/0">num_tests</a>(),
+                  Result :: true | {false, Reason},
+                  Reason :: term().</pre>
+
+      </div>
+
+<p>Equivalent to <a href="#quickcheck/4">quickcheck(Backend, Property, NumTests, fun (Format, Data) -&gt; io:format(Format, Data) end)</a>.</p>
+  </section>
+</section>
+<section class="detail" id="quickcheck/4">
+
+  <div class="detail-header">
+    <a href="#quickcheck/4" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">quickcheck(Backend, Property, NumTests, OutputFun)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_pbt.erl#L93" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> quickcheck(Backend, Property, NumTests, OutputFun) -> Result
+              when
+                  Backend :: <a href="#t:backend/0">backend</a>(),
+                  Property :: <a href="#t:property/0">property</a>(),
+                  NumTests :: <a href="#t:num_tests/0">num_tests</a>(),
+                  OutputFun :: <a href="#t:output_fun/0">output_fun</a>(),
                   Result :: true | {false, Reason},
                   Reason :: term().</pre>
 

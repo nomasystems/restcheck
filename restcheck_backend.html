@@ -13,7 +13,7 @@
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
     <script src="dist/handlebars.templates-IV5W3OL2.js"></script>
-    <script src="dist/sidebar_items-4727B6F1.js"></script>
+    <script src="dist/sidebar_items-CCCA6497.js"></script>
 
       <script src="docs_config.js"></script>
 
@@ -159,7 +159,7 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:quickcheck/2" translate="no">quickcheck/2</a>
+        <a href="#c:quickcheck/3" translate="no">quickcheck/3</a>
 
       </div>
 
@@ -283,14 +283,14 @@ Returns a DTO generator from a given schema.
 Wraps a forall property.
   </section>
 </section>
-<section class="detail" id="c:quickcheck/2">
+<section class="detail" id="c:quickcheck/3">
 
   <div class="detail-header">
-    <a href="#c:quickcheck/2" class="detail-link" title="Link to this callback">
+    <a href="#c:quickcheck/3" class="detail-link" title="Link to this callback">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this callback</span>
     </a>
-    <h1 class="signature" translate="no">quickcheck/2</h1>
+    <h1 class="signature" translate="no">quickcheck/3</h1>
 
       <a href="https://github.com/nomasystems/restcheck/blob/v0.0.1/src/restcheck_backend.erl#L37" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
@@ -304,10 +304,11 @@ Wraps a forall property.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-callback</span> quickcheck(Property, NumTests) -> Result
+          <pre translate="no"><span class="attribute">-callback</span> quickcheck(Property, NumTests, OutputFun) -> Result
               when
                   Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
                   NumTests :: <a href="restcheck_pbt.html#t:num_tests/0">restcheck_pbt:num_tests</a>(),
+                  OutputFun :: <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>(),
                   Result :: ok | {error, Reason},
                   Reason :: term().</pre>
 
