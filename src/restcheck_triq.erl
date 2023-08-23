@@ -14,7 +14,7 @@
 -module(restcheck_triq).
 
 %%% INCLUDE FILES
--include_lib("ndto/include/ndto_schema.hrl").
+-include("restcheck_schema.hrl").
 
 %%% BEHAVIOURS
 -behaviour(restcheck_backend).
@@ -52,8 +52,6 @@ dto(Schema) ->
     Schema :: restcheck_pbt:schema(),
     Generator :: restcheck_pbt:generator().
 %% @doc Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
-dto(undefined, _MaxDepth) ->
-    'undefined'();
 dto(#{<<"enum">> := _Enum} = Schema, _MaxDepth) ->
     enum(Schema);
 dto(#{<<"type">> := <<"boolean">>} = Schema, _MaxDepth) ->
@@ -134,7 +132,7 @@ report(Subject, Data, false) -> report(Subject, Data).
     Schema :: ndto:intersection_schema(),
     Dom :: restcheck_pbt:generator().
 all_of(#{<<"allOf">> := Subschemas}, MaxDepth) ->
-    Schema = ndto_schema:intersection(Subschemas),
+    Schema = restcheck_schema:intersection(Subschemas),
     dto(Schema, MaxDepth).
 
 -spec any(MaxDepth) -> Dom when
@@ -258,7 +256,7 @@ integer(Schema) ->
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
 'not'(#{<<"not">> := Subschema}, MaxDepth) ->
-    Schema = ndto_schema:complement(Subschema),
+    Schema = restcheck_schema:complement(Subschema),
     dto(Schema, MaxDepth).
 
 -spec number(Schema) -> Dom when
@@ -366,13 +364,14 @@ object([{PropertyName, PropertySchema} | Properties], ExtraSchema, Missing, MaxD
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
 one_of(#{<<"oneOf">> := Subschemas}, MaxDepth) ->
-    Schema = ndto_schema:symmetric_difference(Subschemas),
+    Schema = restcheck_schema:symmetric_difference(Subschemas),
     dto(Schema, MaxDepth).
 
 -spec string(Schema) -> Dom when
     Schema :: ndto:string_schema(),
     Dom :: restcheck_pbt:generator().
 string(#{<<"pattern">> := _Pattern}) ->
+    %% TODO: implement pattern
     erlang:throw({restcheck_triq, pattern, not_implemented});
 string(Schema) ->
     MinLength = maps:get(<<"minLength">>, Schema, 1),
@@ -447,9 +446,6 @@ string_format(<<"iso8601-datetime">>, _Length) ->
             )
         end
     ).
-
-'undefined'() ->
-    triq_dom:return(undefined).
 
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
