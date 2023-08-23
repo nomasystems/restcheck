@@ -7,7 +7,7 @@
     <meta name="generator" content="ExDoc v0.30.5">
     <meta name="project" content="restcheck v0.0.1">
 
-    <title>restcheck_triq — restcheck v0.0.1</title>
+    <title>restcheck_schema — restcheck v0.0.1</title>
     <link rel="stylesheet" href="dist/html-erlang-6R3HDDY5.css" />
 
 
@@ -96,16 +96,20 @@ restcheck
 </button>
 
 
-    <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L14" title="View Source" class="icon-action" rel="help">
+    <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L16" title="View Source" class="icon-action" rel="help">
       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
       <span class="sr-only">View Source</span>
     </a>
 
-  <span translate="no">restcheck_triq</span> 
+  <span translate="no">restcheck_schema</span> 
   <small class="app-vsn" translate="no">(restcheck v0.0.1)</small>
 
 </h1>
 
+
+  <section id="moduledoc">
+A module to reduce complex <code>ndto</code> schemas.
+  </section>
 
 
   <section id="summary" class="details-list">
@@ -115,20 +119,6 @@ restcheck
         Summary
       </a>
     </h1>
-<div class="summary-types summary">
-  <h2>
-    <a href="#types">Types</a>
-  </h2>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:recursion_max_depth/0" translate="no">recursion_max_depth/0</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -136,51 +126,57 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/1" translate="no">dto(Schema)</a>
+        <a href="#complement/1" translate="no">complement(Schema)</a>
 
       </div>
-
-        <div class="summary-synopsis"><p>Equivalent to <a href="#dto/2">dto(Schema, 5)</a>.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/2" translate="no">dto(Schema, MaxDepth)</a>
+        <a href="#empty_schema/0" translate="no">empty_schema()</a>
 
       </div>
-
-        <div class="summary-synopsis">Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#forall/2" translate="no">forall(Generators, Prop)</a>
+        <a href="#intersection/1" translate="no">intersection(Schemas)</a>
 
       </div>
-
-        <div class="summary-synopsis">Wraps a <code>forall</code> property in <code>triq</code> format.</div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#noshrink/1" translate="no">noshrink(Generator)</a>
+        <a href="#multiples/3" translate="no">multiples(MultipleOf, Min, Max)</a>
 
       </div>
-
-        <div class="summary-synopsis">Prevents a <code>triq</code> generator from shrinking.</div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#quickcheck/3" translate="no">quickcheck(Property, NumTests, OutputFun)</a>
+        <a href="#symmetric_difference/1" translate="no">symmetric_difference(Schemas)</a>
 
       </div>
 
-        <div class="summary-synopsis">Runs a property-based test using <code>triq</code>.</div>
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#union/1" translate="no">union(Schemas)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#universal_schema/0" translate="no">universal_schema()</a>
+
+      </div>
 
     </div>
 
@@ -188,46 +184,6 @@ restcheck
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h1 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-Types
-      </a>
-    </h1>
-    <div class="types-list">
-<section class="detail" id="t:recursion_max_depth/0">
-
-  <div class="detail-header">
-    <a href="#t:recursion_max_depth/0" class="detail-link" title="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this type</span>
-    </a>
-    <h1 class="signature" translate="no">recursion_max_depth/0</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L38" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
-
-
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">-type</span> recursion_max_depth() :: non_neg_integer().</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
@@ -237,16 +193,16 @@ Functions
       </a>
     </h1>
     <div class="functions-list">
-<section class="detail" id="dto/1">
+<section class="detail" id="complement/1">
 
   <div class="detail-header">
-    <a href="#dto/1" class="detail-link" title="Link to this function">
+    <a href="#complement/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">dto(Schema)</h1>
+    <h1 class="signature" translate="no">complement(Schema)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L47" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L42" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -258,24 +214,23 @@ Functions
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> dto(Schema) -> Generator
-       when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> complement(Schema) -> Complement when Schema :: <a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>(), Complement :: <a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>().</pre>
 
       </div>
 
-<p>Equivalent to <a href="#dto/2">dto(Schema, 5)</a>.</p>
+
   </section>
 </section>
-<section class="detail" id="dto/2">
+<section class="detail" id="empty_schema/0">
 
   <div class="detail-header">
-    <a href="#dto/2" class="detail-link" title="Link to this function">
+    <a href="#empty_schema/0" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">dto(Schema, MaxDepth)</h1>
+    <h1 class="signature" translate="no">empty_schema()</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L55" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L295" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -287,27 +242,23 @@ Functions
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> dto(Schema, MaxDepth) -> Generator
-       when
-           MaxDepth :: <a href="#t:recursion_max_depth/0">recursion_max_depth</a>(),
-           Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(),
-           Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> empty_schema() -> EmptySchema when EmptySchema :: <a href="https://hexdocs.pm/ndto/ndto.html#t:empty_schema/0">ndto:empty_schema</a>().</pre>
 
       </div>
 
-Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
+
   </section>
 </section>
-<section class="detail" id="forall/2">
+<section class="detail" id="intersection/1">
 
   <div class="detail-header">
-    <a href="#forall/2" class="detail-link" title="Link to this function">
+    <a href="#intersection/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">forall(Generators, Prop)</h1>
+    <h1 class="signature" translate="no">intersection(Schemas)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L85" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L301" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -319,27 +270,24 @@ Returns a <code>triq</code> generator of DTOs from a given schema and maximum re
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> forall(Generators, Prop) -> ForAll
-          when
-              Generators :: [<a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>()],
-              Prop :: <a href="restcheck_pbt.html#t:prop/0">restcheck_pbt:prop</a>(),
-              ForAll :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> intersection(Schemas) -> Intersection
+                when Schemas :: [<a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>()], Intersection :: <a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>().</pre>
 
       </div>
 
-Wraps a <code>forall</code> property in <code>triq</code> format.
+
   </section>
 </section>
-<section class="detail" id="noshrink/1">
+<section class="detail" id="multiples/3">
 
   <div class="detail-header">
-    <a href="#noshrink/1" class="detail-link" title="Link to this function">
+    <a href="#multiples/3" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">noshrink(Generator)</h1>
+    <h1 class="signature" translate="no">multiples(MultipleOf, Min, Max)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L93" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L781" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -351,26 +299,28 @@ Wraps a <code>forall</code> property in <code>triq</code> format.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> noshrink(Generator) -> NoShrinkGenerator
-            when
-                Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>(),
-                NoShrinkGenerator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> multiples(MultipleOf, Min, Max) -> Multiples
+             when
+                 MultipleOf :: integer(),
+                 Min :: undefined | integer(),
+                 Max :: undefined | integer(),
+                 Multiples :: [integer()].</pre>
 
       </div>
 
-Prevents a <code>triq</code> generator from shrinking.
+
   </section>
 </section>
-<section class="detail" id="quickcheck/3">
+<section class="detail" id="symmetric_difference/1">
 
   <div class="detail-header">
-    <a href="#quickcheck/3" class="detail-link" title="Link to this function">
+    <a href="#symmetric_difference/1" class="detail-link" title="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">quickcheck(Property, NumTests, OutputFun)</h1>
+    <h1 class="signature" translate="no">symmetric_difference(Schemas)</h1>
 
-      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_triq.erl#L103" class="icon-action" rel="help" title="View Source">
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L666" class="icon-action" rel="help" title="View Source">
        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
        <span class="sr-only">View Source</span>
      </a>
@@ -382,17 +332,68 @@ Prevents a <code>triq</code> generator from shrinking.
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> quickcheck(Property, NumTests, OutputFun) -> Result
-              when
-                  Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
-                  NumTests :: <a href="restcheck_pbt.html#t:num_tests/0">restcheck_pbt:num_tests</a>(),
-                  OutputFun :: <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>(),
-                  Result :: ok | {error, Reason},
-                  Reason :: term().</pre>
+          <pre translate="no"><span class="attribute">-spec</span> symmetric_difference(Schemas) -> SymmetricDifference
+                        when Schemas :: [<a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>()], SymmetricDifference :: <a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>().</pre>
 
       </div>
 
-Runs a property-based test using <code>triq</code>.
+
+  </section>
+</section>
+<section class="detail" id="union/1">
+
+  <div class="detail-header">
+    <a href="#union/1" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">union(Schemas)</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L688" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> union(Schemas) -> Union when Schemas :: [<a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>()], Union :: <a href="https://hexdocs.pm/ndto/ndto.html#t:schema/0">ndto:schema</a>().</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="universal_schema/0">
+
+  <div class="detail-header">
+    <a href="#universal_schema/0" class="detail-link" title="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature" translate="no">universal_schema()</h1>
+
+      <a href="https://github.com/nomasystems/restcheck/blob/0.0.1/src/restcheck_schema.erl#L771" class="icon-action" rel="help" title="View Source">
+       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+       <span class="sr-only">View Source</span>
+     </a>
+
+
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-spec</span> universal_schema() -> UniversalSchema when UniversalSchema :: <a href="https://hexdocs.pm/ndto/ndto.html#t:universal_schema/0">ndto:universal_schema</a>().</pre>
+
+      </div>
+
+
   </section>
 </section>
 
@@ -407,7 +408,7 @@ Runs a property-based test using <code>triq</code>.
 
               <a href="https://preview.hex.pm/preview/restcheck/0.0.1">Hex Preview</a>
 
-                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck_triq.erl">current file</a>)
+                (<a href="https://preview.hex.pm/preview/restcheck/0.0.1/show/src/restcheck_schema.erl">current file</a>)
 
             </span>
 
