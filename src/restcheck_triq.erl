@@ -336,10 +336,6 @@ object([], false, _Missing, MaxDepth, Acc) ->
     object([], false, 0, MaxDepth, Acc);
 object([], true, Missing, MaxDepth, Acc) ->
     object([], #{}, Missing, MaxDepth, Acc);
-%%% TODO: remove guard when `gradualizer` supports it
-%%% currently it complains:
-%%% - The variable on line 232 at column 65 is expected to have type #{binary() => term()}
-%%% but it has type false | true | schema()
 object([], ExtraSchema, Missing, MaxDepth, Acc) ->
     NewAcc =
         triq_dom:bind(
