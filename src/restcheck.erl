@@ -263,8 +263,10 @@ format_error({method_not_allowed, {_Path, _Method}}) ->
     "Method not allowed";
 format_error({server_error, _StatusCode}) ->
     "Server error";
-format_error({invalid_response_body, _RespondeBody}) ->
+format_error({invalid_response_body, _ResponseBody}) ->
     "Invalid response body";
+format_error({invalid_response_status, _ResponseStatus}) ->
+    "Invalid response status";
 format_error(Reason) ->
     erlang:term_to_binary(Reason).
 

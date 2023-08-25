@@ -390,10 +390,7 @@ string(Schema) ->
     Length :: non_neg_integer(),
     FormatGenerator :: restcheck_pbt:generator().
 string_format(undefined, Length) ->
-    triq_dom:vector(
-        Length,
-        triq_dom:unicode_char()
-    );
+    triq_dom:unicode_binary(Length);
 string_format(<<"base64">>, Length) ->
     0 = (Length rem 4),
     triq_dom:vector(

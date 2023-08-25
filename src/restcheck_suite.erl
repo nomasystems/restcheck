@@ -99,10 +99,17 @@ generate(API) ->
                     RequestBodySchema = schema_ast(maps:get(RequestBody, Schemas)),
                     RequestBodyGenerator = erl_syntax:application(
                         erl_syntax:atom(restcheck_pbt),
-                        erl_syntax:atom(dto),
+                        erl_syntax:atom(noshrink),
                         [
                             erl_syntax:variable('Backend'),
-                            RequestBodySchema
+                            erl_syntax:application(
+                                erl_syntax:atom(restcheck_pbt),
+                                erl_syntax:atom(dto),
+                                [
+                                    erl_syntax:variable('Backend'),
+                                    RequestBodySchema
+                                ]
+                            )
                         ]
                     ),
                     {Values, Generators} = {[RequestBodyValue | RawValues], [
@@ -315,7 +322,13 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
     DefaultResponse =
         case maps:get('*', Responses, undefined) of
             undefined ->
-                erl_syntax:atom(false);
+                erl_syntax:tuple([
+                    erl_syntax:atom(false),
+                    erl_syntax:tuple([
+                        erl_syntax:atom(invalid_response_status),
+                        erl_syntax:variable('ResponseStatus')
+                    ])
+                ]);
             Ref ->
                 erl_syntax:case_expr(
                     erl_syntax:application(

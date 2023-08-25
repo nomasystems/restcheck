@@ -262,18 +262,22 @@ complement(#{<<"type">> := <<"object">>} = Schema) ->
             true ->
                 undefined;
             false ->
+                OldRequired = maps:get(<<"required">>, Schema, []),
                 PropertyName = new_property_name(maps:keys(Properties)),
                 Schema#{
                     <<"properties">> => Properties#{
                         PropertyName => #{}
-                    }
+                    },
+                    <<"required">> => [PropertyName | OldRequired]
                 };
             AdditionalSchema ->
+                OldRequired = maps:get(<<"required">>, Schema, []),
                 PropertyName = new_property_name(maps:keys(Properties)),
                 Schema#{
                     <<"properties">> => Properties#{
                         PropertyName => complement(AdditionalSchema)
-                    }
+                    },
+                    <<"required">> => [PropertyName | OldRequired]
                 }
         end,
     Schemas = lists:filter(
