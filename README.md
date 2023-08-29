@@ -2,7 +2,7 @@
 [![restcheck ci](https://github.com/nomasystems/restcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/nomasystems/restcheck/actions/workflows/ci.yml)
 [![restcheck docs](https://github.com/nomasystems/restcheck/actions/workflows/docs.yml/badge.svg)](https://nomasystems.github.io/restcheck)
 
-An automatic REST API contract testing tool based on property-based testing techniques.
+A REST API fuzzing tool based on property-based testing techniques.
 
 ## Contributing
 

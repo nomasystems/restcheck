@@ -34,6 +34,11 @@
     ForAll :: restcheck_pbt:property().
 %% Wraps a <code>forall</code> property.
 
+-callback noshrink(Generator) -> NoShrinkGenerator when
+    Generator :: restcheck_pbt:generator(),
+    NoShrinkGenerator :: restcheck_pbt:generator().
+%% Prevents a generator from shrinking.
+
 -callback quickcheck(Property, NumTests, OutputFun) -> Result when
     Property :: restcheck_pbt:property(),
     NumTests :: restcheck_pbt:num_tests(),
