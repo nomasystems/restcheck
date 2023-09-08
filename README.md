@@ -52,7 +52,7 @@ By default, `restcheck` provides a built-in implementation for its property-base
 
 To choose a custom property-based testing framework, follow these steps:
 
-1. Implement the [`restcheck_pbt`](src/restcheck_pbt.erl) behaviour in your custom module.
+1. Implement the [`restcheck_backend`](src/restcheck_backend.erl) behaviour in your custom module.
 
 2. Update the `pbt_backend` configuration key in your `rebar.config` file with the module name of your custom implementation.
 
