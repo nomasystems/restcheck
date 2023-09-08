@@ -9,7 +9,7 @@
   1},
  {<<"erf">>,
   {git,"git@github.com:nomasystems/erf.git",
-       {ref,"78aeb10ac17256ef162009ee54ff04247fd34ea5"}},
+       {ref,"662978007b3a61b529b5a742fa49060fb3448599"}},
   0},
  {<<"foil">>,
   {git,"https://github.com/lpgauth/foil.git",
@@ -26,7 +26,7 @@
   1},
  {<<"ndto">>,
   {git,"git@github.com:nomasystems/ndto.git",
-       {ref,"8cbe7ced7d6d376bdb6edf83b450f894603c83d2"}},
+       {ref,"491a2441e43afa2fb037c6e7e826c45a383e3bd9"}},
   0},
  {<<"njson">>,
   {git,"git@github.com:nomasystems/njson.git",
@@ -38,7 +38,7 @@
   1},
  {<<"triq">>,
   {git,"git@github.com:nomasystems/triq.git",
-       {ref,"a0bf2fd60475a621f55d6b769b8240e73a603436"}},
+       {ref,"ac5a6faf6fdd8043e61752c47bd86d8e28839fa2"}},
   0}]}.
 [
 {pkg_hash,[
