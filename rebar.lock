@@ -38,7 +38,7 @@
   1},
  {<<"triq">>,
   {git,"git@github.com:nomasystems/triq.git",
-       {ref,"ac5a6faf6fdd8043e61752c47bd86d8e28839fa2"}},
+       {ref,"18b8198de2f19ac3a99236eead774f9934d727be"}},
   0}]}.
 [
 {pkg_hash,[
