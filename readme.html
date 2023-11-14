@@ -4,20 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.30.5">
+    <meta name="generator" content="ExDoc v0.30.7">
     <meta name="project" content="restcheck v0.1.0">
 
     <title>Overview — restcheck v0.1.0</title>
-    <link rel="stylesheet" href="dist/html-erlang-6R3HDDY5.css" />
+    <link rel="stylesheet" href="dist/html-erlang-BDSMJ657.css" />
 
 
     <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
-    <script src="dist/handlebars.templates-NBND3S2D.js"></script>
+    <script src="dist/handlebars.templates-EPF2X7PV.js"></script>
     <script src="dist/sidebar_items-96FB0240.js"></script>
 
       <script src="docs_config.js"></script>
 
-    <script async src="dist/html-B3DGGEY7.js"></script>
+    <script async src="dist/html-J2ASZTQE.js"></script>
 
 
   </head>
@@ -38,22 +38,22 @@
 
 <div class="main">
 
-<button class="sidebar-button sidebar-toggle" aria-label="toggle sidebar">
+<button class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
   <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
 </button>
 
-<section class="sidebar">
+<nav id="sidebar" class="sidebar">
   <form class="sidebar-search" action="search.html">
+    <label class="search-label">
+      <span class="sr-only">Search documentation of restcheck</span>
+      <input name="q" type="text" class="search-input" placeholder="Search..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+    </label>
     <button type="submit" class="search-button" aria-label="Submit Search">
       <i class="ri-search-2-line" aria-hidden="true" title="Submit search"></i>
     </button>
-    <button type="button" tabindex="-1" class="search-close-button" aria-label="Cancel Search">
-      <i class="ri-close-line ri-lg" aria-hidden="true" title="Cancel search"></i>
+    <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+      <i class="ri-close-line ri-lg" title="Cancel search"></i>
     </button>
-    <label class="search-label">
-      <p class="sr-only">Search</p>
-      <input name="q" type="text" class="search-input" placeholder="Search..." aria-label="Input your search terms" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-    </label>
   </form>
 
   <div class="autocomplete">
@@ -71,20 +71,35 @@ restcheck
         v0.1.0
       </div>
     </div>
-    <ul class="sidebar-listNav">
-      <li><a id="extras-list-link" href="#full-list">Pages</a></li>
+    <ul id="sidebar-listNav" class="sidebar-listNav" role="tablist">
+      <li>
+        <button id="extras-list-tab-button" role="tab" data-type="extras" aria-controls="extras-tab-panel" aria-selected="true" tabindex="0">
+Pages
+        </button>
+      </li>
 
-        <li><a id="modules-list-link" href="#full-list">Modules</a></li>
+        <li>
+          <button id="modules-list-tab-button" role="tab" data-type="modules" aria-controls="modules-tab-panel" aria-selected="false" tabindex="-1">
+            Modules
+          </button>
+        </li>
 
 
     </ul>
   </div>
 
-  <div class="gradient"></div>
-  <ul id="full-list"></ul>
-</section>
+  <div id="extras-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="extras-list-tab-button">
+    <ul id="extras-full-list" class="full-list"></ul>
+  </div>
 
-<section class="content">
+    <div id="modules-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="modules-list-tab-button" hidden>
+      <ul id="modules-full-list" class="full-list"></ul>
+    </div>
+
+
+</nav>
+
+<main class="content">
   <output role="status" id="toast"></output>
   <div class="content-outer">
     <div id="content" class="content-inner">
@@ -107,25 +122,25 @@ restcheck
 
 <p><a href="https://github.com/nomasystems/restcheck/actions/workflows/ci.yml"><img src="https://github.com/nomasystems/restcheck/actions/workflows/ci.yml/badge.svg" alt="restcheck ci"/></a>
 <a href="https://nomasystems.github.io/restcheck"><img src="https://github.com/nomasystems/restcheck/actions/workflows/docs.yml/badge.svg" alt="restcheck docs"/></a></p><p><a href="restcheck.html"><code class="inline">restcheck</code></a> is a REST API fuzzing tool based on property-based testing techniques. It provides an interface for the automatic generation and execution of integration test suites that validate the behaviour of a REST API against an OpenAPI 3.0 specification.</p><h2 id="quickstart" class="section-heading">
-  <a href="#quickstart">
+  <a href="#quickstart" class="hover-link">
     <i class="ri-link-m" aria-hidden="true"></i>
-    Quickstart
   </a>
+  <span class="text">Quickstart</span>
 </h2>
-<ol><li><p>Get an OpenAPI 3.0 specification for the API you want to test. For example: <a href="examples/users/users.json">users.json</a>.</p></li><li><p>Add <a href="restcheck.html"><code class="inline">restcheck</code></a> as a project plugin in your <code class="inline">rebar3</code> project.</p><pre><code class="makeup erl" translate="no"><span class="p" data-group-id="2363783221-1">{</span><span class="ss">project_plugins</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2363783221-2">[</span><span class="w">
-    </span><span class="p" data-group-id="2363783221-3">{</span><span class="ss">restcheck</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2363783221-4">{</span><span class="ss">git</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://github.com/nomasystems/restcheck.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2363783221-5">{</span><span class="ss">branch</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;main&quot;</span><span class="p" data-group-id="2363783221-5">}</span><span class="p" data-group-id="2363783221-4">}</span><span class="p" data-group-id="2363783221-3">}</span><span class="w">
-</span><span class="p" data-group-id="2363783221-2">]</span><span class="p" data-group-id="2363783221-1">}</span><span class="p">.</span></code></pre></li><li><p>Configure it within the <a href="restcheck.html"><code class="inline">restcheck</code></a> key of your <code class="inline">rebar.config</code>.</p><pre><code class="makeup erl" translate="no"><span class="p" data-group-id="0117178098-1">{</span><span class="ss">restcheck</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0117178098-2">[</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-3">{</span><span class="ss">spec_path</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="0117178098-4">(</span><span class="p" data-group-id="0117178098-4">)</span><span class="p" data-group-id="0117178098-3">}</span><span class="p">,</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-5">{</span><span class="ss">spec_parser</span><span class="p">,</span><span class="w"> </span><span class="nf">module</span><span class="p" data-group-id="0117178098-6">(</span><span class="p" data-group-id="0117178098-6">)</span><span class="p" data-group-id="0117178098-5">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to erf_oas_3_0</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-7">{</span><span class="ss">pbt_backend</span><span class="p">,</span><span class="w"> </span><span class="nf">module</span><span class="p" data-group-id="0117178098-8">(</span><span class="p" data-group-id="0117178098-8">)</span><span class="p" data-group-id="0117178098-7">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to restcheck_triq</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-9">{</span><span class="ss">host</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="0117178098-10">(</span><span class="p" data-group-id="0117178098-10">)</span><span class="p" data-group-id="0117178098-9">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to &quot;localhost&quot;</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-11">{</span><span class="ss">port</span><span class="p">,</span><span class="w"> </span><span class="nc">inet</span><span class="p">:</span><span class="nf">port_number</span><span class="p" data-group-id="0117178098-12">(</span><span class="p" data-group-id="0117178098-12">)</span><span class="p" data-group-id="0117178098-11">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 8080</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-13">{</span><span class="ss">ssl</span><span class="p">,</span><span class="w"> </span><span class="nf">boolean</span><span class="p" data-group-id="0117178098-14">(</span><span class="p" data-group-id="0117178098-14">)</span><span class="p" data-group-id="0117178098-13">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to false</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-15">{</span><span class="ss">auth</span><span class="p">,</span><span class="w"> </span><span class="nc">restcheck_client</span><span class="p">:</span><span class="nf">auth</span><span class="p" data-group-id="0117178098-16">(</span><span class="p" data-group-id="0117178098-16">)</span><span class="p" data-group-id="0117178098-15">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% disabled by default</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-17">{</span><span class="ss">timeout</span><span class="p">,</span><span class="w"> </span><span class="nf">pos_integer</span><span class="p" data-group-id="0117178098-18">(</span><span class="p" data-group-id="0117178098-18">)</span><span class="p" data-group-id="0117178098-17">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 5000</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-19">{</span><span class="ss">num_requests</span><span class="p">,</span><span class="w"> </span><span class="nf">pos_integer</span><span class="p" data-group-id="0117178098-20">(</span><span class="p" data-group-id="0117178098-20">)</span><span class="p" data-group-id="0117178098-19">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 5000</span><span class="w">
-    </span><span class="p" data-group-id="0117178098-21">{</span><span class="ss">log_file</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="0117178098-22">(</span><span class="p" data-group-id="0117178098-22">)</span><span class="p" data-group-id="0117178098-21">}</span><span class="w"> </span><span class="c1">% disabled by default</span><span class="w">
-</span><span class="p" data-group-id="0117178098-2">]</span><span class="p" data-group-id="0117178098-1">}</span><span class="p">.</span></code></pre></li><li><p>Run <code class="inline">rebar3 restcheck</code> and check your API behaviour.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 restcheck
+<ol><li><p>Get an OpenAPI 3.0 specification for the API you want to test. For example: <a href="examples/users/users.json">users.json</a>.</p></li><li><p>Add <a href="restcheck.html"><code class="inline">restcheck</code></a> as a project plugin in your <code class="inline">rebar3</code> project.</p><pre><code class="makeup erl" translate="no"><span class="p" data-group-id="4454025697-1">{</span><span class="ss">project_plugins</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4454025697-2">[</span><span class="w">
+    </span><span class="p" data-group-id="4454025697-3">{</span><span class="ss">restcheck</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4454025697-4">{</span><span class="ss">git</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://github.com/nomasystems/restcheck.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4454025697-5">{</span><span class="ss">branch</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;main&quot;</span><span class="p" data-group-id="4454025697-5">}</span><span class="p" data-group-id="4454025697-4">}</span><span class="p" data-group-id="4454025697-3">}</span><span class="w">
+</span><span class="p" data-group-id="4454025697-2">]</span><span class="p" data-group-id="4454025697-1">}</span><span class="p">.</span></code></pre></li><li><p>Configure it within the <a href="restcheck.html"><code class="inline">restcheck</code></a> key of your <code class="inline">rebar.config</code>.</p><pre><code class="makeup erl" translate="no"><span class="p" data-group-id="9977045207-1">{</span><span class="ss">restcheck</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9977045207-2">[</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-3">{</span><span class="ss">spec_path</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="9977045207-4">(</span><span class="p" data-group-id="9977045207-4">)</span><span class="p" data-group-id="9977045207-3">}</span><span class="p">,</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-5">{</span><span class="ss">spec_parser</span><span class="p">,</span><span class="w"> </span><span class="nf">module</span><span class="p" data-group-id="9977045207-6">(</span><span class="p" data-group-id="9977045207-6">)</span><span class="p" data-group-id="9977045207-5">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to erf_oas_3_0</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-7">{</span><span class="ss">pbt_backend</span><span class="p">,</span><span class="w"> </span><span class="nf">module</span><span class="p" data-group-id="9977045207-8">(</span><span class="p" data-group-id="9977045207-8">)</span><span class="p" data-group-id="9977045207-7">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to restcheck_triq</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-9">{</span><span class="ss">host</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="9977045207-10">(</span><span class="p" data-group-id="9977045207-10">)</span><span class="p" data-group-id="9977045207-9">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to &quot;localhost&quot;</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-11">{</span><span class="ss">port</span><span class="p">,</span><span class="w"> </span><span class="nc">inet</span><span class="p">:</span><span class="nf">port_number</span><span class="p" data-group-id="9977045207-12">(</span><span class="p" data-group-id="9977045207-12">)</span><span class="p" data-group-id="9977045207-11">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 8080</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-13">{</span><span class="ss">ssl</span><span class="p">,</span><span class="w"> </span><span class="nf">boolean</span><span class="p" data-group-id="9977045207-14">(</span><span class="p" data-group-id="9977045207-14">)</span><span class="p" data-group-id="9977045207-13">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to false</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-15">{</span><span class="ss">auth</span><span class="p">,</span><span class="w"> </span><span class="nc">restcheck_client</span><span class="p">:</span><span class="nf">auth</span><span class="p" data-group-id="9977045207-16">(</span><span class="p" data-group-id="9977045207-16">)</span><span class="p" data-group-id="9977045207-15">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% disabled by default</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-17">{</span><span class="ss">timeout</span><span class="p">,</span><span class="w"> </span><span class="nf">pos_integer</span><span class="p" data-group-id="9977045207-18">(</span><span class="p" data-group-id="9977045207-18">)</span><span class="p" data-group-id="9977045207-17">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 5000</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-19">{</span><span class="ss">num_requests</span><span class="p">,</span><span class="w"> </span><span class="nf">pos_integer</span><span class="p" data-group-id="9977045207-20">(</span><span class="p" data-group-id="9977045207-20">)</span><span class="p" data-group-id="9977045207-19">}</span><span class="p">,</span><span class="w"> </span><span class="c1">% defaults to 5000</span><span class="w">
+    </span><span class="p" data-group-id="9977045207-21">{</span><span class="ss">log_file</span><span class="p">,</span><span class="w"> </span><span class="nf">string</span><span class="p" data-group-id="9977045207-22">(</span><span class="p" data-group-id="9977045207-22">)</span><span class="p" data-group-id="9977045207-21">}</span><span class="w"> </span><span class="c1">% disabled by default</span><span class="w">
+</span><span class="p" data-group-id="9977045207-2">]</span><span class="p" data-group-id="9977045207-1">}</span><span class="p">.</span></code></pre></li><li><p>Run <code class="inline">rebar3 restcheck</code> and check your API behaviour.</p><pre><code class="makeup shell" translate="no"><span class="gp unselectable">$ </span><span class="">rebar3 restcheck
 </span><span class="">===&gt; Analyzing applications...
 </span><span class="">===&gt; Compiling restcheck
 </span><span class="">===&gt; Running restcheck for Users REST API
@@ -138,28 +153,28 @@ restcheck
 </span><span class="">+-----+--------------------------------+--------------------------------+
 </span><span class="">===&gt; All restcheck tests passed for Users REST API. (3/3)
 </span></code></pre></li></ol><h2 id="choosing-a-custom-property-based-testing-framework" class="section-heading">
-  <a href="#choosing-a-custom-property-based-testing-framework">
+  <a href="#choosing-a-custom-property-based-testing-framework" class="hover-link">
     <i class="ri-link-m" aria-hidden="true"></i>
-    Choosing a custom property-based testing framework
   </a>
+  <span class="text">Choosing a custom property-based testing framework</span>
 </h2>
 <p>By default, <a href="restcheck.html"><code class="inline">restcheck</code></a> provides a built-in implementation for its property-based testing features using the <a href="https://triq.gitlab.io/"><code class="inline">triq</code></a> library. However, if you have specific requirements or prefer to use a custom property-based testing framework, <a href="restcheck.html"><code class="inline">restcheck</code></a> offers flexibility in selecting your own implementation.</p><p>To choose a custom property-based testing framework, follow these steps:</p><ol><li><p>Implement the <a href="src/restcheck_backend.erl"><code class="inline">restcheck_backend</code></a> behaviour in your custom module.</p></li><li><p>Update the <code class="inline">pbt_backend</code> configuration key in your <code class="inline">rebar.config</code> file with the module name of your custom implementation.</p></li></ol><h2 id="contributing" class="section-heading">
-  <a href="#contributing">
+  <a href="#contributing" class="hover-link">
     <i class="ri-link-m" aria-hidden="true"></i>
-    Contributing
   </a>
+  <span class="text">Contributing</span>
 </h2>
 <p>We :heart: contributions! Please feel free to submit issues, create pull requests or just spread the word about <a href="restcheck.html"><code class="inline">restcheck</code></a> in the open-source community. Don't forget to check out our <a href="CONTRIBUTING.md">contribution guidelines</a> to ensure smooth collaboration! :rocket:</p><h2 id="support" class="section-heading">
-  <a href="#support">
+  <a href="#support" class="hover-link">
     <i class="ri-link-m" aria-hidden="true"></i>
-    Support
   </a>
+  <span class="text">Support</span>
 </h2>
 <p>If you need help or have any questions, please don't hesitate to open an issue or contact the maintainers directly.</p><h2 id="license" class="section-heading">
-  <a href="#license">
+  <a href="#license" class="hover-link">
     <i class="ri-link-m" aria-hidden="true"></i>
-    License
   </a>
+  <span class="text">License</span>
 </h2>
 <p><a href="restcheck.html"><code class="inline">restcheck</code></a> is released under the Apache 2.0 License. For more information, please see the <a href="LICENSE">LICENSE</a> file.</p><blockquote><p>This project uses OpenAPI specification (OAS) schemas and examples, which are licensed under the Apache 2.0 license. See the associated <a href="priv/oas/LICENSE">LICENSE</a> file for more information.</p></blockquote>
 <div class="bottom-actions">
@@ -210,7 +225,7 @@ Contributing
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.30.5) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.30.7) for the
 
             <a href="https://erlang.org" title="Erlang" target="_blank" translate="no">Erlang programming language</a>
 
@@ -218,7 +233,7 @@ Contributing
       </footer>
     </div>
   </div>
-</section>
+</main>
 </div>
 
 
