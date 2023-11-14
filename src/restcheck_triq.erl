@@ -297,7 +297,6 @@ object(Schema, MaxDepth) ->
     Properties = maps:get(<<"properties">>, Schema, #{}),
     RequiredKeys = maps:get(<<"required">>, Schema, []),
     RawMinProperties = maps:get(<<"minProperties">>, Schema, 0),
-    MaxProperties = maps:get(<<"maxProperties">>, Schema, 3),
     AdditionalProperties = maps:get(<<"additionalProperties">>, Schema, true),
 
     MinProperties =
@@ -307,6 +306,8 @@ object(Schema, MaxDepth) ->
             GreaterThanOrEqualTo ->
                 GreaterThanOrEqualTo
         end,
+    MaxProperties = maps:get(<<"maxProperties">>, Schema, MinProperties + 1),
+
     Required = [{PropertyName, maps:get(PropertyName, Properties)} || PropertyName <- RequiredKeys],
     NotRequired = maps:to_list(maps:without(RequiredKeys, Properties)),
 
