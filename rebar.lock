@@ -9,7 +9,7 @@
   1},
  {<<"erf">>,
   {git,"git@github.com:nomasystems/erf.git",
-       {ref,"662978007b3a61b529b5a742fa49060fb3448599"}},
+       {ref,"494a47b9fc638d64900cb96abbdea94fae62766f"}},
   0},
  {<<"foil">>,
   {git,"https://github.com/lpgauth/foil.git",
