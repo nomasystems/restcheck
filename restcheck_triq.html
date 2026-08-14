@@ -4,140 +4,126 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.30.7">
+    <meta name="generator" content="ExDoc v0.40.3">
     <meta name="project" content="restcheck v0.1.0">
 
+
     <title>restcheck_triq — restcheck v0.1.0</title>
-    <link rel="stylesheet" href="dist/html-erlang-BDSMJ657.css" />
 
+    <link rel="stylesheet" href="dist/html-erlang-KCHZLXSC.css" />
 
-    <script src="dist/handlebars.runtime-NWIB6V2M.js"></script>
-    <script src="dist/handlebars.templates-EPF2X7PV.js"></script>
-    <script src="dist/sidebar_items-96FB0240.js"></script>
-
-      <script src="docs_config.js"></script>
-
-    <script async src="dist/html-J2ASZTQE.js"></script>
-
+    <script defer src="dist/sidebar_items-8E22A302.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-Y2MUTVIN.js"></script>
 
   </head>
-  <body data-type="modules" class="page-module">
-    <script>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
 
-      try {
-        var settings = JSON.parse(localStorage.getItem('ex_doc:settings') || '{}');
+<div class="body-wrapper">
 
-        if (settings.theme === 'dark' ||
-           ((settings.theme === 'system' || settings.theme == null) &&
-             window.matchMedia('(prefers-color-scheme: dark)').matches)
-           ) {
-          document.body.classList.add('dark')
-        }
-      } catch (error) { }
-    </script>
-
-<div class="main">
-
-<button class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
   <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
 </button>
 
 <nav id="sidebar" class="sidebar">
-  <form class="sidebar-search" action="search.html">
-    <label class="search-label">
-      <span class="sr-only">Search documentation of restcheck</span>
-      <input name="q" type="text" class="search-input" placeholder="Search..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-    </label>
-    <button type="submit" class="search-button" aria-label="Submit Search">
-      <i class="ri-search-2-line" aria-hidden="true" title="Submit search"></i>
-    </button>
-    <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
-      <i class="ri-close-line ri-lg" title="Cancel search"></i>
-    </button>
-  </form>
-
-  <div class="autocomplete">
-    <div class="autocomplete-results">
-    </div>
-  </div>
 
   <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
 
-    <div class="sidebar-projectDetails">
-      <a href="readme.html" class="sidebar-projectName" translate="no">
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
 restcheck
-      </a>
-      <div class="sidebar-projectVersion" translate="no">
-        v0.1.0
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
       </div>
     </div>
-    <ul id="sidebar-listNav" class="sidebar-listNav" role="tablist">
-      <li>
-        <button id="extras-list-tab-button" role="tab" data-type="extras" aria-controls="extras-tab-panel" aria-selected="true" tabindex="0">
-Pages
-        </button>
-      </li>
-
-        <li>
-          <button id="modules-list-tab-button" role="tab" data-type="modules" aria-controls="modules-tab-panel" aria-selected="false" tabindex="-1">
-            Modules
-          </button>
-        </li>
-
-
-    </ul>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
   </div>
-
-  <div id="extras-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="extras-list-tab-button">
-    <ul id="extras-full-list" class="full-list"></ul>
-  </div>
-
-    <div id="modules-tab-panel" class="sidebar-tabpanel" role="tabpanel" aria-labelledby="modules-list-tab-button" hidden>
-      <ul id="modules-full-list" class="full-list"></ul>
-    </div>
-
-
 </nav>
 
-<main class="content">
-  <output role="status" id="toast"></output>
-  <div class="content-outer">
-    <div id="content" class="content-inner">
+<output role="status" id="toast"></output>
 
-<h1>
-<button class="icon-action display-settings">
-  <i class="ri-settings-3-line"></i>
-  <span class="sr-only">Settings</span>
-</button>
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of restcheck</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">restcheck_triq</span> 
+      <small class="app-vsn" translate="no">(restcheck v0.1.0)</small>
+
+    </h1>
 
 
-    <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L14" title="View Source" class="icon-action" rel="help">
-      <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-      <span class="sr-only">View Source</span>
-    </a>
+      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L14" title="View Source" class="icon-action" rel="help nofollow">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
 
-  <span translate="no">restcheck_triq</span> 
-  <small class="app-vsn" translate="no">(restcheck v0.1.0)</small>
-
-</h1>
+  </div>
 
 
+</div>
 
   <section id="summary" class="details-list">
-    <h1 class="section-heading">
+    <h2 class="section-heading">
       <a class="hover-link" href="#summary">
         <i class="ri-link-m" aria-hidden="true"></i>
       </a>
       <span class="text">Summary</span>
-    </h1>
+    </h2>
 <div class="summary-types summary">
-  <h2>
+  <h3>
     <a href="#types">Types</a>
-  </h2>
+  </h3>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:recursion_max_depth/0" translate="no">recursion_max_depth/0</a>
+        <a href="#t:recursion_max_depth/0" data-no-tooltip="" translate="no">recursion_max_depth/0</a>
 
       </div>
 
@@ -145,13 +131,13 @@ Pages
 
 </div>
 <div class="summary-functions summary">
-  <h2>
+  <h3>
     <a href="#functions">Functions</a>
-  </h2>
+  </h3>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/1" translate="no">dto(Schema)</a>
+        <a href="#dto/1" data-no-tooltip="" translate="no">dto(Schema)</a>
 
       </div>
 
@@ -161,41 +147,41 @@ Pages
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/2" translate="no">dto(Schema, MaxDepth)</a>
+        <a href="#dto/2" data-no-tooltip="" translate="no">dto(Schema, MaxDepth)</a>
 
       </div>
 
-        <div class="summary-synopsis">Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</div>
+        <div class="summary-synopsis"><p>Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#forall/2" translate="no">forall(Generators, Prop)</a>
+        <a href="#forall/2" data-no-tooltip="" translate="no">forall(Generators, Prop)</a>
 
       </div>
 
-        <div class="summary-synopsis">Wraps a <code>forall</code> property in <code>triq</code> format.</div>
+        <div class="summary-synopsis"><p>Wraps a <code>forall</code> property in <code>triq</code> format.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#noshrink/1" translate="no">noshrink(Generator)</a>
+        <a href="#noshrink/1" data-no-tooltip="" translate="no">noshrink(Generator)</a>
 
       </div>
 
-        <div class="summary-synopsis">Prevents a <code>triq</code> generator from shrinking.</div>
+        <div class="summary-synopsis"><p>Prevents a <code>triq</code> generator from shrinking.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#quickcheck/3" translate="no">quickcheck(Property, NumTests, OutputFun)</a>
+        <a href="#quickcheck/3" data-no-tooltip="" translate="no">quickcheck(Property, NumTests, OutputFun)</a>
 
       </div>
 
-        <div class="summary-synopsis">Runs a property-based test using <code>triq</code>.</div>
+        <div class="summary-synopsis"><p>Runs a property-based test using <code>triq</code>.</p></div>
 
     </div>
 
@@ -205,35 +191,36 @@ Pages
 
 
   <section id="types" class="details-list">
-    <h1 class="section-heading">
+    <h2 class="section-heading">
       <a class="hover-link" href="#types">
         <i class="ri-link-m" aria-hidden="true"></i>
       </a>
       <span class="text">Types</span>
-    </h1>
+    </h2>
+
     <div class="types-list">
 <section class="detail" id="t:recursion_max_depth/0">
 
   <div class="detail-header">
-    <a href="#t:recursion_max_depth/0" class="detail-link" title="Link to this type">
+    <a href="#t:recursion_max_depth/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this type</span>
     </a>
-    <h1 class="signature" translate="no">recursion_max_depth/0</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L38" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">recursion_max_depth/0</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L38" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-type</span> recursion_max_depth() :: non_neg_integer().</pre>
+          <pre translate="no"><span class="attribute">-type</span> recursion_max_depth() :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>().</pre>
 
       </div>
 
@@ -245,28 +232,29 @@ Pages
   </section>
 
   <section id="functions" class="details-list">
-    <h1 class="section-heading">
+    <h2 class="section-heading">
       <a class="hover-link" href="#functions">
         <i class="ri-link-m" aria-hidden="true"></i>
       </a>
       <span class="text">Functions</span>
-    </h1>
+    </h2>
+
     <div class="functions-list">
 <section class="detail" id="dto/1">
 
   <div class="detail-header">
-    <a href="#dto/1" class="detail-link" title="Link to this function">
+    <a href="#dto/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">dto(Schema)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L47" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">dto(Schema)</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L47" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
@@ -274,7 +262,7 @@ Pages
       <div class="specs">
 
           <pre translate="no"><span class="attribute">-spec</span> dto(Schema) -> Generator
-       when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+             when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
 
       </div>
 
@@ -284,18 +272,18 @@ Pages
 <section class="detail" id="dto/2">
 
   <div class="detail-header">
-    <a href="#dto/2" class="detail-link" title="Link to this function">
+    <a href="#dto/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">dto(Schema, MaxDepth)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L55" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">dto(Schema, MaxDepth)</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L55" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
@@ -303,31 +291,31 @@ Pages
       <div class="specs">
 
           <pre translate="no"><span class="attribute">-spec</span> dto(Schema, MaxDepth) -> Generator
-       when
-           MaxDepth :: <a href="#t:recursion_max_depth/0">recursion_max_depth</a>(),
-           Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(),
-           Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+             when
+                 MaxDepth :: <a href="#t:recursion_max_depth/0">recursion_max_depth</a>(),
+                 Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(),
+                 Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
 
       </div>
 
-Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
+<p>Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</p>
   </section>
 </section>
 <section class="detail" id="forall/2">
 
   <div class="detail-header">
-    <a href="#forall/2" class="detail-link" title="Link to this function">
+    <a href="#forall/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">forall(Generators, Prop)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L85" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">forall(Generators, Prop)</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L85" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
@@ -335,31 +323,31 @@ Returns a <code>triq</code> generator of DTOs from a given schema and maximum re
       <div class="specs">
 
           <pre translate="no"><span class="attribute">-spec</span> forall(Generators, Prop) -> ForAll
-          when
-              Generators :: [<a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>()],
-              Prop :: <a href="restcheck_pbt.html#t:prop/0">restcheck_pbt:prop</a>(),
-              ForAll :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>().</pre>
+                when
+                    Generators :: [<a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>()],
+                    Prop :: <a href="restcheck_pbt.html#t:prop/0">restcheck_pbt:prop</a>(),
+                    ForAll :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>().</pre>
 
       </div>
 
-Wraps a <code>forall</code> property in <code>triq</code> format.
+<p>Wraps a <code>forall</code> property in <code>triq</code> format.</p>
   </section>
 </section>
 <section class="detail" id="noshrink/1">
 
   <div class="detail-header">
-    <a href="#noshrink/1" class="detail-link" title="Link to this function">
+    <a href="#noshrink/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">noshrink(Generator)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L93" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">noshrink(Generator)</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L93" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
@@ -367,30 +355,30 @@ Wraps a <code>forall</code> property in <code>triq</code> format.
       <div class="specs">
 
           <pre translate="no"><span class="attribute">-spec</span> noshrink(Generator) -> NoShrinkGenerator
-            when
-                Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>(),
-                NoShrinkGenerator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+                  when
+                      Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>(),
+                      NoShrinkGenerator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
 
       </div>
 
-Prevents a <code>triq</code> generator from shrinking.
+<p>Prevents a <code>triq</code> generator from shrinking.</p>
   </section>
 </section>
 <section class="detail" id="quickcheck/3">
 
   <div class="detail-header">
-    <a href="#quickcheck/3" class="detail-link" title="Link to this function">
+    <a href="#quickcheck/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
-      <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature" translate="no">quickcheck(Property, NumTests, OutputFun)</h1>
-
-      <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L103" class="icon-action" rel="help" title="View Source">
-       <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-       <span class="sr-only">View Source</span>
-     </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">quickcheck(Property, NumTests, OutputFun)</h1>
 
 
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L103" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
   </div>
 
   <section class="docstring">
@@ -398,55 +386,55 @@ Prevents a <code>triq</code> generator from shrinking.
       <div class="specs">
 
           <pre translate="no"><span class="attribute">-spec</span> quickcheck(Property, NumTests, OutputFun) -> Result
-              when
-                  Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
-                  NumTests :: <a href="restcheck_pbt.html#t:num_tests/0">restcheck_pbt:num_tests</a>(),
-                  OutputFun :: <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>(),
-                  Result :: ok | {error, Reason},
-                  Reason :: term().</pre>
+                    when
+                        Property :: <a href="restcheck_pbt.html#t:property/0">restcheck_pbt:property</a>(),
+                        NumTests :: <a href="restcheck_pbt.html#t:num_tests/0">restcheck_pbt:num_tests</a>(),
+                        OutputFun :: <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>(),
+                        Result :: ok | {error, Reason},
+                        Reason :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:term/0">term</a>().</pre>
 
       </div>
 
-Runs a property-based test using <code>triq</code>.
+<p>Runs a property-based test using <code>triq</code>.</p>
   </section>
 </section>
 
     </div>
   </section>
 
-      <footer class="footer">
+    <footer class="footer">
+
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/restcheck/0.1.0" class="footer-hex-package">Hex Package</a>
+              <a href="https://hex.pm/packages/restcheck/0.1.0">Hex Package</a>
 
               <a href="https://preview.hex.pm/preview/restcheck/0.1.0">Hex Preview</a>
-
-                (<a href="https://preview.hex.pm/preview/restcheck/0.1.0/show/src/restcheck_triq.erl">current file</a>)
 
             </span>
 
           <span class="line">
-            <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
-              Search HexDocs
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
             </button>
+
 
           </span>
         </p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.30.7) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
 
             <a href="https://erlang.org" title="Erlang" target="_blank" translate="no">Erlang programming language</a>
 
         </p>
-      </footer>
-    </div>
+
+
+    </footer>
   </div>
 </main>
 </div>
-
 
   </body>
 </html>
