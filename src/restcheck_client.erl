@@ -75,7 +75,7 @@
     timeout => non_neg_integer()
 }.
 -type response() :: #{
-    status := inet:status_code(),
+    status := non_neg_integer(),
     headers => [{binary(), binary()}],
     body => response_body()
 }.
