@@ -38,10 +38,13 @@
 ]).
 
 %%% TYPES
--type auth() :: basic_auth().
+-type auth() :: basic_auth() | bearer_auth().
 -type basic_auth() :: #{
     username := binary(),
     password := binary()
+}.
+-type bearer_auth() :: #{
+    token := binary()
 }.
 -type request_body() :: njson:t().
 -type response_body() :: njson:t().
@@ -215,6 +218,11 @@ request(Name, Config, Opts) ->
                                 <<"Basic ",
                                     (base64:encode(<<Username/binary, ":", Password/binary>>))/binary>>
                             }
+                            | RawHeaders
+                        ];
+                    #{token := Token} ->
+                        [
+                            {<<"Authorization">>, <<"Bearer ", Token/binary>>}
                             | RawHeaders
                         ];
                     _Auth ->

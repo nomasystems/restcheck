@@ -22,7 +22,8 @@
 all() ->
     [
         start_stop,
-        request
+        request,
+        auth
     ].
 
 %%%-----------------------------------------------------------------------------
@@ -122,6 +123,55 @@ request(_Conf) ->
             #{
                 path => <<"/foo/bar">>, query_parameters => [{<<"limit">>, 2}]
             },
+            #{}
+        ),
+
+    ok = restcheck_client:stop(restcheck_client),
+
+    ok.
+
+auth(_Conf) ->
+    {ok, _ClientPid} = restcheck_client:start_link(
+        restcheck_client,
+        #{host => <<"localhost">>, port => 8080, ssl => false}
+    ),
+    meck:expect(
+        restcheck_client_server,
+        handle,
+        fun('GET', [<<"auth">>], Req) ->
+            Headers = elli_request:headers(Req),
+            Authorization =
+                case proplists:get_value(<<"Authorization">>, Headers, undefined) of
+                    undefined -> proplists:get_value(<<"authorization">>, Headers, <<>>);
+                    Value -> Value
+                end,
+            {200, [{<<"Content-Type">>, <<"application/json">>}],
+                njson:encode(#{<<"authorization">> => Authorization})}
+        end
+    ),
+
+    %% Basic auth
+    {ok, #{
+        status := 200,
+        body := #{<<"authorization">> := <<"Basic YWRtaW46c2VjcmV0">>}
+    }} =
+        restcheck_client:request(
+            restcheck_client,
+            #{
+                path => <<"/auth">>,
+                auth => #{username => <<"admin">>, password => <<"secret">>}
+            },
+            #{}
+        ),
+
+    %% Bearer auth
+    {ok, #{
+        status := 200,
+        body := #{<<"authorization">> := <<"Bearer admin">>}
+    }} =
+        restcheck_client:request(
+            restcheck_client,
+            #{path => <<"/auth">>, auth => #{token => <<"admin">>}},
             #{}
         ),
 
