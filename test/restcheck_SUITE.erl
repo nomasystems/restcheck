@@ -87,13 +87,13 @@ petstore(_Conf) ->
                     #{<<"id">> => 2, <<"name">> => <<"Bar">>}
                 ],
                 {Code, Headers, Response} =
-                    {200, [{<<"x-next">>, <<"/pets?nextPage=2">>}], njson:encode(Pets)},
+                    {200, [{<<"x-next">>, <<"/pets?nextPage=2">>}], element(2, njson:encode(Pets))},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response};
             ([<<"pets">>], 'POST', _Headers, _QueryParameters, _Body) ->
-                {Code, Headers, Response} = {500, [], njson:encode(ServerError)},
+                {Code, Headers, Response} = {500, [], element(2, njson:encode(ServerError))},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response};
             ([<<"pets">>, _PetId], 'GET', _Headers, _QueryParameters, _Body) ->
-                {Code, Headers, Response} = {400, [], njson:encode(BadRequestError)},
+                {Code, Headers, Response} = {400, [], element(2, njson:encode(BadRequestError))},
                 {Code, [{<<"Content-Type">>, <<"application/json">>} | Headers], Response}
         end
     ),
@@ -102,7 +102,7 @@ petstore(_Conf) ->
         spec_path => unicode:characters_to_binary(
             code:priv_dir(restcheck) ++ "/oas/3.0/examples/petstore.json"
         ),
-        spec_format => erf_oas_3_0,
+        spec_format => erf_parser_oas_3_0,
         pbt_backend => restcheck_triq,
         host => <<"localhost">>,
         port => 8080,

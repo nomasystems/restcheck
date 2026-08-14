@@ -146,7 +146,7 @@ auth(_Conf) ->
                     Value -> Value
                 end,
             {200, [{<<"Content-Type">>, <<"application/json">>}],
-                njson:encode(#{<<"authorization">> => Authorization})}
+                element(2, njson:encode(#{<<"authorization">> => Authorization}))}
         end
     ),
 

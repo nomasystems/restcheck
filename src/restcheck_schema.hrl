@@ -16,16 +16,16 @@
 
 %%% MACROS
 -define(BASIC_SCHEMAS, [
-    #{<<"type">> => <<"boolean">>},
-    #{<<"type">> => <<"integer">>},
-    #{<<"type">> => <<"number">>},
-    #{<<"type">> => <<"string">>},
-    #{<<"type">> => <<"array">>},
-    #{<<"type">> => <<"object">>}
+    #{type => boolean},
+    #{type => integer},
+    #{type => float},
+    #{type => string},
+    #{type => array},
+    #{type => object}
 ]).
 -define(FORMATS, [
-    <<"base64">>,
-    <<"iso8601-datetime">>
+    base64,
+    iso8601
 ]).
 % https://www.erlang.org/doc/efficiency_guide/advanced.html
 -define(MAX_INT, 134217728).

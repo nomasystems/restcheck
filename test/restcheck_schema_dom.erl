@@ -64,9 +64,9 @@ string() ->
                 triq_dom:int(0, MaxLength),
                 fun(MinLength) ->
                     #{
-                        <<"type">> => <<"string">>,
-                        <<"minLength">> => MinLength,
-                        <<"maxLength">> => MaxLength
+                        type => string,
+                        min_length => MinLength,
+                        max_length => MaxLength
                     }
                 end
             )
@@ -93,11 +93,11 @@ number() ->
         fun({Min, Offset, ExclusiveMinimum, ExclusiveMaximum}) ->
             Max = Min + Offset,
             #{
-                <<"type">> => <<"number">>,
-                <<"minimum">> => Min,
-                <<"exclusiveMinimum">> => ExclusiveMinimum,
-                <<"maximum">> => Max,
-                <<"exclusiveMaximum">> => ExclusiveMaximum
+                type => float,
+                minimum => Min,
+                exclusive_minimum => ExclusiveMinimum,
+                maximum => Max,
+                exclusive_maximum => ExclusiveMaximum
             }
         end
     ).
@@ -111,12 +111,12 @@ integer() ->
                 triq_dom:int(Min, Max),
                 fun(MultipleOf) ->
                     #{
-                        <<"type">> => <<"integer">>,
-                        <<"minimum">> => Min,
-                        <<"exclusiveMinimum">> => ExclusiveMinimum,
-                        <<"maximum">> => Max,
-                        <<"exclusiveMaximum">> => ExclusiveMaximum,
-                        <<"multipleOf">> => MultipleOf
+                        type => integer,
+                        minimum => Min,
+                        exclusive_minimum => ExclusiveMinimum,
+                        maximum => Max,
+                        exclusive_maximum => ExclusiveMaximum,
+                        multiple_of => MultipleOf
                     }
                 end
             )
@@ -124,7 +124,7 @@ integer() ->
     ).
 
 boolean() ->
-    triq_dom:return(#{<<"type">> => <<"boolean">>}).
+    triq_dom:return(#{type => boolean}).
 
 array() ->
     array(?DEPTH_BOUND).
@@ -134,11 +134,11 @@ array(Depth) ->
         {schema(Depth - 1), triq_dom:int(), triq_dom:pos_integer(), triq_dom:bool()},
         fun({Schema, MinItems, Offset, UniqueItems}) ->
             #{
-                <<"type">> => <<"array">>,
-                <<"items">> => Schema,
-                <<"minItems">> => MinItems,
-                <<"maxItems">> => MinItems + Offset,
-                <<"uniqueItems">> => UniqueItems
+                type => array,
+                items => Schema,
+                min_items => MinItems,
+                max_items => MinItems + Offset,
+                unique_items => UniqueItems
             }
         end
     ).
@@ -156,8 +156,8 @@ object(Depth) ->
             case PropertyList of
                 [] ->
                     #{
-                        <<"type">> => <<"object">>,
-                        <<"additionalProperties">> => AdditionalProperties
+                        type => object,
+                        additional_properties => AdditionalProperties
                     };
                 _PL ->
                     PropertyNames = proplists:get_keys(PropertyList),
@@ -173,12 +173,12 @@ object(Depth) ->
                                 triq_dom:int(0, MaxProperties),
                                 fun(MinProperties) ->
                                     #{
-                                        <<"type">> => <<"object">>,
-                                        <<"properties">> => Properties,
-                                        <<"required">> => Required,
-                                        <<"minProperties">> => MinProperties,
-                                        <<"maxProperties">> => MaxProperties,
-                                        <<"additionalProperties">> => AdditionalProperties
+                                        type => object,
+                                        properties => Properties,
+                                        required => Required,
+                                        min_properties => MinProperties,
+                                        max_properties => MaxProperties,
+                                        additional_properties => AdditionalProperties
                                     }
                                 end
                             )

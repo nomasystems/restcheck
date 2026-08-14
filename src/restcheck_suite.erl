@@ -59,8 +59,13 @@ generate(API) ->
                     Method = maps:get(method, Operation),
                     OperationParameters = maps:get(parameters, Operation),
                     Parameters = EndpointParameters ++ OperationParameters,
-                    RequestBody = maps:get(request_body, Operation),
-                    Responses = maps:get(responses, Operation),
+                    RequestBody = maps:get(ref, maps:get(body, maps:get(request, Operation))),
+                    Responses = maps:map(
+                        fun(_Status, Response) ->
+                            maps:get(ref, maps:get(body, Response))
+                        end,
+                        maps:get(responses, Operation)
+                    ),
                     {RawValues, RawGenerators} =
                         lists:foldl(
                             fun(#{ref := Ref, name := Name}, {ValuesAcc, GeneratorsAcc}) ->
@@ -340,7 +345,7 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
                     ),
                     [
                         erl_syntax:clause(
-                            [erl_syntax:atom(false)],
+                            [erl_syntax:tuple([erl_syntax:atom(false), erl_syntax:underscore()])],
                             none,
                             [
                                 erl_syntax:tuple([
@@ -585,7 +590,12 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
                                                     ),
                                                     [
                                                         erl_syntax:clause(
-                                                            [erl_syntax:atom(false)],
+                                                            [
+                                                                erl_syntax:tuple([
+                                                                    erl_syntax:atom(false),
+                                                                    erl_syntax:underscore()
+                                                                ])
+                                                            ],
                                                             none,
                                                             [
                                                                 erl_syntax:tuple([

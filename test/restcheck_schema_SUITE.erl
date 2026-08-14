@@ -20,46 +20,62 @@
 -compile([export_all, nowarn_export_all]).
 
 %%% MACROS
--define(ENUM_SCHEMA, #{<<"enum">> => [1, <<"string">>, true]}).
--define(BOOLEAN_SCHEMA, #{<<"type">> => <<"boolean">>}).
+-define(ENUM_SCHEMA, #{enum => [1, <<"string">>, true]}).
+-define(BOOLEAN_SCHEMA, #{type => boolean}).
 -define(INTEGER_SCHEMA, #{
-    <<"type">> => <<"integer">>,
-    <<"minimum">> => 2,
-    <<"exclusiveMinimum">> => true,
-    <<"maximum">> => 6
+    type => integer,
+    minimum => 2,
+    exclusive_minimum => true,
+    maximum => 6
 }).
 -define(NUMBER_SCHEMA, #{
-    <<"type">> => <<"number">>,
-    <<"minimum">> => 4,
-    <<"exclusiveMinimum">> => true,
-    <<"maximum">> => 8,
-    <<"exclusiveMaximum">> => true
+    type => float,
+    minimum => 4,
+    exclusive_minimum => true,
+    maximum => 8,
+    exclusive_maximum => true
 }).
 -define(STRING_SCHEMA, #{
-    <<"type">> => <<"string">>,
-    <<"minLength">> => 3,
-    <<"maxLength">> => 6,
-    <<"pattern">> => <<"a{3}">>
+    type => string,
+    min_length => 3,
+    max_length => 6,
+    pattern => <<"a{3}">>
 }).
 -define(ARRAY_SCHEMA, #{
-    <<"type">> => <<"array">>,
-    <<"items">> => ?NUMBER_SCHEMA,
-    <<"minItems">> => 1,
-    <<"maxItems">> => 3
+    type => array,
+    items => ?NUMBER_SCHEMA,
+    min_items => 1,
+    max_items => 3
 }).
 -define(OBJECT_SCHEMA, #{
-    <<"type">> => <<"object">>,
-    <<"properties">> => #{
+    type => object,
+    properties => #{
         <<"foo">> => ?INTEGER_SCHEMA,
         <<"bar">> => ?STRING_SCHEMA
     },
-    <<"minProperties">> => 3,
-    <<"additionalProperties">> => true
+    min_properties => 3,
+    additional_properties => true
 }).
--define(INTERSECTION_SCHEMA, #{<<"allOf">> => [?INTEGER_SCHEMA, ?NUMBER_SCHEMA]}).
--define(UNION_SCHEMA, #{<<"anyOf">> => [?BOOLEAN_SCHEMA, ?STRING_SCHEMA]}).
--define(SYMMETRIC_DIFFERENCE_SCHEMA, #{<<"oneOf">> => [?INTEGER_SCHEMA, ?NUMBER_SCHEMA]}).
--define(COMPLEMENT_SCHEMA, #{<<"not">> => ?BOOLEAN_SCHEMA}).
+%% ndto 0.3.x splits the old `number' type into disjoint `integer' and `float'
+%% types, so composite schemas that relied on integer/number overlap now use two
+%% same-type schemas with overlapping ranges to keep exercising the set algebra.
+-define(INTEGER_SCHEMA_2, #{
+    type => integer,
+    minimum => 4,
+    exclusive_minimum => true,
+    maximum => 8,
+    exclusive_maximum => true
+}).
+-define(FLOAT_SCHEMA_A, #{
+    type => float,
+    minimum => 2,
+    exclusive_minimum => true,
+    maximum => 6
+}).
+-define(INTERSECTION_SCHEMA, #{all_of => [?INTEGER_SCHEMA, ?INTEGER_SCHEMA_2]}).
+-define(UNION_SCHEMA, #{any_of => [?BOOLEAN_SCHEMA, ?STRING_SCHEMA]}).
+-define(SYMMETRIC_DIFFERENCE_SCHEMA, #{one_of => [?FLOAT_SCHEMA_A, ?NUMBER_SCHEMA]}).
+-define(COMPLEMENT_SCHEMA, #{'not' => ?BOOLEAN_SCHEMA}).
 
 %%%-----------------------------------------------------------------------------
 %%% SUITE EXPORTS
@@ -164,39 +180,38 @@ complement(_Conf) ->
 
     BooleanComplement = restcheck_schema:complement(?BOOLEAN_SCHEMA),
     ok = generate_and_load(boolean_complement, BooleanComplement),
-    ?assertEqual(false, boolean_complement:is_valid(false)),
+    assert_invalid(boolean_complement:is_valid(false)),
     ?assertEqual(true, boolean_complement:is_valid(1)),
 
     IntegerComplement = restcheck_schema:complement(?INTEGER_SCHEMA),
     ok = generate_and_load(integer_complement, IntegerComplement),
-    ?assertEqual(false, integer_complement:is_valid(3)),
+    assert_invalid(integer_complement:is_valid(3)),
     ?assertEqual(true, integer_complement:is_valid(1)),
     ?assertEqual(true, integer_complement:is_valid(true)),
 
     NumberComplement = restcheck_schema:complement(?NUMBER_SCHEMA),
     ok = generate_and_load(number_complement, NumberComplement),
-    ?assertEqual(false, number_complement:is_valid(5)),
-    ?assertEqual(false, number_complement:is_valid(5.5)),
-    ?assertEqual(true, number_complement:is_valid(9)),
+    assert_invalid(number_complement:is_valid(5.0)),
+    assert_invalid(number_complement:is_valid(5.5)),
+    ?assertEqual(true, number_complement:is_valid(9.0)),
     ?assertEqual(true, number_complement:is_valid(true)),
 
     StringComplement = restcheck_schema:complement(?STRING_SCHEMA),
     ok = generate_and_load(string_complement, StringComplement),
-    ?assertEqual(false, string_complement:is_valid(<<"123aaa">>)),
+    assert_invalid(string_complement:is_valid(<<"123aaa">>)),
     ?assertEqual(true, string_complement:is_valid(<<"123aa6">>)),
     ?assertEqual(true, string_complement:is_valid(<<"aaa4567">>)),
     ?assertEqual(true, string_complement:is_valid(true)),
 
     ArrayComplement = restcheck_schema:complement(?ARRAY_SCHEMA),
     ok = generate_and_load(array_complement, ArrayComplement),
-    ?assertEqual(false, array_complement:is_valid([5])),
-    ?assertEqual(true, array_complement:is_valid([9])),
+    assert_invalid(array_complement:is_valid([5.0])),
+    ?assertEqual(true, array_complement:is_valid([9.0])),
     ?assertEqual(true, array_complement:is_valid(true)),
 
     ObjectComplement = restcheck_schema:complement(?OBJECT_SCHEMA),
     ok = generate_and_load(object_complement, ObjectComplement),
-    ?assertEqual(
-        false,
+    assert_invalid(
         object_complement:is_valid(#{<<"foo">> => 4, <<"bar">> => <<"aaa">>, <<"baz">> => true})
     ),
     ?assertEqual(
@@ -211,83 +226,82 @@ complement(_Conf) ->
 
     IntersectionComplement = restcheck_schema:complement(?INTERSECTION_SCHEMA),
     ok = generate_and_load(intersection_complement, IntersectionComplement),
-    ?assertEqual(false, intersection_complement:is_valid(5)),
+    assert_invalid(intersection_complement:is_valid(5)),
     ?assertEqual(true, intersection_complement:is_valid(3)),
     ?assertEqual(true, intersection_complement:is_valid(true)),
 
     UnionComplement = restcheck_schema:complement(?UNION_SCHEMA),
     ok = generate_and_load(union_complement, UnionComplement),
-    ?assertEqual(false, union_complement:is_valid(true)),
-    ?assertEqual(false, union_complement:is_valid(<<"12aaa6">>)),
+    assert_invalid(union_complement:is_valid(true)),
+    assert_invalid(union_complement:is_valid(<<"12aaa6">>)),
     ?assertEqual(true, union_complement:is_valid(<<"123456">>)),
     ?assertEqual(true, union_complement:is_valid(<<"aaa4567">>)),
     ?assertEqual(true, union_complement:is_valid([1, 2, 3])),
 
     SymmetricDifferenceComplement = restcheck_schema:complement(?SYMMETRIC_DIFFERENCE_SCHEMA),
     ok = generate_and_load(symmetric_difference_complement, SymmetricDifferenceComplement),
-    ?assertEqual(false, symmetric_difference_complement:is_valid(3)),
-    ?assertEqual(false, symmetric_difference_complement:is_valid(7)),
-    ?assertEqual(true, symmetric_difference_complement:is_valid(5)),
+    assert_invalid(symmetric_difference_complement:is_valid(3.0)),
+    assert_invalid(symmetric_difference_complement:is_valid(7.0)),
+    ?assertEqual(true, symmetric_difference_complement:is_valid(5.0)),
     ?assertEqual(true, symmetric_difference_complement:is_valid(true)),
 
     ComplementComplement = restcheck_schema:complement(?COMPLEMENT_SCHEMA),
     ok = generate_and_load(complement_complement, ComplementComplement),
-    ?assertEqual(false, complement_complement:is_valid(5)),
+    assert_invalid(complement_complement:is_valid(5)),
     ?assertEqual(true, complement_complement:is_valid(true)),
 
     ok.
 
 intersection(_Conf) ->
     %% TODO: implement enum validation for non-strings
-    % EnumIntersection = restcheck_schema:intersection([?ENUM_SCHEMA, #{<<"enum">> => [true, #{<<"foo">> => <<"bar">>}]}]),
+    % EnumIntersection = restcheck_schema:intersection([?ENUM_SCHEMA, #{enum => [true, #{<<"foo">> => <<"bar">>}]}]),
     % ok = generate_and_load(enum_intersection, EnumIntersection),
     % false = enum_intersection:is_valid(#{<<"foo">> => <<"bar">>}),
     % false = enum_intersection:is_valid([1, 2, 3]),
     % true = enum_intersection:is_valid(true),
 
     BooleanIntersection = restcheck_schema:intersection([
-        ?BOOLEAN_SCHEMA, #{<<"type">> => <<"boolean">>}
+        ?BOOLEAN_SCHEMA, #{type => boolean}
     ]),
     ok = generate_and_load(boolean_intersection, BooleanIntersection),
-    ?assertEqual(false, boolean_intersection:is_valid(<<"string">>)),
+    assert_invalid(boolean_intersection:is_valid(<<"string">>)),
     ?assertEqual(true, boolean_intersection:is_valid(true)),
 
     IntegerIntersection = restcheck_schema:intersection([
-        ?INTEGER_SCHEMA, #{<<"type">> => <<"integer">>, <<"minimum">> => 4}
+        ?INTEGER_SCHEMA, #{type => integer, minimum => 4}
     ]),
     ok = generate_and_load(integer_intersection, IntegerIntersection),
-    ?assertEqual(false, integer_intersection:is_valid(3)),
+    assert_invalid(integer_intersection:is_valid(3)),
     ?assertEqual(true, integer_intersection:is_valid(4)),
 
     NumberIntersection = restcheck_schema:intersection([
-        ?NUMBER_SCHEMA, #{<<"type">> => <<"number">>, <<"maximum">> => 10}
+        ?NUMBER_SCHEMA, #{type => float, maximum => 10}
     ]),
     ok = generate_and_load(number_intersection, NumberIntersection),
-    ?assertEqual(false, number_intersection:is_valid(1.0)),
+    assert_invalid(number_intersection:is_valid(1.0)),
     ?assertEqual(true, number_intersection:is_valid(7.0)),
 
     StringIntersection = restcheck_schema:intersection([
-        ?STRING_SCHEMA, #{<<"type">> => <<"string">>, <<"pattern">> => <<"b{3}">>}
+        ?STRING_SCHEMA, #{type => string, pattern => <<"b{3}">>}
     ]),
     ok = generate_and_load(string_intersection, StringIntersection),
-    ?assertEqual(false, string_intersection:is_valid(<<"123aaa">>)),
-    ?assertEqual(false, string_intersection:is_valid(<<"bbb">>)),
+    assert_invalid(string_intersection:is_valid(<<"123aaa">>)),
+    assert_invalid(string_intersection:is_valid(<<"bbb">>)),
     ?assertEqual(true, string_intersection:is_valid(<<"aaabbb">>)),
 
     ArrayIntersection = restcheck_schema:intersection([
-        ?ARRAY_SCHEMA, #{<<"type">> => <<"array">>, <<"items">> => ?INTEGER_SCHEMA}
+        ?ARRAY_SCHEMA, #{type => array, items => ?INTEGER_SCHEMA}
     ]),
     ok = generate_and_load(array_intersection, ArrayIntersection),
-    ?assertEqual(false, array_intersection:is_valid([2])),
-    ?assertEqual(false, array_intersection:is_valid([5.0, 5.1, 5.2])),
+    assert_invalid(array_intersection:is_valid([2])),
+    assert_invalid(array_intersection:is_valid([5.0, 5.1, 5.2])),
     ?assertEqual(true, array_intersection:is_valid([5, 5, 5])),
 
     ObjectIntersection = restcheck_schema:intersection([
-        ?OBJECT_SCHEMA, #{<<"type">> => <<"object">>, <<"maxProperties">> => 4}
+        ?OBJECT_SCHEMA, #{type => object, max_properties => 4}
     ]),
     ok = generate_and_load(object_intersection, ObjectIntersection),
-    ?assertEqual(
-        false,
+    assert_invalid(
         object_intersection:is_valid(#{
             <<"foo">> => 4,
             <<"bar">> => <<"aaa">>,
@@ -296,8 +310,7 @@ intersection(_Conf) ->
             <<"qux">> => <<"quux">>
         })
     ),
-    ?assertEqual(
-        false,
+    assert_invalid(
         object_intersection:is_valid(#{
             <<"foo">> => 4, <<"bar">> => false, <<"baz">> => true, <<"foobar">> => 1
         })
@@ -308,94 +321,94 @@ intersection(_Conf) ->
     ),
 
     IntersectionIntersection = restcheck_schema:intersection([
-        ?INTERSECTION_SCHEMA, #{<<"allOf">> => [#{<<"type">> => <<"integer">>, <<"minimum">> => 5}]}
+        ?INTERSECTION_SCHEMA, #{all_of => [#{type => integer, minimum => 5}]}
     ]),
     ok = generate_and_load(intersection_intersection, IntersectionIntersection),
-    ?assertEqual(false, intersection_intersection:is_valid(4)),
-    ?assertEqual(false, intersection_intersection:is_valid(9)),
+    assert_invalid(intersection_intersection:is_valid(4)),
+    assert_invalid(intersection_intersection:is_valid(9)),
     ?assertEqual(true, intersection_intersection:is_valid(5)),
 
     UnionIntersection = restcheck_schema:intersection([
-        ?UNION_SCHEMA, #{<<"anyOf">> => [?BOOLEAN_SCHEMA, ?NUMBER_SCHEMA]}
+        ?UNION_SCHEMA, #{any_of => [?BOOLEAN_SCHEMA, ?NUMBER_SCHEMA]}
     ]),
     ok = generate_and_load(union_intersection, UnionIntersection),
-    ?assertEqual(false, union_intersection:is_valid(5.0)),
-    ?assertEqual(false, union_intersection:is_valid(<<"foo">>)),
+    assert_invalid(union_intersection:is_valid(5.0)),
+    assert_invalid(union_intersection:is_valid(<<"foo">>)),
     ?assertEqual(true, union_intersection:is_valid(true)),
 
     SymmetricDifferenceIntersection = restcheck_schema:intersection([
-        ?SYMMETRIC_DIFFERENCE_SCHEMA, #{<<"oneOf">> => [?INTEGER_SCHEMA, ?STRING_SCHEMA]}
+        ?SYMMETRIC_DIFFERENCE_SCHEMA, #{one_of => [?FLOAT_SCHEMA_A, ?STRING_SCHEMA]}
     ]),
     ok = generate_and_load(symmetric_difference_intersection, SymmetricDifferenceIntersection),
-    ?assertEqual(false, symmetric_difference_intersection:is_valid(<<"foo">>)),
-    ?assertEqual(false, symmetric_difference_intersection:is_valid(5)),
-    ?assertEqual(true, symmetric_difference_intersection:is_valid(3)),
+    assert_invalid(symmetric_difference_intersection:is_valid(<<"foo">>)),
+    assert_invalid(symmetric_difference_intersection:is_valid(5.0)),
+    ?assertEqual(true, symmetric_difference_intersection:is_valid(3.0)),
 
     ComplementIntersection = restcheck_schema:intersection([
-        ?COMPLEMENT_SCHEMA, #{<<"not">> => ?BOOLEAN_SCHEMA}
+        ?COMPLEMENT_SCHEMA, #{'not' => ?BOOLEAN_SCHEMA}
     ]),
     ok = generate_and_load(complement_intersection, ComplementIntersection),
-    ?assertEqual(false, complement_intersection:is_valid(true)),
+    assert_invalid(complement_intersection:is_valid(true)),
     ?assertEqual(true, complement_intersection:is_valid(<<"foo">>)),
 
     ok.
 
 union(_Conf) ->
     %% TODO: implement enum validation for non-strings
-    % EnumUnion = restcheck_schema:union([?ENUM_SCHEMA, #{<<"enum">> => [#{<<"foo">> => <<"bar">>}]}]),
+    % EnumUnion = restcheck_schema:union([?ENUM_SCHEMA, #{enum => [#{<<"foo">> => <<"bar">>}]}]),
     % ok = generate_and_load(enum_union, EnumUnion),
     % false = enum_union:is_valid(false),
     % true = enum_union:is_valid(#{<<"foo">> => <<"bar">>}),
 
-    BooleanUnion = restcheck_schema:union([?BOOLEAN_SCHEMA, #{<<"type">> => <<"boolean">>}]),
+    BooleanUnion = restcheck_schema:union([?BOOLEAN_SCHEMA, #{type => boolean}]),
     ok = generate_and_load(boolean_union, BooleanUnion),
     ?assertEqual(true, boolean_union:is_valid(true)),
-    ?assertEqual(false, boolean_union:is_valid(1)),
+    assert_invalid(boolean_union:is_valid(1)),
 
     IntegerUnion = restcheck_schema:union([
-        ?INTEGER_SCHEMA, #{<<"type">> => <<"integer">>, <<"minimum">> => 6}
+        ?INTEGER_SCHEMA, #{type => integer, minimum => 6}
     ]),
     ok = generate_and_load(integer_union, IntegerUnion),
     ?assertEqual(true, integer_union:is_valid(4)),
     ?assertEqual(true, integer_union:is_valid(7)),
-    ?assertEqual(false, integer_union:is_valid(1)),
-    ?assertEqual(false, integer_union:is_valid(true)),
+    assert_invalid(integer_union:is_valid(1)),
+    assert_invalid(integer_union:is_valid(true)),
 
     NumberUnion = restcheck_schema:union([
-        ?NUMBER_SCHEMA, #{<<"type">> => <<"number">>, <<"maximum">> => 5}
+        ?NUMBER_SCHEMA, #{type => float, maximum => 5}
     ]),
     ok = generate_and_load(number_union, NumberUnion),
-    ?assertEqual(true, number_union:is_valid(1)),
-    ?assertEqual(true, number_union:is_valid(7)),
-    ?assertEqual(false, number_union:is_valid(9)),
-    ?assertEqual(false, number_union:is_valid(true)),
+    ?assertEqual(true, number_union:is_valid(1.0)),
+    ?assertEqual(true, number_union:is_valid(7.0)),
+    assert_invalid(number_union:is_valid(9)),
+    assert_invalid(number_union:is_valid(true)),
 
     StringUnion = restcheck_schema:union([
-        ?STRING_SCHEMA, #{<<"type">> => <<"string">>, <<"pattern">> => <<"b{3}">>}
+        ?STRING_SCHEMA, #{type => string, pattern => <<"b{3}">>}
     ]),
     ok = generate_and_load(string_union, StringUnion),
     ?assertEqual(true, string_union:is_valid(<<"bbb">>)),
     ?assertEqual(true, string_union:is_valid(<<"aaa">>)),
-    ?assertEqual(false, string_union:is_valid(<<"foo">>)),
-    ?assertEqual(false, string_union:is_valid(true)),
+    assert_invalid(string_union:is_valid(<<"foo">>)),
+    assert_invalid(string_union:is_valid(true)),
 
     ArrayUnion = restcheck_schema:union([
-        ?ARRAY_SCHEMA, #{<<"type">> => <<"array">>, <<"items">> => ?BOOLEAN_SCHEMA}
+        ?ARRAY_SCHEMA, #{type => array, items => ?BOOLEAN_SCHEMA}
     ]),
     ok = generate_and_load(array_union, ArrayUnion),
     ?assertEqual(true, array_union:is_valid([true])),
-    ?assertEqual(true, array_union:is_valid([5.0, 6, 7.9999])),
-    ?assertEqual(false, array_union:is_valid([<<"foo">>, <<"bar">>, <<"baz">>])),
-    ?assertEqual(false, array_union:is_valid(true)),
+    ?assertEqual(true, array_union:is_valid([5.0, 6.0, 7.9999])),
+    assert_invalid(array_union:is_valid([<<"foo">>, <<"bar">>, <<"baz">>])),
+    assert_invalid(array_union:is_valid(true)),
 
     ObjectUnion = restcheck_schema:union([
         ?OBJECT_SCHEMA,
         #{
-            <<"type">> => <<"object">>,
-            <<"properties">> => #{
-                <<"qux">> => #{<<"type">> => <<"boolean">>}
+            type => object,
+            properties => #{
+                <<"qux">> => #{type => boolean}
             },
-            <<"required">> => [<<"qux">>]
+            required => [<<"qux">>]
         }
     ]),
     ok = generate_and_load(object_union, ObjectUnion),
@@ -403,36 +416,36 @@ union(_Conf) ->
         true, object_union:is_valid(#{<<"foo">> => 4, <<"bar">> => <<"aaa">>, <<"baz">> => true})
     ),
     ?assertEqual(true, object_union:is_valid(#{<<"qux">> => true})),
-    ?assertEqual(false, object_union:is_valid(#{<<"foo">> => <<"foobar">>})),
-    ?assertEqual(false, object_union:is_valid(false)),
+    assert_invalid(object_union:is_valid(#{<<"foo">> => <<"foobar">>})),
+    assert_invalid(object_union:is_valid(false)),
 
     IntersectionUnion = restcheck_schema:union([
-        ?INTERSECTION_SCHEMA, #{<<"allOf">> => [?BOOLEAN_SCHEMA]}
+        ?INTERSECTION_SCHEMA, #{all_of => [?BOOLEAN_SCHEMA]}
     ]),
     ok = generate_and_load(intersection_union, IntersectionUnion),
     ?assertEqual(true, intersection_union:is_valid(true)),
     ?assertEqual(true, intersection_union:is_valid(5)),
-    ?assertEqual(false, intersection_union:is_valid(5.1)),
-    ?assertEqual(false, intersection_union:is_valid(<<"foo">>)),
+    assert_invalid(intersection_union:is_valid(5.1)),
+    assert_invalid(intersection_union:is_valid(<<"foo">>)),
 
     UnionUnion = restcheck_schema:union([
-        ?UNION_SCHEMA, #{<<"anyOf">> => [?INTEGER_SCHEMA, ?NUMBER_SCHEMA]}
+        ?UNION_SCHEMA, #{any_of => [?INTEGER_SCHEMA, ?NUMBER_SCHEMA]}
     ]),
     ok = generate_and_load(union_union, UnionUnion),
     ?assertEqual(true, union_union:is_valid(7.9)),
     ?assertEqual(true, union_union:is_valid(true)),
-    ?assertEqual(false, union_union:is_valid(#{<<"foo">> => <<"bar">>})),
+    assert_invalid(union_union:is_valid(#{<<"foo">> => <<"bar">>})),
 
     SymmetricDifferenceUnion = restcheck_schema:union([
-        ?SYMMETRIC_DIFFERENCE_SCHEMA, #{<<"oneOf">> => [?BOOLEAN_SCHEMA, ?STRING_SCHEMA]}
+        ?SYMMETRIC_DIFFERENCE_SCHEMA, #{one_of => [?BOOLEAN_SCHEMA, ?STRING_SCHEMA]}
     ]),
     ok = generate_and_load(symmetric_difference_union, SymmetricDifferenceUnion),
-    ?assertEqual(true, symmetric_difference_union:is_valid(4)),
+    ?assertEqual(true, symmetric_difference_union:is_valid(4.0)),
     ?assertEqual(true, symmetric_difference_union:is_valid(true)),
-    ?assertEqual(false, symmetric_difference_union:is_valid(5)),
-    ?assertEqual(false, symmetric_difference_union:is_valid(#{})),
+    assert_invalid(symmetric_difference_union:is_valid(5.0)),
+    assert_invalid(symmetric_difference_union:is_valid(#{})),
 
-    ComplementUnion = restcheck_schema:union([?COMPLEMENT_SCHEMA, #{<<"not">> => ?OBJECT_SCHEMA}]),
+    ComplementUnion = restcheck_schema:union([?COMPLEMENT_SCHEMA, #{'not' => ?OBJECT_SCHEMA}]),
     ok = generate_and_load(complement_union, ComplementUnion),
     ?assertEqual(true, complement_union:is_valid(true)),
     ?assertEqual(
@@ -449,3 +462,10 @@ union(_Conf) ->
 generate_and_load(Name, Schema) ->
     DTO = ndto:generate(Name, Schema),
     ok = ndto:load(DTO).
+
+assert_invalid(false) ->
+    ok;
+assert_invalid({false, _Reason}) ->
+    ok;
+assert_invalid(Other) ->
+    ct:fail({expected_invalid, Other}).

@@ -302,12 +302,18 @@ init([Name, ClientConfig]) ->
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
 body(Body) ->
-    njson:encode(Body).
+    {ok, Encoded} = njson:encode(Body),
+    Encoded.
 
 body(_ContentType, undefined) ->
     undefined;
 body(<<"application/json">>, BuoyBody) ->
-    njson:decode(BuoyBody);
+    case njson:decode(BuoyBody) of
+        {ok, Decoded} ->
+            Decoded;
+        _Error ->
+            BuoyBody
+    end;
 body(_ContentType, BuoyBody) ->
     BuoyBody.
 
