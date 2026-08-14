@@ -112,7 +112,8 @@ do(State) ->
         port => proplists:get_value(port, RawConf, 8080),
         ssl => proplists:get_value(ssl, RawConf, false),
         timeout => proplists:get_value(timeout, RawConf, 5000),
-        num_requests => proplists:get_value(num_requests, RawConf, 100)
+        num_requests => proplists:get_value(num_requests, RawConf, 100),
+        auth => proplists:get_value(auth, RawConf, undefined)
     },
     LogFile = proplists:get_value(log_file, RawConf, undefined),
     LogEnabled =
