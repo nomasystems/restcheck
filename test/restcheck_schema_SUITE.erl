@@ -56,9 +56,6 @@
     min_properties => 3,
     additional_properties => true
 }).
-%% ndto 0.3.x splits the old `number' type into disjoint `integer' and `float'
-%% types, so composite schemas that relied on integer/number overlap now use two
-%% same-type schemas with overlapping ranges to keep exercising the set algebra.
 -define(INTEGER_SCHEMA_2, #{
     type => integer,
     minimum => 4,

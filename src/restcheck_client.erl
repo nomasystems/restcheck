@@ -110,8 +110,7 @@ start_link(Name, ClientConfig) ->
 
 -spec stop(Name) -> Result when
     Name :: atom(),
-    Result :: ok | {error, Reason},
-    Reason :: term().
+    Result :: ok | {error, term()}.
 %% @doc Stops the client with given name.
 stop(Name) ->
     case persistent_term:get(?PERSISTENT_TERM(Name), undefined) of
@@ -156,9 +155,8 @@ stop(Name) ->
     Name :: atom(),
     Config :: req_config(),
     Opts :: req_opts(),
-    Result :: {ok, Response} | {error, Reason},
-    Response :: response(),
-    Reason :: term().
+    Result :: {ok, Response} | {error, term()},
+    Response :: response().
 %% @doc Sends a request.
 request(Name, Config, Opts) ->
     case persistent_term:get(?PERSISTENT_TERM(Name), undefined) of

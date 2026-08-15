@@ -173,7 +173,7 @@ array(Schema, MaxDepth) ->
     triq_dom:bind(
         triq_dom:int(MinItems, MaxItems),
         fun(Length) ->
-            DTO = dto(Items, MaxDepth - 1),
+            DTO = dto(Items, dec_depth(MaxDepth)),
             Array = triq_dom:vector(Length, DTO),
             case UniqueItems of
                 false ->
@@ -201,7 +201,7 @@ boolean(_Schema) ->
 -spec enum(Schema) -> Dom when
     Schema :: ndto:enum_schema(),
     Dom :: restcheck_pbt:generator().
-enum(#{enum := Enum}) ->
+enum(#{enum := [_ | _] = Enum}) ->
     triq_dom:elements(Enum).
 
 -spec integer(Schema) -> Dom when
@@ -318,7 +318,7 @@ object(Schema, MaxDepth) ->
                 Required ++ NotRequired,
                 AdditionalProperties,
                 MissingSize,
-                MaxDepth - 1,
+                dec_depth(MaxDepth),
                 triq_dom:return(#{})
             )
         end
@@ -340,7 +340,11 @@ object([], true, Missing, MaxDepth, Acc) ->
 object([], ExtraSchema, Missing, MaxDepth, Acc) ->
     NewAcc =
         triq_dom:bind(
-            {triq_dom:non_empty(triq_dom:unicode_binary()), dto(ExtraSchema, MaxDepth - 1), Acc},
+            {
+                triq_dom:non_empty(triq_dom:unicode_binary()),
+                dto(ExtraSchema, dec_depth(MaxDepth)),
+                Acc
+            },
             fun({PropertyName, PropertyValue, AccValue}) ->
                 maps:put(PropertyName, PropertyValue, AccValue)
             end
@@ -349,7 +353,7 @@ object([], ExtraSchema, Missing, MaxDepth, Acc) ->
 object([{PropertyName, PropertySchema} | Properties], ExtraSchema, Missing, MaxDepth, Acc) ->
     NewAcc =
         triq_dom:bind(
-            {dto(PropertySchema, MaxDepth - 1), Acc},
+            {dto(PropertySchema, dec_depth(MaxDepth)), Acc},
             fun({PropertyValue, AccValue}) ->
                 maps:put(PropertyName, PropertyValue, AccValue)
             end
@@ -367,9 +371,15 @@ one_of(#{one_of := Subschemas}, MaxDepth) ->
 -spec string(Schema) -> Dom when
     Schema :: ndto:string_schema(),
     Dom :: restcheck_pbt:generator().
-string(#{pattern := _Pattern}) ->
-    %% TODO: implement pattern
-    erlang:throw({restcheck_triq, pattern, not_implemented});
+string(#{pattern := Pattern}) ->
+    Regex = pattern_strip_anchors(unicode:characters_to_list(Pattern)),
+    {AST, _Rest} = pattern_parse_alt(Regex),
+    triq_dom:bind(
+        pattern_gen(AST),
+        fun(Codepoints) ->
+            unicode:characters_to_binary(Codepoints, utf8, utf8)
+        end
+    );
 string(Schema) ->
     MinLength = maps:get(min_length, Schema, 1),
     MaxLength = maps:get(max_length, Schema, 255),
@@ -444,6 +454,176 @@ string_format(iso8601, _Length) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
+-spec dec_depth(MaxDepth) -> Decremented when
+    MaxDepth :: recursion_max_depth(),
+    Decremented :: recursion_max_depth().
+dec_depth(MaxDepth) when MaxDepth > 0 ->
+    MaxDepth - 1;
+dec_depth(_MaxDepth) ->
+    0.
+
+%%% Generate strings matching an OpenAPI `pattern` (a regular expression). We
+%%% parse a common subset of regex (literals, character classes, `.`, groups,
+%%% alternation and the *, +, ?, {n}, {n,}, {n,m} quantifiers) into an AST and
+%%% turn it into a triq generator. Unbounded quantifiers are capped so generated
+%%% strings stay small.
+pattern_strip_anchors(Chars0) ->
+    Chars1 =
+        case Chars0 of
+            [$^ | Rest] -> Rest;
+            _ -> Chars0
+        end,
+    case lists:reverse(Chars1) of
+        [$$ | RevRest] -> lists:reverse(RevRest);
+        _ -> Chars1
+    end.
+
+pattern_parse_alt(Chars) ->
+    {Seq, Rest} = pattern_parse_seq(Chars),
+    case Rest of
+        [$| | Rest1] ->
+            {Next, Rest2} = pattern_parse_alt(Rest1),
+            Alts =
+                case Next of
+                    {alt, More} -> [Seq | More];
+                    _ -> [Seq, Next]
+                end,
+            {{alt, Alts}, Rest2};
+        _ ->
+            {Seq, Rest}
+    end.
+
+pattern_parse_seq(Chars) ->
+    pattern_parse_seq(Chars, []).
+
+pattern_parse_seq([], Acc) ->
+    {{seq, lists:reverse(Acc)}, []};
+pattern_parse_seq([C | _] = Chars, Acc) when C =:= $| orelse C =:= $) ->
+    {{seq, lists:reverse(Acc)}, Chars};
+pattern_parse_seq(Chars, Acc) ->
+    {Term, Rest} = pattern_parse_term(Chars),
+    pattern_parse_seq(Rest, [Term | Acc]).
+
+pattern_parse_term(Chars) ->
+    {Atom, Rest} = pattern_parse_atom(Chars),
+    pattern_parse_quantifier(Atom, Rest).
+
+pattern_parse_quantifier(Atom, [$* | Rest]) ->
+    {{repeat, Atom, 0, 6}, Rest};
+pattern_parse_quantifier(Atom, [$+ | Rest]) ->
+    {{repeat, Atom, 1, 6}, Rest};
+pattern_parse_quantifier(Atom, [$? | Rest]) ->
+    {{repeat, Atom, 0, 1}, Rest};
+pattern_parse_quantifier(Atom, [${ | Rest]) ->
+    pattern_parse_brace(Atom, Rest);
+pattern_parse_quantifier(Atom, Rest) ->
+    {Atom, Rest}.
+
+pattern_parse_brace(Atom, Chars) ->
+    {Min, Rest1} = pattern_parse_int(Chars),
+    case Rest1 of
+        [$} | Rest2] ->
+            {{repeat, Atom, Min, Min}, Rest2};
+        [$,, $} | Rest2] ->
+            {{repeat, Atom, Min, Min + 6}, Rest2};
+        [$, | Rest2] ->
+            {Max, Rest3} = pattern_parse_int(Rest2),
+            [$} | Rest4] = Rest3,
+            {{repeat, Atom, Min, Max}, Rest4}
+    end.
+
+pattern_parse_int(Chars) ->
+    pattern_parse_int(Chars, []).
+
+pattern_parse_int([C | Rest], Acc) when C >= $0 andalso C =< $9 ->
+    pattern_parse_int(Rest, [C | Acc]);
+pattern_parse_int(Rest, Acc) ->
+    {erlang:list_to_integer(lists:reverse(Acc)), Rest}.
+
+pattern_parse_atom([$( | Rest0]) ->
+    Rest1 =
+        case Rest0 of
+            [$?, $: | R] -> R;
+            _ -> Rest0
+        end,
+    {AST, Rest2} = pattern_parse_alt(Rest1),
+    [$) | Rest3] = Rest2,
+    {{group, AST}, Rest3};
+pattern_parse_atom([$[ | Rest]) ->
+    pattern_parse_class(Rest);
+pattern_parse_atom([$\\, Escaped | Rest]) ->
+    {pattern_escape(Escaped), Rest};
+pattern_parse_atom([$. | Rest]) ->
+    {{class, pattern_printable()}, Rest};
+pattern_parse_atom([C | Rest]) ->
+    {{lit, C}, Rest}.
+
+pattern_parse_class([$^ | Rest]) ->
+    {Set, Rest1} = pattern_parse_class_body(Rest, []),
+    {{class, pattern_printable() -- Set}, Rest1};
+pattern_parse_class(Rest) ->
+    {Set, Rest1} = pattern_parse_class_body(Rest, []),
+    {{class, Set}, Rest1}.
+
+pattern_parse_class_body([$] | Rest], Acc) ->
+    {lists:usort(lists:append(Acc)), Rest};
+pattern_parse_class_body([$\\, Escaped | Rest], Acc) ->
+    {class, Chars} = pattern_escape(Escaped),
+    pattern_parse_class_body(Rest, [Chars | Acc]);
+pattern_parse_class_body([A, $-, B | Rest], Acc) when B =/= $] ->
+    pattern_parse_class_body(Rest, [lists:seq(A, B) | Acc]);
+pattern_parse_class_body([C | Rest], Acc) ->
+    pattern_parse_class_body(Rest, [[C] | Acc]).
+
+pattern_escape($d) ->
+    {class, lists:seq($0, $9)};
+pattern_escape($w) ->
+    {class, lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9) ++ [$_]};
+pattern_escape($s) ->
+    {class, [$\s, $\t]};
+pattern_escape(C) ->
+    {lit, C}.
+
+pattern_printable() ->
+    lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9).
+
+pattern_gen({alt, Alts}) ->
+    triq_dom:oneof([pattern_gen(Alt) || Alt <- Alts]);
+pattern_gen({seq, Terms}) ->
+    pattern_gen_seq(Terms);
+pattern_gen({group, AST}) ->
+    pattern_gen(AST);
+pattern_gen({lit, C}) ->
+    triq_dom:return([C]);
+pattern_gen({class, Chars}) ->
+    triq_dom:bind(
+        triq_dom:elements(Chars),
+        fun(C) -> triq_dom:return([C]) end
+    );
+pattern_gen({repeat, Term, Min, Max}) ->
+    triq_dom:bind(
+        triq_dom:int(Min, Max),
+        fun(N) ->
+            triq_dom:bind(
+                triq_dom:vector(N, pattern_gen(Term)),
+                fun(Lists) -> triq_dom:return(lists:append(Lists)) end
+            )
+        end
+    ).
+
+pattern_gen_seq([]) ->
+    triq_dom:return([]);
+pattern_gen_seq([Term | Terms]) ->
+    triq_dom:bind(
+        pattern_gen(Term),
+        fun(Head) ->
+            triq_dom:bind(
+                pattern_gen_seq(Terms),
+                fun(Tail) -> triq_dom:return(Head ++ Tail) end
+            )
+        end
+    ).
+
 base64_chars() ->
     lists:append(
         [

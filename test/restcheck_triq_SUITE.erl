@@ -49,6 +49,7 @@ groups() ->
         {string, [parallel], [
             string,
             string_base64,
+            string_pattern,
             'string_iso8601-datetime'
         ]},
         {array, [parallel], [
@@ -150,6 +151,12 @@ string(Conf) ->
 string_base64(Conf) ->
     ct_property_test:quickcheck(
         restcheck_triq_properties:prop_string_base64(),
+        Conf
+    ).
+
+string_pattern(Conf) ->
+    ct_property_test:quickcheck(
+        restcheck_triq_properties:prop_string_pattern(),
         Conf
     ).
 
