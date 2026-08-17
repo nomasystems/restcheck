@@ -51,7 +51,8 @@
 -type client_config() :: #{
     host := binary(),
     port => integer(),
-    ssl => boolean()
+    ssl => boolean(),
+    base_path => binary()
 }.
 -type req_config() :: #{
     headers => [{binary(), binary()}],
@@ -170,7 +171,8 @@ request(Name, Config, Opts) ->
             Host = maps:get(host, ClientConfig),
             Port = maps:get(port, ClientConfig),
             Protocol = protocol(maps:get(ssl, ClientConfig, false)),
-            RawPath = maps:get(path, Config, <<"/">>),
+            BasePath = maps:get(base_path, ClientConfig, <<>>),
+            RawPath = <<BasePath/binary, (maps:get(path, Config, <<"/">>))/binary>>,
             Path =
                 case maps:get(query_parameters, Config, undefined) of
                     undefined ->

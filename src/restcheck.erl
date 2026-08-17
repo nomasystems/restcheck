@@ -33,6 +33,7 @@
     spec_parser => module(),
     pbt_backend => restcheck_pbt:backend(),
     host => binary(),
+    base_path => binary(),
     port => inet:port_number(),
     ssl => boolean(),
     auth => restcheck_client:auth(),
@@ -111,6 +112,7 @@ do(State) ->
         host => unicode:characters_to_binary(proplists:get_value(host, RawConf, "localhost")),
         port => proplists:get_value(port, RawConf, 8080),
         ssl => proplists:get_value(ssl, RawConf, false),
+        base_path => unicode:characters_to_binary(proplists:get_value(base_path, RawConf, "")),
         timeout => proplists:get_value(timeout, RawConf, 5000),
         num_requests => proplists:get_value(num_requests, RawConf, 100),
         auth => proplists:get_value(auth, RawConf, undefined)
@@ -142,7 +144,8 @@ do(State) ->
             ClientConf = #{
                 host => Host,
                 port => Port,
-                ssl => SSL
+                ssl => SSL,
+                base_path => maps:get(base_path, Conf, <<>>)
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             case LogEnabled of
@@ -289,7 +292,8 @@ run(Conf) ->
             ClientConf = #{
                 host => Host,
                 port => Port,
-                ssl => SSL
+                ssl => SSL,
+                base_path => maps:get(base_path, Conf, <<>>)
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             TestResults = lists:map(
