@@ -287,7 +287,7 @@ init([Name, ClientConfig]) ->
             http ->
                 ?SOCKET_OPTIONS;
             https ->
-                [{log_level, error} | ?SOCKET_OPTIONS]
+                [{verify, verify_none}, {log_level, error} | ?SOCKET_OPTIONS]
         end,
     case buoy_pool:start(BuoyUrl, [{socket_options, SocketOptions}]) of
         ok ->

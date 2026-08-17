@@ -462,11 +462,6 @@ dec_depth(MaxDepth) when MaxDepth > 0 ->
 dec_depth(_MaxDepth) ->
     0.
 
-%%% Generate strings matching an OpenAPI `pattern` (a regular expression). We
-%%% parse a common subset of regex (literals, character classes, `.`, groups,
-%%% alternation and the *, +, ?, {n}, {n,}, {n,m} quantifiers) into an AST and
-%%% turn it into a triq generator. Unbounded quantifiers are capped so generated
-%%% strings stay small.
 pattern_strip_anchors(Chars0) ->
     Chars1 =
         case Chars0 of
