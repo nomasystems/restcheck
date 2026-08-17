@@ -96,6 +96,8 @@
     {send_timeout, 50},
     {send_timeout_close, true}
 ]).
+-define(BUOY_MAX_RETRIES, 20).
+-define(BUOY_RETRY_INTERVAL, 100).
 
 %%%-----------------------------------------------------------------------------
 %%% START/STOP EXPORTS
@@ -246,23 +248,7 @@ request(Name, Config, Opts) ->
                 headers => Headers,
                 timeout => Timeout
             },
-            case buoy:request(Method, BuoyUrl, BuoyOpts) of
-                {ok, BuoyResp} ->
-                    RespStatus = BuoyResp#buoy_resp.status_code,
-                    RespHeaders = headers(BuoyResp#buoy_resp.headers),
-                    RespBody = body(
-                        proplists:get_value(<<"content-type">>, RespHeaders, undefined),
-                        BuoyResp#buoy_resp.body
-                    ),
-                    Response = #{
-                        status => RespStatus,
-                        headers => RespHeaders,
-                        body => RespBody
-                    },
-                    {ok, Response};
-                {error, Reason} ->
-                    {error, Reason}
-            end
+            buoy_request(Method, BuoyUrl, BuoyOpts, ?BUOY_MAX_RETRIES)
     end.
 
 %%%-----------------------------------------------------------------------------
@@ -299,6 +285,30 @@ init([Name, ClientConfig]) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
+buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft) ->
+    case buoy:request(Method, BuoyUrl, BuoyOpts) of
+        {ok, BuoyResp} ->
+            RespStatus = BuoyResp#buoy_resp.status_code,
+            RespHeaders = headers(BuoyResp#buoy_resp.headers),
+            RespBody = body(
+                proplists:get_value(<<"content-type">>, RespHeaders, undefined),
+                BuoyResp#buoy_resp.body
+            ),
+            Response = #{
+                status => RespStatus,
+                headers => RespHeaders,
+                body => RespBody
+            },
+            {ok, Response};
+        {error, Reason} when
+            RetriesLeft > 0 andalso (Reason =:= no_server orelse Reason =:= no_socket)
+        ->
+            timer:sleep(?BUOY_RETRY_INTERVAL),
+            buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft - 1);
+        {error, Reason} ->
+            {error, Reason}
+    end.
+
 body(Body) ->
     {ok, Encoded} = njson:encode(Body),
     Encoded.
