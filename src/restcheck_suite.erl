@@ -74,7 +74,7 @@ generate(API) ->
                                         erf_util:to_pascal_case(Name)
                                     )
                                 ),
-                                Schema = schema_ast(maps:get(Ref, Schemas)),
+                                Schema = schema_ast(maps:get(Ref, Schemas), Schemas),
                                 Generator =
                                     erl_syntax:application(
                                         erl_syntax:atom(restcheck_pbt),
@@ -101,7 +101,7 @@ generate(API) ->
                             erf_util:to_pascal_case(RequestBody)
                         )
                     ),
-                    RequestBodySchema = schema_ast(maps:get(RequestBody, Schemas)),
+                    RequestBodySchema = schema_ast(maps:get(RequestBody, Schemas), Schemas),
                     RequestBodyGenerator = erl_syntax:application(
                         erl_syntax:atom(restcheck_pbt),
                         erl_syntax:atom(noshrink),
@@ -651,8 +651,21 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
         )
     ].
 
--spec schema_ast(Schema) -> SchemaAST when
+-spec schema_ast(Schema, Schemas) -> SchemaAST when
     Schema :: erf_parser:schema(),
+    Schemas :: #{binary() => erf_parser:schema()},
     SchemaAST :: erl_syntax:syntaxTree().
-schema_ast(Schema) ->
-    erl_syntax:abstract(Schema).
+schema_ast(Schema, Schemas) ->
+    erl_syntax:abstract(inline_refs(Schema, Schemas, [])).
+
+inline_refs(#{ref := Ref}, Schemas, Seen) ->
+    case lists:member(Ref, Seen) of
+        true -> #{};
+        false -> inline_refs(maps:get(Ref, Schemas), Schemas, [Ref | Seen])
+    end;
+inline_refs(Schema, Schemas, Seen) when is_map(Schema) ->
+    maps:map(fun(_Key, Value) -> inline_refs(Value, Schemas, Seen) end, Schema);
+inline_refs(Schema, Schemas, Seen) when is_list(Schema) ->
+    [inline_refs(Element, Schemas, Seen) || Element <- Schema];
+inline_refs(Schema, _Schemas, _Seen) ->
+    Schema.
