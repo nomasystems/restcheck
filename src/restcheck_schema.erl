@@ -45,69 +45,63 @@ complement(true) ->
     false;
 complement(false) ->
     #{};
-complement(#{<<"allOf">> := AllOf}) ->
+complement(#{all_of := AllOf}) ->
     union([complement(Schema) || Schema <- AllOf]);
-complement(#{<<"anyOf">> := AnyOf}) ->
+complement(#{any_of := AnyOf}) ->
     intersection([complement(Schema) || Schema <- AnyOf]);
-complement(#{<<"oneOf">> := OneOf}) ->
+complement(#{one_of := OneOf}) ->
     Schema1 = symmetric_difference(OneOf),
     complement(Schema1);
-complement(#{<<"not">> := Not}) ->
+complement(#{'not' := Not}) ->
     Not;
-complement(#{<<"enum">> := _Values}) ->
+complement(#{enum := _Values}) ->
     %% TODO: mutation
     undefined;
-complement(#{<<"type">> := <<"boolean">>}) ->
-    union(lists:delete(#{<<"type">> => <<"boolean">>}, ?BASIC_SCHEMAS));
-complement(#{<<"type">> := <<"number">>} = Schema) ->
+complement(#{type := boolean}) ->
+    union(lists:delete(#{type => boolean}, ?BASIC_SCHEMAS));
+complement(#{type := float} = Schema) ->
     Minimum =
-        case maps:get(<<"minimum">>, Schema, undefined) of
+        case maps:get(minimum, Schema, undefined) of
             undefined ->
                 undefined;
             Min ->
-                ExclusiveMin = maps:get(<<"exclusiveMinimum">>, Schema, false),
+                ExclusiveMin = maps:get(exclusive_minimum, Schema, false),
                 #{
-                    <<"type">> => <<"number">>,
-                    <<"maximum">> => Min,
-                    <<"exclusiveMaximum">> => not ExclusiveMin
+                    type => float,
+                    maximum => Min,
+                    exclusive_maximum => not ExclusiveMin
                 }
         end,
     Maximum =
-        case maps:get(<<"maximum">>, Schema, undefined) of
+        case maps:get(maximum, Schema, undefined) of
             undefined ->
                 undefined;
             Max ->
-                ExclusiveMax = maps:get(<<"exclusiveMaximum">>, Schema, false),
+                ExclusiveMax = maps:get(exclusive_maximum, Schema, false),
                 #{
-                    <<"type">> => <<"number">>,
-                    <<"minimum">> => Max,
-                    <<"exclusiveMinimum">> => not ExclusiveMax
+                    type => float,
+                    minimum => Max,
+                    exclusive_minimum => not ExclusiveMax
                 }
         end,
     Schemas = lists:filter(fun(S) -> S =/= undefined end, [Minimum, Maximum]),
     union(
         Schemas ++
-            lists:subtract(
-                ?BASIC_SCHEMAS,
-                [
-                    #{<<"type">> => <<"number">>},
-                    #{<<"type">> => <<"integer">>}
-                ]
-            )
+            lists:delete(#{type => float}, ?BASIC_SCHEMAS)
     );
-complement(#{<<"type">> := <<"integer">>} = Schema) ->
-    Min = maps:get(<<"minimum">>, Schema, undefined),
-    Max = maps:get(<<"maximum">>, Schema, undefined),
+complement(#{type := integer} = Schema) ->
+    Min = maps:get(minimum, Schema, undefined),
+    Max = maps:get(maximum, Schema, undefined),
     Minimum =
         case Min of
             undefined ->
                 undefined;
             Min ->
-                ExclusiveMin = maps:get(<<"exclusiveMinimum">>, Schema, false),
+                ExclusiveMin = maps:get(exclusive_minimum, Schema, false),
                 #{
-                    <<"type">> => <<"number">>,
-                    <<"maximum">> => Min,
-                    <<"exclusiveMaximum">> => not ExclusiveMin
+                    type => integer,
+                    maximum => Min,
+                    exclusive_maximum => not ExclusiveMin
                 }
         end,
     Maximum =
@@ -115,15 +109,15 @@ complement(#{<<"type">> := <<"integer">>} = Schema) ->
             undefined ->
                 undefined;
             Max ->
-                ExclusiveMax = maps:get(<<"exclusiveMaximum">>, Schema, false),
+                ExclusiveMax = maps:get(exclusive_maximum, Schema, false),
                 #{
-                    <<"type">> => <<"number">>,
-                    <<"minimum">> => Max,
-                    <<"exclusiveMinimum">> => not ExclusiveMax
+                    type => integer,
+                    minimum => Max,
+                    exclusive_minimum => not ExclusiveMax
                 }
         end,
     Intervals =
-        case maps:get(<<"multipleOf">>, Schema, undefined) of
+        case maps:get(multiple_of, Schema, undefined) of
             undefined ->
                 [Minimum, Maximum];
             Mult ->
@@ -134,89 +128,83 @@ complement(#{<<"type">> := <<"integer">>} = Schema) ->
     %% TODO: remove integers in numbers instead of fully removing the numbers domain
     union(
         Schemas ++
-            lists:subtract(
-                ?BASIC_SCHEMAS,
-                [
-                    #{<<"type">> => <<"number">>},
-                    #{<<"type">> => <<"integer">>}
-                ]
-            )
+            lists:delete(#{type => integer}, ?BASIC_SCHEMAS)
     );
-complement(#{<<"type">> := <<"string">>} = Schema) ->
+complement(#{type := string} = Schema) ->
     MinLength =
-        case maps:get(<<"maxLength">>, Schema, undefined) of
+        case maps:get(max_length, Schema, undefined) of
             undefined ->
                 undefined;
             Max ->
                 #{
-                    <<"type">> => <<"string">>,
-                    <<"minLength">> => Max + 1
+                    type => string,
+                    min_length => Max + 1
                 }
         end,
     MaxLength =
-        case maps:get(<<"minLength">>, Schema, 0) of
+        case maps:get(min_length, Schema, 0) of
             0 ->
                 undefined;
             Min ->
                 #{
-                    <<"type">> => <<"string">>,
-                    <<"maxLength">> => Min - 1
+                    type => string,
+                    max_length => Min - 1
                 }
         end,
     Format =
         %% NOTE: mutation
         %% TODO: replace mutation with regex
-        case maps:get(<<"format">>, Schema, undefined) of
+        case maps:get(format, Schema, undefined) of
             undefined ->
                 undefined;
             F ->
                 Formats = lists:delete(F, ?FORMATS),
-                Schema#{<<"format">> => random_pick(Formats)}
+                Schema#{format => random_pick(Formats)}
         end,
     Pattern =
-        case maps:get(<<"pattern">>, Schema, undefined) of
+        case maps:get(pattern, Schema, undefined) of
             undefined ->
                 undefined;
             P ->
-                Schema#{<<"pattern">> => <<"^(?!.*", P/binary, ").*">>}
+                Schema#{pattern => <<"^(?!.*", P/binary, ").*">>}
         end,
     Schemas = lists:filter(fun(S) -> S =/= undefined end, [MinLength, MaxLength, Format, Pattern]),
     union(
         Schemas ++
-            lists:delete(#{<<"type">> => <<"string">>}, ?BASIC_SCHEMAS)
+            lists:delete(#{type => string}, ?BASIC_SCHEMAS)
     );
-complement(#{<<"type">> := <<"array">>} = Schema) ->
+complement(#{type := array} = Schema) ->
     Items =
-        case maps:get(<<"items">>, Schema, undefined) of
+        case maps:get(items, Schema, undefined) of
             undefined ->
                 undefined;
             I ->
-                Schema#{<<"type">> => <<"array">>, <<"items">> => complement(I)}
+                Schema#{type => array, items => complement(I)}
         end,
     MinItems =
-        case maps:get(<<"minItems">>, Schema, undefined) of
+        case maps:get(min_items, Schema, undefined) of
             undefined ->
                 undefined;
             Min ->
-                #{<<"type">> => <<"array">>, <<"maxItems">> => Min - 1}
+                #{type => array, max_items => Min - 1}
         end,
     MaxItems =
-        case maps:get(<<"maxItems">>, Schema, undefined) of
+        case maps:get(max_items, Schema, undefined) of
             undefined ->
                 undefined;
             Max ->
-                #{<<"type">> => <<"array">>, <<"minItems">> => Max + 1}
+                #{type => array, min_items => Max + 1}
         end,
     %% TODO: mutation to enum with repeated items within min and max if max_size is at least 2
     UniqueItems = undefined,
     Schemas = lists:filter(fun(S) -> S =/= undefined end, [Items, MinItems, MaxItems, UniqueItems]),
     union(
         Schemas ++
-            lists:delete(#{<<"type">> => <<"array">>}, ?BASIC_SCHEMAS)
+            lists:delete(#{type => array}, ?BASIC_SCHEMAS)
     );
-complement(#{<<"type">> := <<"object">>} = Schema) ->
-    Required = maps:get(<<"required">>, Schema, []),
-    Properties = maps:get(<<"properties">>, Schema, #{}),
+complement(#{type := object} = Schema) ->
+    Required = maps:get(required, Schema, []),
+    Properties = maps:get(properties, Schema, #{}),
     PropertiesSchemas =
         lists:map(
             fun({PropertyName, PropertySchema}) ->
@@ -228,8 +216,8 @@ complement(#{<<"type">> := <<"object">>} = Schema) ->
                             [PropertyName | Required]
                     end,
                 Schema#{
-                    <<"required">> => NewRequired,
-                    <<"properties">> => Properties#{
+                    required => NewRequired,
+                    properties => Properties#{
                         PropertyName => complement(PropertySchema)
                     }
                 }
@@ -237,47 +225,47 @@ complement(#{<<"type">> := <<"object">>} = Schema) ->
             maps:to_list(Properties)
         ),
     MinProperties =
-        case maps:get(<<"minProperties">>, Schema, undefined) of
+        case maps:get(min_properties, Schema, undefined) of
             undefined ->
                 undefined;
             Min ->
                 #{
-                    <<"type">> => <<"object">>,
-                    <<"maxProperties">> => Min - 1
+                    type => object,
+                    max_properties => Min - 1
                 }
         end,
     MaxProperties =
-        case maps:get(<<"maxProperties">>, Schema, undefined) of
+        case maps:get(max_properties, Schema, undefined) of
             undefined ->
                 undefined;
             Max ->
                 #{
-                    <<"type">> => <<"object">>,
-                    <<"minProperties">> => Max + 1
+                    type => object,
+                    min_properties => Max + 1
                 }
         end,
     AdditionalProperties =
         %% NOTE: mutation
-        case maps:get(<<"additionalProperties">>, Schema, true) of
+        case maps:get(additional_properties, Schema, true) of
             true ->
                 undefined;
             false ->
-                OldRequired = maps:get(<<"required">>, Schema, []),
+                OldRequired = maps:get(required, Schema, []),
                 PropertyName = new_property_name(maps:keys(Properties)),
                 Schema#{
-                    <<"properties">> => Properties#{
+                    properties => Properties#{
                         PropertyName => #{}
                     },
-                    <<"required">> => [PropertyName | OldRequired]
+                    required => [PropertyName | OldRequired]
                 };
             AdditionalSchema ->
-                OldRequired = maps:get(<<"required">>, Schema, []),
+                OldRequired = maps:get(required, Schema, []),
                 PropertyName = new_property_name(maps:keys(Properties)),
                 Schema#{
-                    <<"properties">> => Properties#{
+                    properties => Properties#{
                         PropertyName => complement(AdditionalSchema)
                     },
-                    <<"required">> => [PropertyName | OldRequired]
+                    required => [PropertyName | OldRequired]
                 }
         end,
     Schemas = lists:filter(
@@ -291,7 +279,7 @@ complement(#{<<"type">> := <<"object">>} = Schema) ->
     ),
     union(
         Schemas ++
-            lists:delete(#{<<"type">> => <<"object">>}, ?BASIC_SCHEMAS)
+            lists:delete(#{type => object}, ?BASIC_SCHEMAS)
     ).
 
 -spec empty_schema() -> EmptySchema when
@@ -325,59 +313,59 @@ intersection(true, Schema2) ->
     Schema2;
 intersection(Schema1, true) ->
     Schema1;
-intersection(#{<<"allOf">> := AllOf1}, Schema2) ->
+intersection(#{all_of := AllOf1}, Schema2) ->
     Schema1 = intersection(AllOf1),
     intersection(Schema1, Schema2);
-intersection(Schema1, #{<<"allOf">> := AllOf}) ->
+intersection(Schema1, #{all_of := AllOf}) ->
     Schema2 = intersection(AllOf),
     intersection(Schema1, Schema2);
-intersection(#{<<"anyOf">> := AnyOf}, Schema2) ->
+intersection(#{any_of := AnyOf}, Schema2) ->
     union([intersection(Schema2, AnyOfSchema) || AnyOfSchema <- AnyOf]);
-intersection(Schema1, #{<<"anyOf">> := AnyOf}) ->
+intersection(Schema1, #{any_of := AnyOf}) ->
     union([intersection(Schema1, AnyOfSchema) || AnyOfSchema <- AnyOf]);
-intersection(#{<<"oneOf">> := OneOf}, Schema2) ->
+intersection(#{one_of := OneOf}, Schema2) ->
     Schema1 = symmetric_difference(OneOf),
     intersection(Schema1, Schema2);
-intersection(Schema1, #{<<"oneOf">> := OneOf}) ->
+intersection(Schema1, #{one_of := OneOf}) ->
     Schema2 = symmetric_difference(OneOf),
     intersection(Schema1, Schema2);
-intersection(#{<<"not">> := Not}, Schema2) ->
+intersection(#{'not' := Not}, Schema2) ->
     Schema1 = complement(Not),
     intersection(Schema1, Schema2);
-intersection(Schema1, #{<<"not">> := Not}) ->
+intersection(Schema1, #{'not' := Not}) ->
     Schema2 = complement(Not),
     intersection(Schema1, Schema2);
-intersection(#{<<"enum">> := Enum1}, #{<<"enum">> := Enum2}) ->
+intersection(#{enum := Enum1}, #{enum := Enum2}) ->
     NewEnum = sets:to_list(
         sets:intersection(
             sets:from_list(Enum1),
             sets:from_list(Enum2)
         )
     ),
-    #{<<"enum">> => NewEnum};
-intersection(Schema1, #{<<"enum">> := _Enum} = Schema2) ->
+    #{enum => NewEnum};
+intersection(Schema1, #{enum := _Enum} = Schema2) ->
     intersection(Schema2, Schema1);
-intersection(#{<<"enum">> := Enum}, Schema2) ->
+intersection(#{enum := Enum}, Schema2) ->
     Name = erlang:binary_to_atom(
         <<"intersection_enum_", (erlang:integer_to_binary(erlang:unique_integer()))/binary>>
     ),
     DTO = ndto:generate(Name, Schema2),
     ndto:load(DTO),
-    NewEnum = lists:filter(fun Name:is_valid/1, Enum),
-    #{<<"enum">> => NewEnum};
-intersection(#{<<"type">> := <<"boolean">>} = Schema1, #{<<"type">> := <<"boolean">>}) ->
+    NewEnum = lists:filter(fun(Value) -> Name:is_valid(Value) =:= true end, Enum),
+    #{enum => NewEnum};
+intersection(#{type := boolean} = Schema1, #{type := boolean}) ->
     Schema1;
-intersection(#{<<"type">> := <<"integer">>} = Schema1, #{<<"type">> := <<"number">>} = Schema2) ->
-    intersection(Schema1, Schema2#{<<"type">> => <<"integer">>});
-intersection(#{<<"type">> := <<"number">>} = Schema1, #{<<"type">> := <<"integer">>} = Schema2) ->
-    intersection(Schema1#{<<"type">> => <<"integer">>}, Schema2);
-intersection(#{<<"type">> := Type} = Schema1, #{<<"type">> := Type} = Schema2) when
-    Type =:= <<"integer">> orelse Type =:= <<"number">>
+intersection(#{type := integer} = Schema1, #{type := float} = Schema2) ->
+    intersection(Schema1, Schema2#{type => integer});
+intersection(#{type := float} = Schema1, #{type := integer} = Schema2) ->
+    intersection(Schema1#{type => integer}, Schema2);
+intersection(#{type := Type} = Schema1, #{type := Type} = Schema2) when
+    Type =:= integer orelse Type =:= float
 ->
-    Minimum1 = maps:get(<<"minimum">>, Schema1, undefined),
-    Minimum2 = maps:get(<<"minimum">>, Schema2, undefined),
-    ExclusiveMinimum1 = maps:get(<<"exclusiveMinimum">>, Schema1, undefined),
-    ExclusiveMinimum2 = maps:get(<<"exclusiveMinimum">>, Schema2, undefined),
+    Minimum1 = maps:get(minimum, Schema1, undefined),
+    Minimum2 = maps:get(minimum, Schema2, undefined),
+    ExclusiveMinimum1 = maps:get(exclusive_minimum, Schema1, undefined),
+    ExclusiveMinimum2 = maps:get(exclusive_minimum, Schema2, undefined),
     {Minimum, ExclusiveMinimum} =
         case {Minimum1, Minimum2} of
             {Minimum1, undefined} ->
@@ -401,10 +389,10 @@ intersection(#{<<"type">> := Type} = Schema1, #{<<"type">> := Type} = Schema2) w
                 {Minimum2, ExclusiveMinimum2}
         end,
 
-    Maximum1 = maps:get(<<"maximum">>, Schema1, undefined),
-    Maximum2 = maps:get(<<"maximum">>, Schema2, undefined),
-    ExclusiveMaximum1 = maps:get(<<"exclusiveMaximum">>, Schema1, undefined),
-    ExclusiveMaximum2 = maps:get(<<"exclusiveMaximum">>, Schema2, undefined),
+    Maximum1 = maps:get(maximum, Schema1, undefined),
+    Maximum2 = maps:get(maximum, Schema2, undefined),
+    ExclusiveMaximum1 = maps:get(exclusive_maximum, Schema1, undefined),
+    ExclusiveMaximum2 = maps:get(exclusive_maximum, Schema2, undefined),
     {Maximum, ExclusiveMaximum} =
         case {Maximum1, Maximum2} of
             {Maximum1, undefined} ->
@@ -427,8 +415,8 @@ intersection(#{<<"type">> := Type} = Schema1, #{<<"type">> := Type} = Schema2) w
             {Maximum1, Maximum2} ->
                 {Maximum2, ExclusiveMaximum2}
         end,
-    MultipleOf1 = maps:get(<<"multipleOf">>, Schema1, undefined),
-    MultipleOf2 = maps:get(<<"multipleOf">>, Schema2, undefined),
+    MultipleOf1 = maps:get(multiple_of, Schema1, undefined),
+    MultipleOf2 = maps:get(multiple_of, Schema2, undefined),
     MultipleOf =
         case {MultipleOf1, MultipleOf2} of
             {MultipleOf1, undefined} ->
@@ -439,16 +427,16 @@ intersection(#{<<"type">> := Type} = Schema1, #{<<"type">> := Type} = Schema2) w
                 lcm(MultipleOf1, MultipleOf2)
         end,
     clean(#{
-        <<"type">> => Type,
-        <<"minimum">> => Minimum,
-        <<"exclusiveMinimum">> => ExclusiveMinimum,
-        <<"maximum">> => Maximum,
-        <<"exclusiveMaximum">> => ExclusiveMaximum,
-        <<"multipleOf">> => MultipleOf
+        type => Type,
+        minimum => Minimum,
+        exclusive_minimum => ExclusiveMinimum,
+        maximum => Maximum,
+        exclusive_maximum => ExclusiveMaximum,
+        multiple_of => MultipleOf
     });
-intersection(#{<<"type">> := <<"string">>} = Schema1, #{<<"type">> := <<"string">>} = Schema2) ->
-    MinLength1 = maps:get(<<"minLength">>, Schema1, undefined),
-    MinLength2 = maps:get(<<"minLength">>, Schema2, undefined),
+intersection(#{type := string} = Schema1, #{type := string} = Schema2) ->
+    MinLength1 = maps:get(min_length, Schema1, undefined),
+    MinLength2 = maps:get(min_length, Schema2, undefined),
 
     MinLength =
         case {MinLength1, MinLength2} of
@@ -462,8 +450,8 @@ intersection(#{<<"type">> := <<"string">>} = Schema1, #{<<"type">> := <<"string"
                 MinLength2
         end,
 
-    MaxLength1 = maps:get(<<"maxLength">>, Schema1, undefined),
-    MaxLength2 = maps:get(<<"maxLength">>, Schema2, undefined),
+    MaxLength1 = maps:get(max_length, Schema1, undefined),
+    MaxLength2 = maps:get(max_length, Schema2, undefined),
 
     MaxLength =
         case {MaxLength1, MaxLength2} of
@@ -477,8 +465,8 @@ intersection(#{<<"type">> := <<"string">>} = Schema1, #{<<"type">> := <<"string"
                 MaxLength2
         end,
 
-    Pattern1 = maps:get(<<"pattern">>, Schema1, undefined),
-    Pattern2 = maps:get(<<"pattern">>, Schema2, undefined),
+    Pattern1 = maps:get(pattern, Schema1, undefined),
+    Pattern2 = maps:get(pattern, Schema2, undefined),
 
     Pattern =
         case {Pattern1, Pattern2} of
@@ -490,8 +478,8 @@ intersection(#{<<"type">> := <<"string">>} = Schema1, #{<<"type">> := <<"string"
                 <<"^(?=.*", Pattern1/binary, ")(?=.*", Pattern2/binary, ").*">>
         end,
 
-    Format1 = maps:get(<<"format">>, Schema1, undefined),
-    Format2 = maps:get(<<"format">>, Schema2, undefined),
+    Format1 = maps:get(format, Schema1, undefined),
+    Format2 = maps:get(format, Schema2, undefined),
 
     Format =
         case {Format1, Format2} of
@@ -502,15 +490,15 @@ intersection(#{<<"type">> := <<"string">>} = Schema1, #{<<"type">> := <<"string"
         end,
 
     clean(#{
-        <<"type">> => <<"string">>,
-        <<"minLength">> => MinLength,
-        <<"maxLength">> => MaxLength,
-        <<"pattern">> => Pattern,
-        <<"format">> => Format
+        type => string,
+        min_length => MinLength,
+        max_length => MaxLength,
+        pattern => Pattern,
+        format => Format
     });
-intersection(#{<<"type">> := <<"array">>} = Schema1, #{<<"type">> := <<"array">>} = Schema2) ->
-    Items1 = maps:get(<<"items">>, Schema1, undefined),
-    Items2 = maps:get(<<"items">>, Schema2, undefined),
+intersection(#{type := array} = Schema1, #{type := array} = Schema2) ->
+    Items1 = maps:get(items, Schema1, undefined),
+    Items2 = maps:get(items, Schema2, undefined),
 
     Items =
         case {Items1, Items2} of
@@ -522,8 +510,8 @@ intersection(#{<<"type">> := <<"array">>} = Schema1, #{<<"type">> := <<"array">>
                 intersection(Items1, Items2)
         end,
 
-    MinItems1 = maps:get(<<"minItems">>, Schema1, undefined),
-    MinItems2 = maps:get(<<"minItems">>, Schema2, undefined),
+    MinItems1 = maps:get(min_items, Schema1, undefined),
+    MinItems2 = maps:get(min_items, Schema2, undefined),
 
     MinItems =
         case {MinItems1, MinItems2} of
@@ -537,8 +525,8 @@ intersection(#{<<"type">> := <<"array">>} = Schema1, #{<<"type">> := <<"array">>
                 MinItems2
         end,
 
-    MaxItems1 = maps:get(<<"maxItems">>, Schema1, undefined),
-    MaxItems2 = maps:get(<<"maxItems">>, Schema2, undefined),
+    MaxItems1 = maps:get(max_items, Schema1, undefined),
+    MaxItems2 = maps:get(max_items, Schema2, undefined),
 
     MaxItems =
         case {MaxItems1, MaxItems2} of
@@ -552,8 +540,8 @@ intersection(#{<<"type">> := <<"array">>} = Schema1, #{<<"type">> := <<"array">>
                 MaxItems2
         end,
 
-    UniqueItems1 = maps:get(<<"uniqueItems">>, Schema1, undefined),
-    UniqueItems2 = maps:get(<<"uniqueItems">>, Schema2, undefined),
+    UniqueItems1 = maps:get(unique_items, Schema1, undefined),
+    UniqueItems2 = maps:get(unique_items, Schema2, undefined),
 
     UniqueItems =
         case {UniqueItems1, UniqueItems2} of
@@ -565,15 +553,15 @@ intersection(#{<<"type">> := <<"array">>} = Schema1, #{<<"type">> := <<"array">>
                 UniqueItems1 orelse UniqueItems2
         end,
     clean(#{
-        <<"type">> => <<"array">>,
-        <<"items">> => Items,
-        <<"minItems">> => MinItems,
-        <<"maxItems">> => MaxItems,
-        <<"uniqueItems">> => UniqueItems
+        type => array,
+        items => Items,
+        min_items => MinItems,
+        max_items => MaxItems,
+        unique_items => UniqueItems
     });
-intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object">>} = Schema2) ->
-    Properties1 = maps:get(<<"properties">>, Schema1, undefined),
-    Properties2 = maps:get(<<"properties">>, Schema2, undefined),
+intersection(#{type := object} = Schema1, #{type := object} = Schema2) ->
+    Properties1 = maps:get(properties, Schema1, undefined),
+    Properties2 = maps:get(properties, Schema2, undefined),
     Properties =
         case {Properties1, Properties2} of
             {Properties1, undefined} ->
@@ -601,8 +589,8 @@ intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object"
                 maps:from_list(PropertyList)
         end,
 
-    Required1 = maps:get(<<"required">>, Schema1, undefined),
-    Required2 = maps:get(<<"required">>, Schema2, undefined),
+    Required1 = maps:get(required, Schema1, undefined),
+    Required2 = maps:get(required, Schema2, undefined),
     Required =
         case {Required1, Required2} of
             {Required1, undefined} ->
@@ -613,8 +601,8 @@ intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object"
                 lists:uniq(lists:append(Required1, Required2))
         end,
 
-    MinProperties1 = maps:get(<<"minProperties">>, Schema1, undefined),
-    MinProperties2 = maps:get(<<"minProperties">>, Schema2, undefined),
+    MinProperties1 = maps:get(min_properties, Schema1, undefined),
+    MinProperties2 = maps:get(min_properties, Schema2, undefined),
     MinProperties =
         case {MinProperties1, MinProperties2} of
             {MinProperties1, undefined} ->
@@ -627,8 +615,8 @@ intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object"
                 MinProperties2
         end,
 
-    MaxProperties1 = maps:get(<<"maxProperties">>, Schema1, undefined),
-    MaxProperties2 = maps:get(<<"maxProperties">>, Schema2, undefined),
+    MaxProperties1 = maps:get(max_properties, Schema1, undefined),
+    MaxProperties2 = maps:get(max_properties, Schema2, undefined),
     MaxProperties =
         case {MaxProperties1, MaxProperties2} of
             {MaxProperties1, undefined} ->
@@ -641,8 +629,8 @@ intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object"
                 MaxProperties2
         end,
 
-    AdditionalProperties1 = maps:get(<<"additionalProperties">>, Schema1, undefined),
-    AdditionalProperties2 = maps:get(<<"additionalProperties">>, Schema2, undefined),
+    AdditionalProperties1 = maps:get(additional_properties, Schema1, undefined),
+    AdditionalProperties2 = maps:get(additional_properties, Schema2, undefined),
     AdditionalProperties =
         case {AdditionalProperties1, AdditionalProperties2} of
             {AdditionalProperties1, undefined} ->
@@ -654,12 +642,12 @@ intersection(#{<<"type">> := <<"object">>} = Schema1, #{<<"type">> := <<"object"
         end,
 
     clean(#{
-        <<"type">> => <<"object">>,
-        <<"properties">> => Properties,
-        <<"required">> => Required,
-        <<"minProperties">> => MinProperties,
-        <<"maxProperties">> => MaxProperties,
-        <<"additionalProperties">> => AdditionalProperties
+        type => object,
+        properties => Properties,
+        required => Required,
+        min_properties => MinProperties,
+        max_properties => MaxProperties,
+        additional_properties => AdditionalProperties
     });
 intersection(_Schema1, _Schema2) ->
     false.
@@ -716,58 +704,58 @@ union(Schema1, false) ->
     Schema1;
 union(false, Schema2) ->
     Schema2;
-union(#{<<"allOf">> := AllOf1}, Schema2) ->
+union(#{all_of := AllOf1}, Schema2) ->
     Schema1 = intersection(AllOf1),
     union(Schema1, Schema2);
-union(Schema1, #{<<"allOf">> := AllOf}) ->
+union(Schema1, #{all_of := AllOf}) ->
     Schema2 = intersection(AllOf),
     union(Schema1, Schema2);
-union(#{<<"anyOf">> := AnyOf1}, #{<<"anyOf">> := AnyOf2}) ->
+union(#{any_of := AnyOf1}, #{any_of := AnyOf2}) ->
     case lists:sort(lists:uniq(AnyOf1 ++ AnyOf2)) of
         [] ->
             false;
         [Schema] ->
             Schema;
         AnyOf ->
-            #{<<"anyOf">> => AnyOf}
+            #{any_of => AnyOf}
     end;
-union(#{<<"anyOf">> := AnyOf1}, Schema2) ->
+union(#{any_of := AnyOf1}, Schema2) ->
     case lists:sort(lists:uniq([Schema2 | AnyOf1])) of
         [] ->
             false;
         [Schema] ->
             Schema;
         AnyOf ->
-            #{<<"anyOf">> => AnyOf}
+            #{any_of => AnyOf}
     end;
-union(Schema1, #{<<"anyOf">> := AnyOf2}) ->
+union(Schema1, #{any_of := AnyOf2}) ->
     case lists:sort(lists:uniq([Schema1 | AnyOf2])) of
         [] ->
             false;
         [Schema] ->
             Schema;
         AnyOf ->
-            #{<<"anyOf">> => AnyOf}
+            #{any_of => AnyOf}
     end;
-union(#{<<"oneOf">> := OneOf}, Schema2) ->
+union(#{one_of := OneOf}, Schema2) ->
     Schema1 = symmetric_difference(OneOf),
     union(Schema1, Schema2);
-union(Schema1, #{<<"oneOf">> := OneOf}) ->
+union(Schema1, #{one_of := OneOf}) ->
     Schema2 = symmetric_difference(OneOf),
     union(Schema1, Schema2);
-union(#{<<"not">> := Not}, Schema2) ->
+union(#{'not' := Not}, Schema2) ->
     Schema1 = complement(Not),
     union(Schema1, Schema2);
-union(Schema1, #{<<"not">> := Not}) ->
+union(Schema1, #{'not' := Not}) ->
     Schema2 = complement(Not),
     union(Schema1, Schema2);
-union(#{<<"enum">> := Enum1}, #{<<"enum">> := Enum2}) ->
+union(#{enum := Enum1}, #{enum := Enum2}) ->
     NewEnum = lists:sort(lists:uniq(Enum1 ++ Enum2)),
-    #{<<"enum">> => NewEnum};
-union(#{<<"type">> := <<"boolean">>}, #{<<"type">> := <<"boolean">>}) ->
-    #{<<"type">> => <<"boolean">>};
+    #{enum => NewEnum};
+union(#{type := boolean}, #{type := boolean}) ->
+    #{type => boolean};
 union(Schema1, Schema2) ->
-    #{<<"anyOf">> => lists:sort([Schema1, Schema2])}.
+    #{any_of => lists:sort([Schema1, Schema2])}.
 
 -spec universal_schema() -> UniversalSchema when
     UniversalSchema :: ndto:universal_schema().
@@ -801,8 +789,8 @@ multiples(MultipleOf, Max, Current, Acc) ->
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
 -spec clean(Map) -> Clear when
-    Map :: #{binary() => undefined | term()},
-    Clear :: #{binary() => term()}.
+    Map :: #{atom() => undefined | term()},
+    Clear :: #{atom() => term()}.
 clean(Schema) ->
     maps:filter(
         fun(_K, V) -> V =/= undefined end,
@@ -813,29 +801,29 @@ clean(Schema) ->
     Integers :: [integer()],
     Schemas :: [ndto:schema()].
 exclude_integers([]) ->
-    [#{<<"type">> => <<"integer">>}];
+    [#{type => integer}];
 exclude_integers([Integer | Integers]) ->
     Interval = #{
-        <<"type">> => <<"integer">>,
-        <<"maximum">> => Integer,
-        <<"exclusiveMaximum">> => true
+        type => integer,
+        maximum => Integer,
+        exclusive_maximum => true
     },
     exclude_integers(Integers, [Interval]).
 
-exclude_integers([], [#{<<"maximum">> := Previous} | _Tl] = Acc) ->
+exclude_integers([], [#{maximum := Previous} | _Tl] = Acc) ->
     Interval = #{
-        <<"type">> => <<"integer">>,
-        <<"minimum">> => Previous,
-        <<"exclusiveMinimum">> => true
+        type => integer,
+        minimum => Previous,
+        exclusive_minimum => true
     },
     [Interval | Acc];
-exclude_integers([Next | Rest], [#{<<"maximum">> := Previous} | _Tl] = Acc) ->
+exclude_integers([Next | Rest], [#{maximum := Previous} | _Tl] = Acc) ->
     Interval = #{
-        <<"type">> => <<"integer">>,
-        <<"minimum">> => Previous,
-        <<"exclusiveMinimum">> => true,
-        <<"maximum">> => Next,
-        <<"exclusiveMaximum">> => true
+        type => integer,
+        minimum => Previous,
+        exclusive_minimum => true,
+        maximum => Next,
+        exclusive_maximum => true
     },
     exclude_integers(Rest, [Interval | Acc]).
 

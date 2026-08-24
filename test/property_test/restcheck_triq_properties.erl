@@ -40,7 +40,7 @@ prop_enum() ->
         [1, false, <<"bar">>, #{<<"foo">> => <<"baz">>}],
         #{<<"foo">> => <<"bar">>}
     ],
-    Schema = #{<<"enum">> => Enum},
+    Schema = #{enum => Enum},
     ?FORALL(
         Value,
         restcheck_triq:dto(Schema),
@@ -48,7 +48,7 @@ prop_enum() ->
     ).
 
 prop_boolean() ->
-    Schema = #{<<"type">> => <<"boolean">>},
+    Schema = #{type => boolean},
     ?FORALL(
         Value,
         restcheck_triq:dto(Schema),
@@ -57,9 +57,9 @@ prop_boolean() ->
 
 prop_integer_1() ->
     Schema = #{
-        <<"type">> => <<"integer">>,
-        <<"minimum">> => 0,
-        <<"maximum">> => 0
+        type => integer,
+        minimum => 0,
+        maximum => 0
     },
     ?FORALL(
         Value,
@@ -69,12 +69,12 @@ prop_integer_1() ->
 
 prop_integer_2() ->
     Schema = #{
-        <<"type">> => <<"integer">>,
-        <<"minimum">> => 2,
-        <<"exclusiveMinimum">> => false,
-        <<"maximum">> => 12,
-        <<"exclusiveMaximum">> => true,
-        <<"multipleOf">> => 3
+        type => integer,
+        minimum => 2,
+        exclusive_minimum => false,
+        maximum => 12,
+        exclusive_maximum => true,
+        multiple_of => 3
     },
     ?FORALL(
         Value,
@@ -84,12 +84,12 @@ prop_integer_2() ->
 
 prop_integer_3() ->
     Schema = #{
-        <<"type">> => <<"integer">>,
-        <<"minimum">> => -12,
-        <<"exclusiveMinimum">> => true,
-        <<"maximum">> => 2,
-        <<"exclusiveMaximum">> => false,
-        <<"multipleOf">> => -3
+        type => integer,
+        minimum => -12,
+        exclusive_minimum => true,
+        maximum => 2,
+        exclusive_maximum => false,
+        multiple_of => -3
     },
     ?FORALL(
         Value,
@@ -99,11 +99,11 @@ prop_integer_3() ->
 
 prop_number_1() ->
     Schema = #{
-        <<"type">> => <<"number">>,
-        <<"minimum">> => -2.5,
-        <<"exclusiveMinimum">> => true,
-        <<"maximum">> => 2.5,
-        <<"exclusiveMaximum">> => false
+        type => float,
+        minimum => -2.5,
+        exclusive_minimum => true,
+        maximum => 2.5,
+        exclusive_maximum => false
     },
     ?FORALL(
         Value,
@@ -113,11 +113,11 @@ prop_number_1() ->
 
 prop_number_2() ->
     Schema = #{
-        <<"type">> => <<"number">>,
-        <<"minimum">> => -2.5,
-        <<"exclusiveMinimum">> => false,
-        <<"maximum">> => 2.5,
-        <<"exclusiveMaximum">> => true
+        type => float,
+        minimum => -2.5,
+        exclusive_minimum => false,
+        maximum => 2.5,
+        exclusive_maximum => true
     },
     ?FORALL(
         Value,
@@ -127,9 +127,9 @@ prop_number_2() ->
 
 prop_string() ->
     Schema = #{
-        <<"type">> => <<"string">>,
-        <<"minLength">> => 2,
-        <<"maxLength">> => 4
+        type => string,
+        min_length => 2,
+        max_length => 4
     },
     ?FORALL(
         Value,
@@ -141,10 +141,10 @@ prop_string() ->
 
 prop_string_base64() ->
     Schema = #{
-        <<"type">> => <<"string">>,
-        <<"format">> => <<"base64">>,
-        <<"minLength">> => 4,
-        <<"maxLength">> => 4
+        type => string,
+        format => base64,
+        min_length => 4,
+        max_length => 4
     },
     ?FORALL(
         Value,
@@ -154,8 +154,8 @@ prop_string_base64() ->
 
 'prop_string_iso8601-datetime'() ->
     Schema = #{
-        <<"type">> => <<"string">>,
-        <<"format">> => <<"iso8601-datetime">>
+        type => string,
+        format => iso8601
     },
     ?FORALL(
         Value,
@@ -165,9 +165,9 @@ prop_string_base64() ->
 
 prop_array_1() ->
     Schema = #{
-        <<"type">> => <<"array">>,
-        <<"items">> => #{
-            <<"type">> => <<"number">>
+        type => array,
+        items => #{
+            type => float
         }
     },
     ?FORALL(
@@ -178,13 +178,13 @@ prop_array_1() ->
 
 prop_array_2() ->
     Schema = #{
-        <<"type">> => <<"array">>,
-        <<"items">> => #{
-            <<"type">> => <<"boolean">>
+        type => array,
+        items => #{
+            type => boolean
         },
-        <<"minItems">> => 1,
-        <<"maxItems">> => 5,
-        <<"uniqueItems">> => true
+        min_items => 1,
+        max_items => 5,
+        unique_items => true
     },
     ?FORALL(
         Value,
@@ -195,10 +195,10 @@ prop_array_2() ->
 
 prop_object_1() ->
     Schema = #{
-        <<"type">> => <<"object">>,
-        <<"minProperties">> => 10,
-        <<"maxProperties">> => 20,
-        <<"additionalProperties">> => #{<<"type">> => <<"boolean">>}
+        type => object,
+        min_properties => 10,
+        max_properties => 20,
+        additional_properties => #{type => boolean}
     },
     ?FORALL(
         Value,
@@ -213,14 +213,14 @@ prop_object_1() ->
 
 prop_object_2() ->
     Schema = #{
-        <<"type">> => <<"object">>,
-        <<"properties">> => #{
-            <<"foo">> => #{<<"type">> => <<"integer">>},
-            <<"bar">> => #{<<"type">> => <<"boolean">>}
+        type => object,
+        properties => #{
+            <<"foo">> => #{type => integer},
+            <<"bar">> => #{type => boolean}
         },
-        <<"required">> => [<<"foo">>, <<"bar">>],
-        <<"minProperties">> => 1,
-        <<"additionalProperties">> => false
+        required => [<<"foo">>, <<"bar">>],
+        min_properties => 1,
+        additional_properties => false
     },
     ?FORALL(
         Value,
@@ -230,9 +230,9 @@ prop_object_2() ->
 
 prop_all_of() ->
     Schema = #{
-        <<"allOf">> => [
-            #{<<"type">> => <<"integer">>, <<"minimum">> => 1},
-            #{<<"type">> => <<"number">>, <<"maximum">> => 2.5, <<"exclusiveMaximum">> => true}
+        all_of => [
+            #{type => integer, minimum => 1},
+            #{type => float, maximum => 2.5, exclusive_maximum => true}
         ]
     },
     ?FORALL(
@@ -243,10 +243,10 @@ prop_all_of() ->
 
 prop_any_of() ->
     Schema = #{
-        <<"anyOf">> => [
-            #{<<"type">> => <<"boolean">>},
-            #{<<"type">> => <<"number">>},
-            #{<<"type">> => <<"string">>}
+        any_of => [
+            #{type => boolean},
+            #{type => float},
+            #{type => string}
         ]
     },
     ?FORALL(
@@ -259,9 +259,9 @@ prop_any_of() ->
 
 prop_one_of() ->
     Schema = #{
-        <<"oneOf">> => [
-            #{<<"type">> => <<"boolean">>},
-            #{<<"type">> => <<"string">>}
+        one_of => [
+            #{type => boolean},
+            #{type => string}
         ]
     },
     ?FORALL(
@@ -273,7 +273,7 @@ prop_one_of() ->
 
 prop_not() ->
     Schema = #{
-        <<"not">> => #{<<"type">> => <<"boolean">>}
+        'not' => #{type => boolean}
     },
     ?FORALL(
         Value,

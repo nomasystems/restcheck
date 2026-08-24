@@ -83,7 +83,7 @@ init(State) ->
             "usage:\n"
             "{restcheck, [\n"
             "    {spec_path, string()}, % path to spec file\n"
-            "    {spec_parser, module()}, % spec to API AST parser, defaults to erf_oas_3_0\n"
+            "    {spec_parser, module()}, % spec to API AST parser, defaults to erf_parser_oas_3_0\n"
             "    {pbt_backend, module()}, % restcheck_pbt backend, defaults to restcheck_triq\n"
             "    {host, string()}, % server host, defaults to \"localhost\"\n"
             "    {port, inet:port_number()}, % server port number, defaults to 8080\n"
@@ -106,7 +106,7 @@ do(State) ->
     RawConf = rebar_state:get(State, restcheck, []),
     Conf = #{
         spec_path => unicode:characters_to_binary(proplists:get_value(spec_path, RawConf)),
-        spec_parser => proplists:get_value(spec_parser, RawConf, erf_oas_3_0),
+        spec_parser => proplists:get_value(spec_parser, RawConf, erf_parser_oas_3_0),
         pbt_backend => proplists:get_value(pbt_backend, RawConf, restcheck_triq),
         host => unicode:characters_to_binary(proplists:get_value(host, RawConf, "localhost")),
         port => proplists:get_value(port, RawConf, 8080),
@@ -334,7 +334,7 @@ file_log(LogFile, Format, Args) ->
     Reason :: term().
 generate_and_load_suite(Conf) ->
     SpecPath = maps:get(spec_path, Conf),
-    SpecParser = maps:get(spec_format, Conf, erf_oas_3_0),
+    SpecParser = maps:get(spec_format, Conf, erf_parser_oas_3_0),
     case erf_parser:parse(SpecPath, SpecParser) of
         {ok, API} ->
             APIName = maps:get(name, API),
