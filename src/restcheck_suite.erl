@@ -658,6 +658,9 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
 schema_ast(Schema, Schemas) ->
     erl_syntax:abstract(inline_refs(Schema, Schemas, [])).
 
+-spec inline_refs(any(), Schemas, Seen) -> any() when
+    Schemas :: #{binary() => erf_parser:schema()},
+    Seen :: [erf_parser:ref()].
 inline_refs(#{ref := Ref}, Schemas, Seen) ->
     case lists:member(Ref, Seen) of
         true -> #{};

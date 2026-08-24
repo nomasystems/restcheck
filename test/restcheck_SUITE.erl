@@ -133,31 +133,6 @@ petstore(_Conf) ->
 
     ok.
 
-%%%-----------------------------------------------------------------------------
-%%% INTERNAL FUNCTIONS
-%%%-----------------------------------------------------------------------------
-load_server_mock() ->
-    meck:new([restcheck_client_server], [non_strict, no_link]),
-    meck:expect(
-        restcheck_client_server,
-        handle,
-        fun(Req, _Args) ->
-            restcheck_client_server:handle(
-                elli_request:path(Req),
-                elli_request:method(Req),
-                elli_request:headers(Req),
-                elli_request:get_args(Req),
-                elli_request:body(Req)
-            )
-        end
-    ),
-    meck:expect(restcheck_client_server, handle_event, fun(_Event, _Args, _Config) -> ok end),
-    ok.
-
-unload_server_mock() ->
-    meck:unload(restcheck_client_server),
-    ok.
-
 nested_refs(Conf) ->
     meck:expect(
         restcheck_client_server,
@@ -189,4 +164,28 @@ nested_refs(Conf) ->
 
     ?assertMatch({ok, [{<<"create_order">>, true}]}, restcheck:run(RunConf)),
 
+    ok.
+%%%-----------------------------------------------------------------------------
+%%% INTERNAL FUNCTIONS
+%%%-----------------------------------------------------------------------------
+load_server_mock() ->
+    meck:new([restcheck_client_server], [non_strict, no_link]),
+    meck:expect(
+        restcheck_client_server,
+        handle,
+        fun(Req, _Args) ->
+            restcheck_client_server:handle(
+                elli_request:path(Req),
+                elli_request:method(Req),
+                elli_request:headers(Req),
+                elli_request:get_args(Req),
+                elli_request:body(Req)
+            )
+        end
+    ),
+    meck:expect(restcheck_client_server, handle_event, fun(_Event, _Args, _Config) -> ok end),
+    ok.
+
+unload_server_mock() ->
+    meck:unload(restcheck_client_server),
     ok.

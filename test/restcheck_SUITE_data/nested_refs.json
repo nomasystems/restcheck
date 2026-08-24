@@ -21,7 +21,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Created",
+                        "description": "The created order",
                         "content": {
                             "application/json": {
                                 "schema": {
