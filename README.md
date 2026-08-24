@@ -21,6 +21,7 @@
     {spec_parser, module()}, % defaults to erf_oas_3_0
     {pbt_backend, module()}, % defaults to restcheck_triq
     {host, string()}, % defaults to "localhost"
+    {base_path, string()}, % empty by default
     {port, inet:port_number()}, % defaults to 8080
     {ssl, boolean()}, % defaults to false
     {verify, verify_peer | verify_none}, % defaults to verify_peer
