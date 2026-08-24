@@ -53,7 +53,9 @@
     host := binary(),
     port => integer(),
     ssl => boolean(),
-    verify => verify()
+    verify => verify(),
+    retries => non_neg_integer(),
+    retry_interval => non_neg_integer()
 }.
 -type req_config() :: #{
     headers => [{binary(), binary()}],
@@ -99,6 +101,8 @@
     {send_timeout, 50},
     {send_timeout_close, true}
 ]).
+-define(DEFAULT_RETRIES, 0).
+-define(DEFAULT_RETRY_INTERVAL, 100).
 
 %%%-----------------------------------------------------------------------------
 %%% START/STOP EXPORTS
@@ -249,23 +253,9 @@ request(Name, Config, Opts) ->
                 headers => Headers,
                 timeout => Timeout
             },
-            case buoy:request(Method, BuoyUrl, BuoyOpts) of
-                {ok, BuoyResp} ->
-                    RespStatus = BuoyResp#buoy_resp.status_code,
-                    RespHeaders = headers(BuoyResp#buoy_resp.headers),
-                    RespBody = body(
-                        proplists:get_value(<<"content-type">>, RespHeaders, undefined),
-                        BuoyResp#buoy_resp.body
-                    ),
-                    Response = #{
-                        status => RespStatus,
-                        headers => RespHeaders,
-                        body => RespBody
-                    },
-                    {ok, Response};
-                {error, Reason} ->
-                    {error, Reason}
-            end
+            Retries = maps:get(retries, ClientConfig, ?DEFAULT_RETRIES),
+            RetryInterval = maps:get(retry_interval, ClientConfig, ?DEFAULT_RETRY_INTERVAL),
+            buoy_request(Method, BuoyUrl, BuoyOpts, Retries, RetryInterval)
     end.
 
 %%%-----------------------------------------------------------------------------
@@ -310,6 +300,30 @@ verify_options(verify_none) ->
     [{verify, verify_none}];
 verify_options(verify_peer) ->
     [{verify, verify_peer}, {cacerts, public_key:cacerts_get()}].
+
+buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft, RetryInterval) ->
+    case buoy:request(Method, BuoyUrl, BuoyOpts) of
+        {ok, BuoyResp} ->
+            RespStatus = BuoyResp#buoy_resp.status_code,
+            RespHeaders = headers(BuoyResp#buoy_resp.headers),
+            RespBody = body(
+                proplists:get_value(<<"content-type">>, RespHeaders, undefined),
+                BuoyResp#buoy_resp.body
+            ),
+            Response = #{
+                status => RespStatus,
+                headers => RespHeaders,
+                body => RespBody
+            },
+            {ok, Response};
+        {error, Reason} when
+            RetriesLeft > 0 andalso (Reason =:= no_server orelse Reason =:= no_socket)
+        ->
+            timer:sleep(RetryInterval),
+            buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft - 1, RetryInterval);
+        {error, Reason} ->
+            {error, Reason}
+    end.
 
 body(Body) ->
     {ok, Encoded} = njson:encode(Body),
