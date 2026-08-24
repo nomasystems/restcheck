@@ -1,0 +1,73 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Nested refs API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/orders": {
+            "post": {
+                "summary": "Create an order",
+                "operationId": "createOrder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Order"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The created order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Order"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Order": {
+                "type": "object",
+                "required": [
+                    "item"
+                ],
+                "properties": {
+                    "item": {
+                        "$ref": "#/components/schemas/Item"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "Item": {
+                "type": "object",
+                "required": [
+                    "sku",
+                    "qty"
+                ],
+                "properties": {
+                    "sku": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8
+                    },
+                    "qty": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10
+                    }
+                },
+                "additionalProperties": false
+            }
+        }
+    }
+}
