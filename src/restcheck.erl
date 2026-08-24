@@ -39,6 +39,8 @@
     auth => restcheck_client:auth(),
     timeout => non_neg_integer(),
     num_requests => pos_integer(),
+    max_string_length => pos_integer(),
+    max_array_items => non_neg_integer(),
     output_fun => restcheck_pbt:output_fun()
 }.
 -type test_result() :: {OperationId :: binary(), Result :: ok | {error, Reason :: term()}}.
@@ -92,6 +94,8 @@ init(State) ->
             "    {auth, restcheck_client:auth()}, % includes auth headers in the request\n"
             "    {timeout, pos_integer()} % timeout per request in ms, defaults to 5000\n"
             "    {num_requests, pos_integer()} % number of requests per operation, defaults to 5000\n"
+            "    {max_string_length, pos_integer()} % default max length for strings without maxLength, defaults to 255\n"
+            "    {max_array_items, non_neg_integer()} % default max items for arrays without maxItems, defaults to 3\n"
             "    {log_file, string()} % path to file where timestamped events are logged, disabled if no path is provided\n"
             "]}."}
     ]),
@@ -115,7 +119,9 @@ do(State) ->
         base_path => unicode:characters_to_binary(proplists:get_value(base_path, RawConf, "")),
         timeout => proplists:get_value(timeout, RawConf, 5000),
         num_requests => proplists:get_value(num_requests, RawConf, 100),
-        auth => proplists:get_value(auth, RawConf, undefined)
+        auth => proplists:get_value(auth, RawConf, undefined),
+        max_string_length => proplists:get_value(max_string_length, RawConf, undefined),
+        max_array_items => proplists:get_value(max_array_items, RawConf, undefined)
     },
     LogFile = proplists:get_value(log_file, RawConf, undefined),
     LogEnabled =
@@ -337,6 +343,7 @@ file_log(LogFile, Format, Args) ->
     LazyTest :: fun(() -> true | {false, Reason :: term()}),
     Reason :: term().
 generate_and_load_suite(Conf) ->
+    ok = apply_generation_conf(Conf),
     SpecPath = maps:get(spec_path, Conf),
     SpecParser = maps:get(spec_format, Conf, erf_parser_oas_3_0),
     case erf_parser:parse(SpecPath, SpecParser) of
@@ -380,6 +387,21 @@ generate_and_load_suite(Conf) ->
         {error, Reason} ->
             {error, Reason}
     end.
+
+-spec apply_generation_conf(Conf) -> ok when
+    Conf :: conf().
+apply_generation_conf(Conf) ->
+    lists:foreach(
+        fun(Key) ->
+            case maps:get(Key, Conf, undefined) of
+                undefined ->
+                    application:unset_env(restcheck, Key);
+                Value ->
+                    application:set_env(restcheck, Key, Value)
+            end
+        end,
+        [max_string_length, max_array_items]
+    ).
 
 -spec load_dtos(DTOs) -> Result when
     DTOs :: [{erf_parser:ref(), ndto:schema()}],

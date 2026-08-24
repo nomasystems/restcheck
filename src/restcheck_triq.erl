@@ -34,6 +34,10 @@
     report/3
 ]).
 
+%%% MACROS
+-define(DEFAULT_MAX_STRING_LENGTH, 255).
+-define(DEFAULT_MAX_ARRAY_ITEMS, 3).
+
 %%% TYPES
 -type recursion_max_depth() :: non_neg_integer().
 
@@ -168,7 +172,7 @@ any_of(#{any_of := Subschemas} = _Schema, MaxDepth) ->
 array(Schema, MaxDepth) ->
     Items = maps:get(items, Schema, #{}),
     MinItems = maps:get(min_items, Schema, 0),
-    MaxItems = maps:get(max_items, Schema, 3),
+    MaxItems = erlang:max(MinItems, maps:get(max_items, Schema, default_max_array_items())),
     UniqueItems = maps:get(unique_items, Schema, false),
     triq_dom:bind(
         triq_dom:int(MinItems, MaxItems),
@@ -382,7 +386,7 @@ string(#{pattern := Pattern}) ->
     );
 string(Schema) ->
     MinLength = maps:get(min_length, Schema, 1),
-    MaxLength = maps:get(max_length, Schema, 255),
+    MaxLength = erlang:max(MinLength, maps:get(max_length, Schema, default_max_string_length())),
     Format = maps:get(format, Schema, undefined),
     triq_dom:bind(
         triq_dom:int(MinLength, MaxLength),
@@ -461,6 +465,16 @@ dec_depth(MaxDepth) when MaxDepth > 0 ->
     MaxDepth - 1;
 dec_depth(_MaxDepth) ->
     0.
+
+-spec default_max_string_length() -> MaxLength when
+    MaxLength :: pos_integer().
+default_max_string_length() ->
+    application:get_env(restcheck, max_string_length, ?DEFAULT_MAX_STRING_LENGTH).
+
+-spec default_max_array_items() -> MaxItems when
+    MaxItems :: non_neg_integer().
+default_max_array_items() ->
+    application:get_env(restcheck, max_array_items, ?DEFAULT_MAX_ARRAY_ITEMS).
 
 pattern_strip_anchors(Chars0) ->
     Chars1 =
