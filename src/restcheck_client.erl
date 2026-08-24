@@ -53,6 +53,7 @@
     host := binary(),
     port => integer(),
     ssl => boolean(),
+    base_path => binary(),
     verify => verify(),
     retries => non_neg_integer(),
     retry_interval => non_neg_integer()
@@ -175,7 +176,8 @@ request(Name, Config, Opts) ->
             Host = maps:get(host, ClientConfig),
             Port = maps:get(port, ClientConfig),
             Protocol = protocol(maps:get(ssl, ClientConfig, false)),
-            RawPath = maps:get(path, Config, <<"/">>),
+            BasePath = maps:get(base_path, ClientConfig, <<>>),
+            RawPath = <<BasePath/binary, (maps:get(path, Config, <<"/">>))/binary>>,
             Path =
                 case maps:get(query_parameters, Config, undefined) of
                     undefined ->
@@ -261,7 +263,10 @@ request(Name, Config, Opts) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
-init([Name, ClientConfig]) ->
+init([Name, RawClientConfig]) ->
+    ClientConfig = RawClientConfig#{
+        base_path => base_path(maps:get(base_path, RawClientConfig, <<>>))
+    },
     ok = persistent_term:put(?PERSISTENT_TERM(Name), ClientConfig),
     Protocol = protocol(maps:get(ssl, ClientConfig, false)),
     Host = maps:get(host, ClientConfig),
@@ -323,6 +328,21 @@ buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft, RetryInterval) ->
             buoy_request(Method, BuoyUrl, BuoyOpts, RetriesLeft - 1, RetryInterval);
         {error, Reason} ->
             {error, Reason}
+    end.
+
+%%% Base paths are concatenated with the request path, so we drop any trailing
+%%% slash and make sure there is a leading one.
+-spec base_path(RawBasePath) -> BasePath when
+    RawBasePath :: binary(),
+    BasePath :: binary().
+base_path(RawBasePath) ->
+    case string:trim(RawBasePath, trailing, "/") of
+        <<>> ->
+            <<>>;
+        <<"/", _Rest/binary>> = BasePath ->
+            BasePath;
+        BasePath ->
+            <<"/", BasePath/binary>>
     end.
 
 body(Body) ->

@@ -23,6 +23,7 @@ all() ->
     [
         start_stop,
         request,
+        base_path,
         auth
     ].
 
@@ -127,6 +128,40 @@ request(_Conf) ->
         ),
 
     ok = restcheck_client:stop(restcheck_client),
+
+    ok.
+
+base_path(_Conf) ->
+    meck:expect(
+        restcheck_client_server,
+        handle,
+        fun('GET', _Path, Req) ->
+            RawPath = elli_request:raw_path(Req),
+            {200, [{<<"Content-Type">>, <<"application/json">>}],
+                <<"{\"path\":\"", RawPath/binary, "\"}">>}
+        end
+    ),
+
+    %% A trailing slash is dropped and a missing leading one is added, so the
+    %% three of them request /api/v1/foo.
+    lists:foreach(
+        fun(RawBasePath) ->
+            {ok, ClientPid} = restcheck_client:start_link(
+                restcheck_client,
+                #{
+                    host => <<"localhost">>,
+                    port => 8080,
+                    ssl => false,
+                    base_path => RawBasePath
+                }
+            ),
+            {ok, #{status := 200, body := #{<<"path">> := <<"/api/v1/foo">>}}} =
+                restcheck_client:request(restcheck_client, #{path => <<"/foo">>}, #{}),
+            ok = restcheck_client:stop(restcheck_client),
+            true = is_dead(ClientPid)
+        end,
+        [<<"/api/v1">>, <<"/api/v1/">>, <<"api/v1">>]
+    ),
 
     ok.
 

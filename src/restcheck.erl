@@ -33,6 +33,7 @@
     spec_parser => module(),
     pbt_backend => restcheck_pbt:backend(),
     host => binary(),
+    base_path => binary(),
     port => inet:port_number(),
     ssl => boolean(),
     verify => restcheck_client:verify(),
@@ -89,6 +90,7 @@ init(State) ->
             "    {spec_parser, module()}, % spec to API AST parser, defaults to erf_parser_oas_3_0\n"
             "    {pbt_backend, module()}, % restcheck_pbt backend, defaults to restcheck_triq\n"
             "    {host, string()}, % server host, defaults to \"localhost\"\n"
+            "    {base_path, string()}, % prefix prepended to every request path, empty by default\n"
             "    {port, inet:port_number()}, % server port number, defaults to 8080\n"
             "    {ssl, boolean()}, % enable/disable ssl, defaults to false\n"
             "    {verify, verify_peer | verify_none}, % verify the server certificate when ssl is enabled, defaults to verify_peer\n"
@@ -115,6 +117,7 @@ do(State) ->
         spec_parser => proplists:get_value(spec_parser, RawConf, erf_parser_oas_3_0),
         pbt_backend => proplists:get_value(pbt_backend, RawConf, restcheck_triq),
         host => unicode:characters_to_binary(proplists:get_value(host, RawConf, "localhost")),
+        base_path => unicode:characters_to_binary(proplists:get_value(base_path, RawConf, "")),
         port => proplists:get_value(port, RawConf, 8080),
         ssl => proplists:get_value(ssl, RawConf, false),
         verify => proplists:get_value(verify, RawConf, verify_peer),
@@ -153,6 +156,7 @@ do(State) ->
                 host => Host,
                 port => Port,
                 ssl => SSL,
+                base_path => maps:get(base_path, Conf, <<>>),
                 verify => Verify,
                 retries => maps:get(retries, Conf, 0),
                 retry_interval => maps:get(retry_interval, Conf, 100)
@@ -304,6 +308,7 @@ run(Conf) ->
                 host => Host,
                 port => Port,
                 ssl => SSL,
+                base_path => maps:get(base_path, Conf, <<>>),
                 verify => Verify,
                 retries => maps:get(retries, Conf, 0),
                 retry_interval => maps:get(retry_interval, Conf, 100)
