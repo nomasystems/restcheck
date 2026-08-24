@@ -35,6 +35,7 @@
     host => binary(),
     port => inet:port_number(),
     ssl => boolean(),
+    verify => restcheck_client:verify(),
     auth => restcheck_client:auth(),
     timeout => non_neg_integer(),
     num_requests => pos_integer(),
@@ -88,6 +89,7 @@ init(State) ->
             "    {host, string()}, % server host, defaults to \"localhost\"\n"
             "    {port, inet:port_number()}, % server port number, defaults to 8080\n"
             "    {ssl, boolean()}, % enable/disable ssl, defaults to false\n"
+            "    {verify, verify_peer | verify_none}, % verify the server certificate when ssl is enabled, defaults to verify_peer\n"
             "    {auth, restcheck_client:auth()}, % includes auth headers in the request\n"
             "    {timeout, pos_integer()} % timeout per request in ms, defaults to 5000\n"
             "    {num_requests, pos_integer()} % number of requests per operation, defaults to 5000\n"
@@ -111,6 +113,7 @@ do(State) ->
         host => unicode:characters_to_binary(proplists:get_value(host, RawConf, "localhost")),
         port => proplists:get_value(port, RawConf, 8080),
         ssl => proplists:get_value(ssl, RawConf, false),
+        verify => proplists:get_value(verify, RawConf, verify_peer),
         timeout => proplists:get_value(timeout, RawConf, 5000),
         num_requests => proplists:get_value(num_requests, RawConf, 100),
         auth => proplists:get_value(auth, RawConf, undefined)
@@ -139,10 +142,12 @@ do(State) ->
             Host = maps:get(host, Conf, <<"localhost">>),
             Port = maps:get(port, Conf, 8080),
             SSL = maps:get(ssl, Conf, false),
+            Verify = maps:get(verify, Conf, verify_peer),
             ClientConf = #{
                 host => Host,
                 port => Port,
-                ssl => SSL
+                ssl => SSL,
+                verify => Verify
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             case LogEnabled of
@@ -286,10 +291,12 @@ run(Conf) ->
             Host = maps:get(host, Conf, <<"localhost">>),
             Port = maps:get(port, Conf, 8080),
             SSL = maps:get(ssl, Conf, false),
+            Verify = maps:get(verify, Conf, verify_peer),
             ClientConf = #{
                 host => Host,
                 port => Port,
-                ssl => SSL
+                ssl => SSL,
+                verify => Verify
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             TestResults = lists:map(
