@@ -863,5 +863,5 @@ new_property_name(ExcludedNames) ->
 -spec random_pick(List) -> Element when
     List :: [term(), ...],
     Element :: term().
-random_pick(List) ->
-    lists:nth(rand:uniform(erlang:length(List)), List).
+random_pick([_ | Tail] = List) ->
+    lists:nth(rand:uniform(1 + erlang:length(Tail)), List).

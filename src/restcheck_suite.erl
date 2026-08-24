@@ -229,8 +229,7 @@ load(Suite, Options) ->
 -spec load_binary(ModuleName, Bin) -> Result when
     ModuleName :: atom(),
     Bin :: binary(),
-    Result :: ok | {error, What},
-    What :: term().
+    Result :: ok | {error, term()}.
 load_binary(ModuleName, Bin) ->
     case
         code:load_binary(
