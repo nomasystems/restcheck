@@ -14,6 +14,7 @@
 -module(restcheck_SUITE).
 
 %%% INCLUDE FILES
+-include_lib("common_test/include/ct.hrl").
 -include_lib("stdlib/include/assert.hrl").
 
 %%% EXTERNAL EXPORTS
@@ -24,7 +25,8 @@
 %%%-----------------------------------------------------------------------------
 all() ->
     [
-        petstore
+        petstore,
+        nested_refs
     ].
 
 %%%-----------------------------------------------------------------------------
@@ -154,4 +156,37 @@ load_server_mock() ->
 
 unload_server_mock() ->
     meck:unload(restcheck_client_server),
+    ok.
+
+nested_refs(Conf) ->
+    meck:expect(
+        restcheck_client_server,
+        handle,
+        fun([<<"orders">>], 'POST', _Headers, _QueryParameters, RawBody) ->
+            case njson:decode(RawBody) of
+                {ok, #{<<"item">> := #{<<"sku">> := Sku, <<"qty">> := Qty}}} when
+                    is_binary(Sku), is_integer(Qty)
+                ->
+                    {200, [{<<"Content-Type">>, <<"application/json">>}], RawBody};
+                _Otherwise ->
+                    {400, [], <<>>}
+            end
+        end
+    ),
+
+    RunConf = #{
+        spec_path => unicode:characters_to_binary(
+            filename:join(?config(data_dir, Conf), "nested_refs.json")
+        ),
+        spec_format => erf_parser_oas_3_0,
+        pbt_backend => restcheck_triq,
+        host => <<"localhost">>,
+        port => 8080,
+        ssl => false,
+        timeout => 5000,
+        num_requests => 10
+    },
+
+    ?assertMatch({ok, [{<<"create_order">>, true}]}, restcheck:run(RunConf)),
+
     ok.
