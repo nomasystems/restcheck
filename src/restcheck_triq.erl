@@ -52,27 +52,27 @@ dto(Schema) ->
     Schema :: restcheck_pbt:schema(),
     Generator :: restcheck_pbt:generator().
 %% @doc Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.
-dto(#{<<"enum">> := _Enum} = Schema, _MaxDepth) ->
+dto(#{enum := _Enum} = Schema, _MaxDepth) ->
     enum(Schema);
-dto(#{<<"type">> := <<"boolean">>} = Schema, _MaxDepth) ->
+dto(#{type := boolean} = Schema, _MaxDepth) ->
     boolean(Schema);
-dto(#{<<"type">> := <<"integer">>} = Schema, _MaxDepth) ->
+dto(#{type := integer} = Schema, _MaxDepth) ->
     integer(Schema);
-dto(#{<<"type">> := <<"number">>} = Schema, _MaxDepth) ->
+dto(#{type := float} = Schema, _MaxDepth) ->
     number(Schema);
-dto(#{<<"type">> := <<"string">>} = Schema, _MaxDepth) ->
+dto(#{type := string} = Schema, _MaxDepth) ->
     string(Schema);
-dto(#{<<"type">> := <<"array">>} = Schema, MaxDepth) ->
+dto(#{type := array} = Schema, MaxDepth) ->
     array(Schema, MaxDepth);
-dto(#{<<"type">> := <<"object">>} = Schema, MaxDepth) ->
+dto(#{type := object} = Schema, MaxDepth) ->
     object(Schema, MaxDepth);
-dto(#{<<"allOf">> := _Subschemas} = Schema, MaxDepth) ->
+dto(#{all_of := _Subschemas} = Schema, MaxDepth) ->
     all_of(Schema, MaxDepth);
-dto(#{<<"anyOf">> := _Subschemas} = Schema, MaxDepth) ->
+dto(#{any_of := _Subschemas} = Schema, MaxDepth) ->
     any_of(Schema, MaxDepth);
-dto(#{<<"oneOf">> := _Subschemas} = Schema, MaxDepth) ->
+dto(#{one_of := _Subschemas} = Schema, MaxDepth) ->
     one_of(Schema, MaxDepth);
-dto(#{<<"not">> := _Subschemas} = Schema, MaxDepth) ->
+dto(#{'not' := _Subschemas} = Schema, MaxDepth) ->
     'not'(Schema, MaxDepth);
 dto(_Schema, MaxDepth) ->
     any(MaxDepth).
@@ -131,7 +131,7 @@ report(Subject, Data, false) -> report(Subject, Data).
     MaxDepth :: recursion_max_depth(),
     Schema :: ndto:intersection_schema(),
     Dom :: restcheck_pbt:generator().
-all_of(#{<<"allOf">> := Subschemas}, MaxDepth) ->
+all_of(#{all_of := Subschemas}, MaxDepth) ->
     Schema = restcheck_schema:intersection(Subschemas),
     dto(Schema, MaxDepth).
 
@@ -140,20 +140,20 @@ all_of(#{<<"allOf">> := Subschemas}, MaxDepth) ->
     Dom :: restcheck_pbt:generator().
 any(0) ->
     Schema = #{
-        <<"anyOf">> => lists:subtract(?BASIC_SCHEMAS, [
-            #{<<"type">> => <<"array">>}, #{<<"type">> => <<"object">>}
+        any_of => lists:subtract(?BASIC_SCHEMAS, [
+            #{type => array}, #{type => object}
         ])
     },
     dto(Schema, 0);
 any(MaxDepth) ->
-    Schema = #{<<"anyOf">> => ?BASIC_SCHEMAS},
+    Schema = #{any_of => ?BASIC_SCHEMAS},
     dto(Schema, MaxDepth).
 
 -spec any_of(Schema, MaxDepth) -> Dom when
     Schema :: ndto:union_schema(),
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
-any_of(#{<<"anyOf">> := Subschemas} = _Schema, MaxDepth) ->
+any_of(#{any_of := Subschemas} = _Schema, MaxDepth) ->
     triq_dom:oneof(
         [
             dto(Subschema, MaxDepth)
@@ -166,10 +166,10 @@ any_of(#{<<"anyOf">> := Subschemas} = _Schema, MaxDepth) ->
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
 array(Schema, MaxDepth) ->
-    Items = maps:get(<<"items">>, Schema, #{}),
-    MinItems = maps:get(<<"minItems">>, Schema, 0),
-    MaxItems = maps:get(<<"maxItems">>, Schema, 3),
-    UniqueItems = maps:get(<<"uniqueItems">>, Schema, false),
+    Items = maps:get(items, Schema, #{}),
+    MinItems = maps:get(min_items, Schema, 0),
+    MaxItems = maps:get(max_items, Schema, 3),
+    UniqueItems = maps:get(unique_items, Schema, false),
     triq_dom:bind(
         triq_dom:int(MinItems, MaxItems),
         fun(Length) ->
@@ -201,7 +201,7 @@ boolean(_Schema) ->
 -spec enum(Schema) -> Dom when
     Schema :: ndto:enum_schema(),
     Dom :: restcheck_pbt:generator().
-enum(#{<<"enum">> := Enum}) ->
+enum(#{enum := Enum}) ->
     triq_dom:elements(Enum).
 
 -spec integer(Schema) -> Dom when
@@ -209,13 +209,13 @@ enum(#{<<"enum">> := Enum}) ->
     Dom :: restcheck_pbt:generator().
 integer(Schema) ->
     RawMin =
-        case maps:get(<<"minimum">>, Schema, ?MIN_INT) of
+        case maps:get(minimum, Schema, ?MIN_INT) of
             MinFloat when is_float(MinFloat) ->
                 erlang:trunc(MinFloat);
             Minimum ->
                 Minimum
         end,
-    ExclusiveMin = maps:get(<<"exclusiveMinimum">>, Schema, false),
+    ExclusiveMin = maps:get(exclusive_minimum, Schema, false),
     Min =
         case ExclusiveMin of
             true ->
@@ -224,13 +224,13 @@ integer(Schema) ->
                 RawMin
         end,
     RawMax =
-        case maps:get(<<"maximum">>, Schema, ?MAX_INT) of
+        case maps:get(maximum, Schema, ?MAX_INT) of
             MaxFloat when is_float(MaxFloat) ->
                 erlang:trunc(MaxFloat);
             Maximum ->
                 Maximum
         end,
-    ExclusiveMax = maps:get(<<"exclusiveMaximum">>, Schema, false),
+    ExclusiveMax = maps:get(exclusive_maximum, Schema, false),
     Max =
         case ExclusiveMax of
             true ->
@@ -238,7 +238,7 @@ integer(Schema) ->
             false ->
                 RawMax
         end,
-    MultipleOf = maps:get(<<"multipleOf">>, Schema, undefined),
+    MultipleOf = maps:get(multiple_of, Schema, undefined),
     case MultipleOf of
         undefined ->
             triq_dom:int(Min, Max);
@@ -255,18 +255,18 @@ integer(Schema) ->
     Schema :: ndto:complement_schema(),
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
-'not'(#{<<"not">> := Subschema}, MaxDepth) ->
+'not'(#{'not' := Subschema}, MaxDepth) ->
     Schema = restcheck_schema:complement(Subschema),
     dto(Schema, MaxDepth).
 
 -spec number(Schema) -> Dom when
-    Schema :: ndto:number_schema(),
+    Schema :: ndto:float_schema(),
     Dom :: restcheck_pbt:generator().
 number(Schema) ->
-    Min = maps:get(<<"minimum">>, Schema, ?MIN_INT),
-    ExclusiveMin = maps:get(<<"exclusiveMinimum">>, Schema, false),
-    Max = maps:get(<<"maximum">>, Schema, ?MAX_INT),
-    ExclusiveMax = maps:get(<<"exclusiveMaximum">>, Schema, false),
+    Min = maps:get(minimum, Schema, ?MIN_INT),
+    ExclusiveMin = maps:get(exclusive_minimum, Schema, false),
+    Max = maps:get(maximum, Schema, ?MAX_INT),
+    ExclusiveMax = maps:get(exclusive_maximum, Schema, false),
     Integer = triq_dom:int(erlang:trunc(Min), erlang:trunc(Max)),
     Float = triq_dom:bind(
         triq_dom:int(?MAX_INT),
@@ -294,10 +294,10 @@ number(Schema) ->
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
 object(Schema, MaxDepth) ->
-    Properties = maps:get(<<"properties">>, Schema, #{}),
-    RequiredKeys = maps:get(<<"required">>, Schema, []),
-    RawMinProperties = maps:get(<<"minProperties">>, Schema, 0),
-    AdditionalProperties = maps:get(<<"additionalProperties">>, Schema, true),
+    Properties = maps:get(properties, Schema, #{}),
+    RequiredKeys = maps:get(required, Schema, []),
+    RawMinProperties = maps:get(min_properties, Schema, 0),
+    AdditionalProperties = maps:get(additional_properties, Schema, true),
 
     MinProperties =
         case erlang:length(RequiredKeys) of
@@ -306,7 +306,7 @@ object(Schema, MaxDepth) ->
             GreaterThanOrEqualTo ->
                 GreaterThanOrEqualTo
         end,
-    MaxProperties = maps:get(<<"maxProperties">>, Schema, MinProperties + 1),
+    MaxProperties = maps:get(max_properties, Schema, MinProperties + 1),
 
     Required = [{PropertyName, maps:get(PropertyName, Properties)} || PropertyName <- RequiredKeys],
     NotRequired = maps:to_list(maps:without(RequiredKeys, Properties)),
@@ -360,20 +360,20 @@ object([{PropertyName, PropertySchema} | Properties], ExtraSchema, Missing, MaxD
     Schema :: ndto:symmetric_difference_schema(),
     MaxDepth :: recursion_max_depth(),
     Dom :: restcheck_pbt:generator().
-one_of(#{<<"oneOf">> := Subschemas}, MaxDepth) ->
+one_of(#{one_of := Subschemas}, MaxDepth) ->
     Schema = restcheck_schema:symmetric_difference(Subschemas),
     dto(Schema, MaxDepth).
 
 -spec string(Schema) -> Dom when
     Schema :: ndto:string_schema(),
     Dom :: restcheck_pbt:generator().
-string(#{<<"pattern">> := _Pattern}) ->
+string(#{pattern := _Pattern}) ->
     %% TODO: implement pattern
     erlang:throw({restcheck_triq, pattern, not_implemented});
 string(Schema) ->
-    MinLength = maps:get(<<"minLength">>, Schema, 1),
-    MaxLength = maps:get(<<"maxLength">>, Schema, 255),
-    Format = maps:get(<<"format">>, Schema, undefined),
+    MinLength = maps:get(min_length, Schema, 1),
+    MaxLength = maps:get(max_length, Schema, 255),
+    Format = maps:get(format, Schema, undefined),
     triq_dom:bind(
         triq_dom:int(MinLength, MaxLength),
         fun(Length) ->
@@ -387,18 +387,18 @@ string(Schema) ->
     ).
 
 -spec string_format(Format, Length) -> FormatGenerator when
-    Format :: undefined | binary(),
+    Format :: undefined | ndto:format(),
     Length :: non_neg_integer(),
     FormatGenerator :: restcheck_pbt:generator().
 string_format(undefined, Length) ->
     triq_dom:unicode_binary(Length);
-string_format(<<"base64">>, Length) ->
+string_format(base64, Length) ->
     0 = (Length rem 4),
     triq_dom:vector(
         Length,
         triq_dom:elements(base64_chars())
     );
-string_format(<<"iso8601-datetime">>, _Length) ->
+string_format(iso8601, _Length) ->
     triq_dom:bind(
         {
             triq_dom:int(9999),
