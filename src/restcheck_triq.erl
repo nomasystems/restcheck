@@ -173,7 +173,7 @@ array(Schema, MaxDepth) ->
     triq_dom:bind(
         triq_dom:int(MinItems, MaxItems),
         fun(Length) ->
-            DTO = dto(Items, dec_depth(MaxDepth)),
+            DTO = dto(Items, MaxDepth - 1),
             Array = triq_dom:vector(Length, DTO),
             case UniqueItems of
                 false ->
@@ -201,7 +201,7 @@ boolean(_Schema) ->
 -spec enum(Schema) -> Dom when
     Schema :: ndto:enum_schema(),
     Dom :: restcheck_pbt:generator().
-enum(#{enum := [_ | _] = Enum}) ->
+enum(#{enum := Enum}) ->
     triq_dom:elements(Enum).
 
 -spec integer(Schema) -> Dom when
@@ -318,7 +318,7 @@ object(Schema, MaxDepth) ->
                 Required ++ NotRequired,
                 AdditionalProperties,
                 MissingSize,
-                dec_depth(MaxDepth),
+                MaxDepth - 1,
                 triq_dom:return(#{})
             )
         end
@@ -342,7 +342,7 @@ object([], ExtraSchema, Missing, MaxDepth, Acc) ->
         triq_dom:bind(
             {
                 triq_dom:non_empty(triq_dom:unicode_binary()),
-                dto(ExtraSchema, dec_depth(MaxDepth)),
+                dto(ExtraSchema, MaxDepth - 1),
                 Acc
             },
             fun({PropertyName, PropertyValue, AccValue}) ->
@@ -353,7 +353,7 @@ object([], ExtraSchema, Missing, MaxDepth, Acc) ->
 object([{PropertyName, PropertySchema} | Properties], ExtraSchema, Missing, MaxDepth, Acc) ->
     NewAcc =
         triq_dom:bind(
-            {dto(PropertySchema, dec_depth(MaxDepth)), Acc},
+            {dto(PropertySchema, MaxDepth - 1), Acc},
             fun({PropertyValue, AccValue}) ->
                 maps:put(PropertyName, PropertyValue, AccValue)
             end
@@ -454,14 +454,6 @@ string_format(iso8601, _Length) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
--spec dec_depth(MaxDepth) -> Decremented when
-    MaxDepth :: recursion_max_depth(),
-    Decremented :: recursion_max_depth().
-dec_depth(MaxDepth) when MaxDepth > 0 ->
-    MaxDepth - 1;
-dec_depth(_MaxDepth) ->
-    0.
-
 %%% Generate strings matching an OpenAPI `pattern` (a regular expression). We
 %%% parse a common subset of regex (literals, character classes, `.`, groups,
 %%% alternation and the *, +, ?, {n}, {n,}, {n,m} quantifiers) into an AST and
