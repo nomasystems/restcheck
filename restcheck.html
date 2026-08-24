@@ -225,6 +225,8 @@ restcheck
             auth => restcheck_client:auth(),
             timeout => <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
             num_requests => <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:pos_integer/0">pos_integer</a>(),
+            retries => <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
+            retry_interval => <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>(),
             output_fun => <a href="restcheck_pbt.html#t:output_fun/0">restcheck_pbt:output_fun</a>()}.</pre>
 
       </div>
@@ -242,7 +244,7 @@ restcheck
       <h1 class="signature" translate="no">test_result/0</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L44" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L46" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -283,7 +285,7 @@ restcheck
       <h1 class="signature" translate="no">do(State)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L107" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L111" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -316,7 +318,7 @@ restcheck
       <h1 class="signature" translate="no">format_error(Reason)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L266" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L274" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -344,7 +346,7 @@ restcheck
       <h1 class="signature" translate="no">init(State)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L73" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L75" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -373,7 +375,7 @@ restcheck
       <h1 class="signature" translate="no">run(Conf)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L287" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck.erl#L295" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
