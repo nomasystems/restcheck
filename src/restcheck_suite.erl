@@ -658,17 +658,81 @@ prop_ast(RawPath, Method, Parameters, RequestBody, Responses) ->
 schema_ast(Schema, Schemas) ->
     erl_syntax:abstract(inline_refs(Schema, Schemas, [])).
 
--spec inline_refs(any(), Schemas, Seen) -> any() when
+-spec inline_refs(Schema, Schemas, Seen) -> Inlined when
+    Schema :: erf_parser:schema(),
     Schemas :: #{binary() => erf_parser:schema()},
-    Seen :: [erf_parser:ref()].
+    Seen :: [erf_parser:ref()],
+    Inlined :: erf_parser:schema().
 inline_refs(#{ref := Ref}, Schemas, Seen) ->
     case lists:member(Ref, Seen) of
-        true -> #{};
-        false -> inline_refs(maps:get(Ref, Schemas), Schemas, [Ref | Seen])
+        true ->
+            #{};
+        false ->
+            inline_refs(maps:get(Ref, Schemas), Schemas, [Ref | Seen])
     end;
-inline_refs(Schema, Schemas, Seen) when is_map(Schema) ->
-    maps:map(fun(_Key, Value) -> inline_refs(Value, Schemas, Seen) end, Schema);
-inline_refs(Schema, Schemas, Seen) when is_list(Schema) ->
-    [inline_refs(Element, Schemas, Seen) || Element <- Schema];
+inline_refs(#{all_of := Subschemas} = Schema, Schemas, Seen) ->
+    Schema#{all_of => [inline_refs(Subschema, Schemas, Seen) || Subschema <- Subschemas]};
+inline_refs(#{any_of := Subschemas} = Schema, Schemas, Seen) ->
+    Schema#{any_of => [inline_refs(Subschema, Schemas, Seen) || Subschema <- Subschemas]};
+inline_refs(#{one_of := Subschemas} = Schema, Schemas, Seen) ->
+    Schema#{one_of => [inline_refs(Subschema, Schemas, Seen) || Subschema <- Subschemas]};
+inline_refs(#{'not' := Subschema} = Schema, Schemas, Seen) ->
+    Schema#{'not' => inline_refs(Subschema, Schemas, Seen)};
+inline_refs(#{type := array} = Schema, Schemas, Seen) ->
+    inline_array_refs(Schema, Schemas, Seen);
+inline_refs(#{type := object} = Schema, Schemas, Seen) ->
+    inline_object_refs(Schema, Schemas, Seen);
 inline_refs(Schema, _Schemas, _Seen) ->
     Schema.
+
+-spec inline_array_refs(Schema, Schemas, Seen) -> Inlined when
+    Schema :: ndto:array_schema(),
+    Schemas :: #{binary() => erf_parser:schema()},
+    Seen :: [erf_parser:ref()],
+    Inlined :: ndto:array_schema().
+inline_array_refs(Schema, Schemas, Seen) ->
+    WithItems =
+        case Schema of
+            #{items := Items} when is_list(Items) ->
+                Schema#{items => [inline_refs(Item, Schemas, Seen) || Item <- Items]};
+            #{items := Items} ->
+                Schema#{items => inline_refs(Items, Schemas, Seen)};
+            _NoItems ->
+                Schema
+        end,
+    case WithItems of
+        #{additional_items := AdditionalItems} ->
+            WithItems#{additional_items => inline_refs(AdditionalItems, Schemas, Seen)};
+        _NoAdditionalItems ->
+            WithItems
+    end.
+
+-spec inline_object_refs(Schema, Schemas, Seen) -> Inlined when
+    Schema :: ndto:object_schema(),
+    Schemas :: #{binary() => erf_parser:schema()},
+    Seen :: [erf_parser:ref()],
+    Inlined :: ndto:object_schema().
+inline_object_refs(Schema, Schemas, Seen) ->
+    Inline = fun(_Name, Subschema) -> inline_refs(Subschema, Schemas, Seen) end,
+    WithProperties =
+        case Schema of
+            #{properties := Properties} ->
+                Schema#{properties => maps:map(Inline, Properties)};
+            _NoProperties ->
+                Schema
+        end,
+    WithPatternProperties =
+        case WithProperties of
+            #{pattern_properties := PatternProperties} ->
+                WithProperties#{pattern_properties => maps:map(Inline, PatternProperties)};
+            _NoPatternProperties ->
+                WithProperties
+        end,
+    case WithPatternProperties of
+        #{additional_properties := AdditionalProperties} ->
+            WithPatternProperties#{
+                additional_properties => inline_refs(AdditionalProperties, Schemas, Seen)
+            };
+        _NoAdditionalProperties ->
+            WithPatternProperties
+    end.
