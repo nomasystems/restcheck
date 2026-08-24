@@ -152,6 +152,18 @@ prop_string_base64() ->
         string:length(Value) =:= 4
     ).
 
+prop_string_pattern() ->
+    Pattern = <<"^[0-9]{8}T[0-9]{6}([+-][0-9]{4}|Z)?$">>,
+    Schema = #{
+        type => string,
+        pattern => Pattern
+    },
+    ?FORALL(
+        Value,
+        restcheck_triq:dto(Schema),
+        is_binary(Value) andalso re:run(Value, Pattern) =/= nomatch
+    ).
+
 'prop_string_iso8601-datetime'() ->
     Schema = #{
         type => string,
