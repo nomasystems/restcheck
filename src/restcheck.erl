@@ -39,6 +39,8 @@
     auth => restcheck_client:auth(),
     timeout => non_neg_integer(),
     num_requests => pos_integer(),
+    retries => non_neg_integer(),
+    retry_interval => non_neg_integer(),
     output_fun => restcheck_pbt:output_fun()
 }.
 -type test_result() :: {OperationId :: binary(), Result :: ok | {error, Reason :: term()}}.
@@ -93,6 +95,8 @@ init(State) ->
             "    {auth, restcheck_client:auth()}, % includes auth headers in the request\n"
             "    {timeout, pos_integer()} % timeout per request in ms, defaults to 5000\n"
             "    {num_requests, pos_integer()} % number of requests per operation, defaults to 5000\n"
+            "    {retries, non_neg_integer()} % retries when the server is unreachable, defaults to 0\n"
+            "    {retry_interval, non_neg_integer()} % wait between retries in ms, defaults to 100\n"
             "    {log_file, string()} % path to file where timestamped events are logged, disabled if no path is provided\n"
             "]}."}
     ]),
@@ -116,6 +120,8 @@ do(State) ->
         verify => proplists:get_value(verify, RawConf, verify_peer),
         timeout => proplists:get_value(timeout, RawConf, 5000),
         num_requests => proplists:get_value(num_requests, RawConf, 100),
+        retries => proplists:get_value(retries, RawConf, 0),
+        retry_interval => proplists:get_value(retry_interval, RawConf, 100),
         auth => proplists:get_value(auth, RawConf, undefined)
     },
     LogFile = proplists:get_value(log_file, RawConf, undefined),
@@ -147,7 +153,9 @@ do(State) ->
                 host => Host,
                 port => Port,
                 ssl => SSL,
-                verify => Verify
+                verify => Verify,
+                retries => maps:get(retries, Conf, 0),
+                retry_interval => maps:get(retry_interval, Conf, 100)
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             case LogEnabled of
@@ -296,7 +304,9 @@ run(Conf) ->
                 host => Host,
                 port => Port,
                 ssl => SSL,
-                verify => Verify
+                verify => Verify,
+                retries => maps:get(retries, Conf, 0),
+                retry_interval => maps:get(retry_interval, Conf, 100)
             },
             {ok, _Pid} = restcheck_client:start_link(ClientName, ClientConf),
             TestResults = lists:map(
