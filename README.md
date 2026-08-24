@@ -23,6 +23,7 @@
     {host, string()}, % defaults to "localhost"
     {port, inet:port_number()}, % defaults to 8080
     {ssl, boolean()}, % defaults to false
+    {verify, verify_peer | verify_none}, % defaults to verify_peer
     {auth, restcheck_client:auth()}, % disabled by default
     {timeout, pos_integer()}, % defaults to 5000
     {num_requests, pos_integer()}, % defaults to 5000

@@ -47,11 +47,13 @@
     token := binary()
 }.
 -type request_body() :: njson:t().
+-type verify() :: verify_peer | verify_none.
 -type response_body() :: njson:t().
 -type client_config() :: #{
     host := binary(),
     port => integer(),
-    ssl => boolean()
+    ssl => boolean(),
+    verify => verify()
 }.
 -type req_config() :: #{
     headers => [{binary(), binary()}],
@@ -82,7 +84,8 @@
 
 %%% EXPORT TYPES
 -export_type([
-    auth/0
+    auth/0,
+    verify/0
 ]).
 
 %%% MACROS
@@ -287,7 +290,8 @@ init([Name, ClientConfig]) ->
             http ->
                 ?SOCKET_OPTIONS;
             https ->
-                [{log_level, error} | ?SOCKET_OPTIONS]
+                verify_options(maps:get(verify, ClientConfig, verify_peer)) ++
+                    [{log_level, error} | ?SOCKET_OPTIONS]
         end,
     case buoy_pool:start(BuoyUrl, [{socket_options, SocketOptions}]) of
         ok ->
@@ -299,6 +303,14 @@ init([Name, ClientConfig]) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
+-spec verify_options(Verify) -> Options when
+    Verify :: verify(),
+    Options :: [{atom(), term()}].
+verify_options(verify_none) ->
+    [{verify, verify_none}];
+verify_options(verify_peer) ->
+    [{verify, verify_peer}, {cacerts, public_key:cacerts_get()}].
+
 body(Body) ->
     {ok, Encoded} = njson:encode(Body),
     Encoded.
