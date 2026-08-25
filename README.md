@@ -30,6 +30,8 @@
     {num_requests, pos_integer()}, % defaults to 5000
     {retries, non_neg_integer()}, % defaults to 0
     {retry_interval, non_neg_integer()}, % defaults to 100
+    {max_string_length, pos_integer()}, % defaults to 255
+    {max_array_items, non_neg_integer()}, % defaults to 3
     {log_file, string()} % disabled by default
 ]}.
 ```

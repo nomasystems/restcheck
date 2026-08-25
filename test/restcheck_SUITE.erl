@@ -26,7 +26,8 @@
 all() ->
     [
         petstore,
-        nested_refs
+        nested_refs,
+        generation_limits
     ].
 
 %%%-----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ petstore(_Conf) ->
         spec_path => unicode:characters_to_binary(
             code:priv_dir(restcheck) ++ "/oas/3.0/examples/petstore.json"
         ),
-        spec_format => erf_parser_oas_3_0,
+        spec_parser => erf_parser_oas_3_0,
         pbt_backend => restcheck_triq,
         host => <<"localhost">>,
         port => 8080,
@@ -153,7 +154,7 @@ nested_refs(Conf) ->
         spec_path => unicode:characters_to_binary(
             filename:join(?config(data_dir, Conf), "nested_refs.json")
         ),
-        spec_format => erf_parser_oas_3_0,
+        spec_parser => erf_parser_oas_3_0,
         pbt_backend => restcheck_triq,
         host => <<"localhost">>,
         port => 8080,
@@ -165,9 +166,52 @@ nested_refs(Conf) ->
     ?assertMatch({ok, [{<<"create_order">>, true}]}, restcheck:run(RunConf)),
 
     ok.
+generation_limits(Conf) ->
+    meck:expect(
+        restcheck_client_server,
+        handle,
+        fun([<<"notes">>], 'POST', _Headers, _QueryParameters, RawBody) ->
+            case njson:decode(RawBody) of
+                {ok, #{<<"title">> := Title, <<"tags">> := Tags}} when
+                    length(Tags) =< 2
+                ->
+                    case string:length(Title) =< 4 andalso lists:all(fun short/1, Tags) of
+                        true ->
+                            {200, [{<<"Content-Type">>, <<"application/json">>}], RawBody};
+                        false ->
+                            {400, [], <<>>}
+                    end;
+                _Otherwise ->
+                    {400, [], <<>>}
+            end
+        end
+    ),
+
+    RunConf = #{
+        spec_path => unicode:characters_to_binary(
+            filename:join(?config(data_dir, Conf), "generation_limits.json")
+        ),
+        spec_parser => erf_parser_oas_3_0,
+        pbt_backend => restcheck_triq,
+        host => <<"localhost">>,
+        port => 8080,
+        ssl => false,
+        timeout => 5000,
+        num_requests => 25,
+        max_string_length => 4,
+        max_array_items => 2
+    },
+
+    ?assertMatch({ok, [{<<"create_note">>, true}]}, restcheck:run(RunConf)),
+
+    ok.
+
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
+short(Tag) ->
+    string:length(Tag) =< 4.
+
 load_server_mock() ->
     meck:new([restcheck_client_server], [non_strict, no_link]),
     meck:expect(

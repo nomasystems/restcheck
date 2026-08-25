@@ -42,6 +42,8 @@
     num_requests => pos_integer(),
     retries => non_neg_integer(),
     retry_interval => non_neg_integer(),
+    max_string_length => pos_integer(),
+    max_array_items => non_neg_integer(),
     output_fun => restcheck_pbt:output_fun()
 }.
 -type test_result() :: {OperationId :: binary(), Result :: ok | {error, Reason :: term()}}.
@@ -99,6 +101,8 @@ init(State) ->
             "    {num_requests, pos_integer()} % number of requests per operation, defaults to 5000\n"
             "    {retries, non_neg_integer()} % retries when the server is unreachable, defaults to 0\n"
             "    {retry_interval, non_neg_integer()} % wait between retries in ms, defaults to 100\n"
+            "    {max_string_length, pos_integer()} % default max length for strings without maxLength, defaults to 255\n"
+            "    {max_array_items, non_neg_integer()} % default max items for arrays without maxItems, defaults to 3\n"
             "    {log_file, string()} % path to file where timestamped events are logged, disabled if no path is provided\n"
             "]}."}
     ]),
@@ -125,6 +129,8 @@ do(State) ->
         num_requests => proplists:get_value(num_requests, RawConf, 100),
         retries => proplists:get_value(retries, RawConf, 0),
         retry_interval => proplists:get_value(retry_interval, RawConf, 100),
+        max_string_length => proplists:get_value(max_string_length, RawConf, undefined),
+        max_array_items => proplists:get_value(max_array_items, RawConf, undefined),
         auth => proplists:get_value(auth, RawConf, undefined)
     },
     LogFile = proplists:get_value(log_file, RawConf, undefined),
@@ -356,7 +362,7 @@ file_log(LogFile, Format, Args) ->
     Reason :: term().
 generate_and_load_suite(Conf) ->
     SpecPath = maps:get(spec_path, Conf),
-    SpecParser = maps:get(spec_format, Conf, erf_parser_oas_3_0),
+    SpecParser = maps:get(spec_parser, Conf, erf_parser_oas_3_0),
     case erf_parser:parse(SpecPath, SpecParser) of
         {ok, API} ->
             APIName = maps:get(name, API),
@@ -369,7 +375,7 @@ generate_and_load_suite(Conf) ->
             },
             DTOs = maps:get(schemas, API, []),
             load_dtos(maps:to_list(DTOs)),
-            {SuiteName, Suite} = restcheck_suite:generate(API),
+            {SuiteName, Suite} = restcheck_suite:generate(API, generation_opts(Conf)),
             ok = restcheck_suite:load(Suite),
             Tests = lists:flatmap(
                 fun(Endpoint) ->
@@ -398,6 +404,15 @@ generate_and_load_suite(Conf) ->
         {error, Reason} ->
             {error, Reason}
     end.
+
+-spec generation_opts(Conf) -> Opts when
+    Conf :: conf(),
+    Opts :: restcheck_pbt:opts().
+generation_opts(Conf) ->
+    maps:filter(
+        fun(_Key, Value) -> Value =/= undefined end,
+        maps:with([max_string_length, max_array_items], Conf)
+    ).
 
 -spec load_dtos(DTOs) -> Result when
     DTOs :: [{erf_parser:ref(), ndto:schema()}],
