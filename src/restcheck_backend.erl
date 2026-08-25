@@ -23,10 +23,11 @@
 %%%-----------------------------------------------------------------------------
 %%% BEHAVIOUR CALLBACKS
 %%%-----------------------------------------------------------------------------
--callback dto(Schema) -> Generator when
+-callback dto(Schema, Opts) -> Generator when
     Schema :: restcheck_pbt:schema(),
+    Opts :: restcheck_pbt:opts(),
     Generator :: restcheck_pbt:generator().
-%% Returns a DTO generator from a given schema.
+%% Returns a DTO generator from a given schema and generation options.
 
 -callback forall(Generators, Prop) -> ForAll when
     Generators :: [restcheck_pbt:generator()],
