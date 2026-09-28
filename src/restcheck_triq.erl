@@ -34,30 +34,17 @@
     report/3
 ]).
 
-%%% MACROS
--define(DEFAULT_RECURSION_MAX_DEPTH, 5).
--define(DEFAULT_MAX_STRING_LENGTH, 255).
--define(DEFAULT_MAX_ARRAY_ITEMS, 3).
-
 %%% TYPES
 -type recursion_max_depth() :: non_neg_integer().
--type pattern_ast() ::
-    {alt, [pattern_ast()]}
-    | {seq, [pattern_ast()]}
-    | {group, pattern_ast()}
-    | {lit, char()}
-    | {class, [char()]}
-    | {repeat, pattern_ast(), non_neg_integer(), non_neg_integer()}.
 -type opts() :: #{
-    recursion_max_depth => recursion_max_depth(),
-    max_string_length => pos_integer(),
-    max_array_items => non_neg_integer()
+    recursion_max_depth := recursion_max_depth(),
+    max_string_length := pos_integer(),
+    max_array_items := non_neg_integer()
 }.
 
 %%% EXPORT TYPES
 -export_type([
-    opts/0,
-    recursion_max_depth/0
+    opts/0
 ]).
 
 %%%-----------------------------------------------------------------------------
@@ -66,9 +53,9 @@
 -spec dto(Schema) -> Generator when
     Schema :: restcheck_pbt:schema(),
     Generator :: restcheck_pbt:generator().
-%% @equiv dto(Schema, #{})
+%% @equiv dto(Schema, #{recursion_max_depth => 5, max_string_length => 255, max_array_items => 3})
 dto(Schema) ->
-    dto(Schema, #{}).
+    dto(Schema, #{recursion_max_depth => 5, max_string_length => 255, max_array_items => 3}).
 
 -spec dto(Schema, Opts) -> Generator when
     Schema :: restcheck_pbt:schema(),
@@ -161,15 +148,16 @@ all_of(#{all_of := Subschemas}, Opts) ->
 -spec any(Opts) -> Dom when
     Opts :: opts(),
     Dom :: restcheck_pbt:generator().
+any(#{recursion_max_depth := 0} = Opts) ->
+    Schema = #{
+        any_of => lists:subtract(?BASIC_SCHEMAS, [
+            #{type => array}, #{type => object}
+        ])
+    },
+    dto(Schema, Opts);
 any(Opts) ->
-    Subschemas =
-        case max_depth(Opts) of
-            0 ->
-                lists:subtract(?BASIC_SCHEMAS, [#{type => array}, #{type => object}]);
-            _Deeper ->
-                ?BASIC_SCHEMAS
-        end,
-    dto(#{any_of => Subschemas}, Opts).
+    Schema = #{any_of => ?BASIC_SCHEMAS},
+    dto(Schema, Opts).
 
 -spec any_of(Schema, Opts) -> Dom when
     Schema :: ndto:union_schema(),
@@ -190,7 +178,7 @@ any_of(#{any_of := Subschemas} = _Schema, Opts) ->
 array(Schema, Opts) ->
     Items = maps:get(items, Schema, #{}),
     MinItems = maps:get(min_items, Schema, 0),
-    DefaultMaxItems = maps:get(max_array_items, Opts, ?DEFAULT_MAX_ARRAY_ITEMS),
+    DefaultMaxItems = maps:get(max_array_items, Opts),
     MaxItems = erlang:max(MinItems, maps:get(max_items, Schema, DefaultMaxItems)),
     UniqueItems = maps:get(unique_items, Schema, false),
     triq_dom:bind(
@@ -406,7 +394,7 @@ string(#{pattern := Pattern}, _Opts) ->
     );
 string(Schema, Opts) ->
     MinLength = maps:get(min_length, Schema, 1),
-    DefaultMaxLength = maps:get(max_string_length, Opts, ?DEFAULT_MAX_STRING_LENGTH),
+    DefaultMaxLength = maps:get(max_string_length, Opts),
     MaxLength = erlang:max(MinLength, maps:get(max_length, Schema, DefaultMaxLength)),
     Format = maps:get(format, Schema, undefined),
     triq_dom:bind(
@@ -479,26 +467,17 @@ string_format(iso8601, _Length) ->
 %%%-----------------------------------------------------------------------------
 %%% INTERNAL FUNCTIONS
 %%%-----------------------------------------------------------------------------
--spec max_depth(Opts) -> MaxDepth when
-    Opts :: opts(),
-    MaxDepth :: recursion_max_depth().
-max_depth(Opts) ->
-    maps:get(recursion_max_depth, Opts, ?DEFAULT_RECURSION_MAX_DEPTH).
-
 -spec deeper(Opts) -> Deeper when
     Opts :: opts(),
     Deeper :: opts().
-deeper(Opts) ->
-    Opts#{recursion_max_depth => max_depth(Opts) - 1}.
+deeper(#{recursion_max_depth := MaxDepth} = Opts) ->
+    Opts#{recursion_max_depth := MaxDepth - 1}.
 
 %%% Generate strings matching an OpenAPI `pattern` (a regular expression). We
 %%% parse a common subset of regex (literals, character classes, `.`, groups,
 %%% alternation and the *, +, ?, {n}, {n,}, {n,m} quantifiers) into an AST and
 %%% turn it into a triq generator. Unbounded quantifiers are capped so generated
 %%% strings stay small.
--spec pattern_strip_anchors(Chars) -> Stripped when
-    Chars :: string(),
-    Stripped :: string().
 pattern_strip_anchors(Chars0) ->
     Chars1 =
         case Chars0 of
@@ -510,10 +489,6 @@ pattern_strip_anchors(Chars0) ->
         _ -> Chars1
     end.
 
--spec pattern_parse_alt(Chars) -> {AST, Rest} when
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_alt(Chars) ->
     {Seq, Rest} = pattern_parse_seq(Chars),
     case Rest of
@@ -529,18 +504,9 @@ pattern_parse_alt(Chars) ->
             {Seq, Rest}
     end.
 
--spec pattern_parse_seq(Chars) -> {AST, Rest} when
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_seq(Chars) ->
     pattern_parse_seq(Chars, []).
 
--spec pattern_parse_seq(Chars, Acc) -> {AST, Rest} when
-    Chars :: string(),
-    Acc :: [pattern_ast()],
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_seq([], Acc) ->
     {{seq, lists:reverse(Acc)}, []};
 pattern_parse_seq([C | _] = Chars, Acc) when C =:= $| orelse C =:= $) ->
@@ -549,19 +515,10 @@ pattern_parse_seq(Chars, Acc) ->
     {Term, Rest} = pattern_parse_term(Chars),
     pattern_parse_seq(Rest, [Term | Acc]).
 
--spec pattern_parse_term(Chars) -> {AST, Rest} when
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_term(Chars) ->
     {Atom, Rest} = pattern_parse_atom(Chars),
     pattern_parse_quantifier(Atom, Rest).
 
--spec pattern_parse_quantifier(Atom, Chars) -> {AST, Rest} when
-    Atom :: pattern_ast(),
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_quantifier(Atom, [$* | Rest]) ->
     {{repeat, Atom, 0, 6}, Rest};
 pattern_parse_quantifier(Atom, [$+ | Rest]) ->
@@ -573,11 +530,6 @@ pattern_parse_quantifier(Atom, [${ | Rest]) ->
 pattern_parse_quantifier(Atom, Rest) ->
     {Atom, Rest}.
 
--spec pattern_parse_brace(Atom, Chars) -> {AST, Rest} when
-    Atom :: pattern_ast(),
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_brace(Atom, Chars) ->
     {Min, Rest1} = pattern_parse_int(Chars),
     case Rest1 of
@@ -591,27 +543,14 @@ pattern_parse_brace(Atom, Chars) ->
             {{repeat, Atom, Min, Max}, Rest4}
     end.
 
--spec pattern_parse_int(Chars) -> {Int, Rest} when
-    Chars :: string(),
-    Int :: non_neg_integer(),
-    Rest :: string().
 pattern_parse_int(Chars) ->
     pattern_parse_int(Chars, []).
 
--spec pattern_parse_int(Chars, Acc) -> {Int, Rest} when
-    Chars :: string(),
-    Acc :: string(),
-    Int :: non_neg_integer(),
-    Rest :: string().
 pattern_parse_int([C | Rest], Acc) when C >= $0 andalso C =< $9 ->
     pattern_parse_int(Rest, [C | Acc]);
 pattern_parse_int(Rest, Acc) ->
     {erlang:list_to_integer(lists:reverse(Acc)), Rest}.
 
--spec pattern_parse_atom(Chars) -> {AST, Rest} when
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_atom([$( | Rest0]) ->
     Rest1 =
         case Rest0 of
@@ -630,10 +569,6 @@ pattern_parse_atom([$. | Rest]) ->
 pattern_parse_atom([C | Rest]) ->
     {{lit, C}, Rest}.
 
--spec pattern_parse_class(Chars) -> {AST, Rest} when
-    Chars :: string(),
-    AST :: pattern_ast(),
-    Rest :: string().
 pattern_parse_class([$^ | Rest]) ->
     {Set, Rest1} = pattern_parse_class_body(Rest, []),
     {{class, pattern_printable() -- Set}, Rest1};
@@ -641,11 +576,6 @@ pattern_parse_class(Rest) ->
     {Set, Rest1} = pattern_parse_class_body(Rest, []),
     {{class, Set}, Rest1}.
 
--spec pattern_parse_class_body(Chars, Acc) -> {Set, Rest} when
-    Chars :: string(),
-    Acc :: [[char()]],
-    Set :: [char()],
-    Rest :: string().
 pattern_parse_class_body([$] | Rest], Acc) ->
     {lists:usort(lists:append(Acc)), Rest};
 pattern_parse_class_body([$\\, Escaped | Rest], Acc) ->
@@ -656,9 +586,6 @@ pattern_parse_class_body([A, $-, B | Rest], Acc) when B =/= $] ->
 pattern_parse_class_body([C | Rest], Acc) ->
     pattern_parse_class_body(Rest, [[C] | Acc]).
 
--spec pattern_escape(Char) -> AST when
-    Char :: char(),
-    AST :: pattern_ast().
 pattern_escape($d) ->
     {class, lists:seq($0, $9)};
 pattern_escape($w) ->
@@ -668,14 +595,9 @@ pattern_escape($s) ->
 pattern_escape(C) ->
     {lit, C}.
 
--spec pattern_printable() -> Chars when
-    Chars :: [char()].
 pattern_printable() ->
     lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9).
 
--spec pattern_gen(AST) -> Dom when
-    AST :: pattern_ast(),
-    Dom :: restcheck_pbt:generator().
 pattern_gen({alt, Alts}) ->
     triq_dom:oneof([pattern_gen(Alt) || Alt <- Alts]);
 pattern_gen({seq, Terms}) ->
@@ -700,9 +622,6 @@ pattern_gen({repeat, Term, Min, Max}) ->
         end
     ).
 
--spec pattern_gen_seq(Terms) -> Dom when
-    Terms :: [pattern_ast()],
-    Dom :: restcheck_pbt:generator().
 pattern_gen_seq([]) ->
     triq_dom:return([]);
 pattern_gen_seq([Term | Terms]) ->
@@ -716,8 +635,6 @@ pattern_gen_seq([Term | Terms]) ->
         end
     ).
 
--spec base64_chars() -> Chars when
-    Chars :: [char()].
 base64_chars() ->
     lists:append(
         [
@@ -728,10 +645,6 @@ base64_chars() ->
         ]
     ).
 
--spec do_report(Fun, Event, Term) -> ok when
-    Fun :: restcheck_pbt:output_fun(),
-    Event :: testing | pass | skip | fail | check_failed | counterexample | success,
-    Term :: term().
 do_report(Fun, testing, [Module, Fun]) ->
     Fun("Testing ~p:~p/0~n", [Module, Fun]);
 do_report(Fun, pass, _) ->
@@ -755,11 +668,6 @@ do_report(Fun, counterexample, CounterExample) ->
 do_report(Fun, success, Count) ->
     Fun("~nRan ~p tests~n", [Count]).
 
--spec multiples(MultipleOf, Min, Max) -> Multiples when
-    MultipleOf :: integer(),
-    Min :: undefined | integer(),
-    Max :: undefined | integer(),
-    Multiples :: [integer()].
 multiples(MultipleOf, undefined, Max) ->
     multiples(MultipleOf, ?MIN_INT, Max);
 multiples(MultipleOf, Min, undefined) ->
@@ -770,19 +678,11 @@ multiples(MultipleOf, Min, Max) ->
     FirstMultiple = MultipleOf * ((Min + MultipleOf - 1) div MultipleOf),
     multiples(MultipleOf, Max, FirstMultiple, []).
 
--spec multiples(MultipleOf, Max, Current, Acc) -> Multiples when
-    MultipleOf :: integer(),
-    Max :: integer(),
-    Current :: integer(),
-    Acc :: [integer()],
-    Multiples :: [integer()].
 multiples(_MultipleOf, Max, Current, Acc) when Current > Max ->
     lists:reverse(Acc);
 multiples(MultipleOf, Max, Current, Acc) ->
     multiples(MultipleOf, Max, Current + MultipleOf, [Current | Acc]).
 
--spec timezones() -> Timezones when
-    Timezones :: [binary()].
 timezones() ->
     [
         <<"-1200">>,

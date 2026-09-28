@@ -374,6 +374,7 @@ generate_and_load_suite(Conf) ->
                 timeout => maps:get(timeout, Conf, 5000)
             },
             GenerationOpts = #{
+                recursion_max_depth => 5,
                 max_string_length => maps:get(max_string_length, Conf, 255),
                 max_array_items => maps:get(max_array_items, Conf, 3)
             },

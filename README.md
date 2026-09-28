@@ -18,7 +18,7 @@
 ```erl
 {restcheck, [
     {spec_path, string()},
-    {spec_parser, module()}, % defaults to erf_oas_3_0
+    {spec_parser, module()}, % defaults to erf_parser_oas_3_0
     {pbt_backend, module()}, % defaults to restcheck_triq
     {host, string()}, % defaults to "localhost"
     {base_path, string()}, % empty by default

@@ -166,6 +166,7 @@ nested_refs(Conf) ->
     ?assertMatch({ok, [{<<"create_order">>, true}]}, restcheck:run(RunConf)),
 
     ok.
+
 generation_limits(Conf) ->
     meck:expect(
         restcheck_client_server,

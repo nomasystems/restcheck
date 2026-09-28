@@ -20,7 +20,6 @@
 
 %%% EXTERNAL EXPORTS
 -export([
-    generate/1,
     generate/2,
     load/1,
     load/2
@@ -32,15 +31,6 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec generate(API) -> Result when
-    API :: erf_parser:api(),
-    Result :: {ModuleName, Suite},
-    ModuleName :: module(),
-    Suite :: t().
-%% @equiv generate(API, #{})
-generate(API) ->
-    generate(API, #{}).
-
 -spec generate(API, Opts) -> Result when
     API :: erf_parser:api(),
     Opts :: restcheck_pbt:opts(),
