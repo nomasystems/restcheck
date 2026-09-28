@@ -21,7 +21,6 @@
 
 %%% EXTERNAL EXPORTS
 -export([
-    dto/1,
     dto/2,
     forall/2,
     noshrink/1,
@@ -50,13 +49,6 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec dto(Schema) -> Generator when
-    Schema :: restcheck_pbt:schema(),
-    Generator :: restcheck_pbt:generator().
-%% @equiv dto(Schema, #{recursion_max_depth => 5, max_string_length => 255, max_array_items => 3})
-dto(Schema) ->
-    dto(Schema, #{recursion_max_depth => 5, max_string_length => 255, max_array_items => 3}).
-
 -spec dto(Schema, Opts) -> Generator when
     Schema :: restcheck_pbt:schema(),
     Opts :: opts(),

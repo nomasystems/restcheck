@@ -16,6 +16,9 @@
 %%% INCLUDE FILES
 -include_lib("triq/include/triq.hrl").
 
+%%% MACROS
+-define(OPTS, #{recursion_max_depth => 5, max_string_length => 255, max_array_items => 3}).
+
 %%%-----------------------------------------------------------------------------
 %%% PROPERTIES
 %%%-----------------------------------------------------------------------------
@@ -23,7 +26,7 @@ prop_any() ->
     Schema = #{},
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_boolean(Value) orelse
             is_integer(Value) orelse
             is_float(Value) orelse
@@ -43,7 +46,7 @@ prop_enum() ->
     Schema = #{enum => Enum},
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         lists:member(Value, Enum)
     ).
 
@@ -51,7 +54,7 @@ prop_boolean() ->
     Schema = #{type => boolean},
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_boolean(Value)
     ).
 
@@ -63,7 +66,7 @@ prop_integer_1() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         Value =:= 0
     ).
 
@@ -78,7 +81,7 @@ prop_integer_2() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         Value >= 2 andalso Value < 12 andalso (Value rem 3) =:= 0
     ).
 
@@ -93,7 +96,7 @@ prop_integer_3() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         Value > -12 andalso Value =< 2 andalso (Value rem 3) =:= 0
     ).
 
@@ -107,7 +110,7 @@ prop_number_1() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         Value > -2.5 andalso Value =< 2.5
     ).
 
@@ -121,7 +124,7 @@ prop_number_2() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         Value > -2.5 andalso Value =< 2.5
     ).
 
@@ -133,7 +136,7 @@ prop_string() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_binary(Value) andalso
             string:length(Value) >= 2 andalso
             string:length(Value) =< 4
@@ -148,7 +151,7 @@ prop_string_base64() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         string:length(Value) =:= 4
     ).
 
@@ -160,7 +163,7 @@ prop_string_pattern() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_binary(Value) andalso re:run(Value, Pattern) =/= nomatch
     ).
 
@@ -171,7 +174,7 @@ prop_string_pattern() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         ncalendar:is_valid(iso8601, Value)
     ).
 
@@ -184,7 +187,7 @@ prop_array_1() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_list(Value)
     ).
 
@@ -200,7 +203,7 @@ prop_array_2() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_list(Value) andalso erlang:length(Value) >= 1 andalso is_boolean(erlang:hd(Value)) andalso
             erlang:length(Value) =< 2
     ).
@@ -214,7 +217,7 @@ prop_object_1() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         begin
             PropertiesLength = erlang:length(maps:keys(Value)),
             PropertiesLength >= 10 andalso
@@ -236,7 +239,7 @@ prop_object_2() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_integer(maps:get(<<"foo">>, Value)) andalso is_boolean(maps:get(<<"bar">>, Value))
     ).
 
@@ -249,7 +252,7 @@ prop_all_of() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_integer(Value) andalso Value >= 1 andalso Value < 2.5
     ).
 
@@ -263,7 +266,7 @@ prop_any_of() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         is_boolean(Value) orelse
             is_number(Value) orelse
             is_binary(Value)
@@ -278,7 +281,7 @@ prop_one_of() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         (is_boolean(Value) andalso not is_binary(Value)) orelse
             (not is_boolean(Value) andalso is_binary(Value))
     ).
@@ -289,6 +292,6 @@ prop_not() ->
     },
     ?FORALL(
         Value,
-        restcheck_triq:dto(Schema),
+        restcheck_triq:dto(Schema, ?OPTS),
         not is_boolean(Value)
     ).
