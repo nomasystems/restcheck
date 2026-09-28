@@ -129,8 +129,8 @@ do(State) ->
         num_requests => proplists:get_value(num_requests, RawConf, 100),
         retries => proplists:get_value(retries, RawConf, 0),
         retry_interval => proplists:get_value(retry_interval, RawConf, 100),
-        max_string_length => proplists:get_value(max_string_length, RawConf, undefined),
-        max_array_items => proplists:get_value(max_array_items, RawConf, undefined),
+        max_string_length => proplists:get_value(max_string_length, RawConf, 255),
+        max_array_items => proplists:get_value(max_array_items, RawConf, 3),
         auth => proplists:get_value(auth, RawConf, undefined)
     },
     LogFile = proplists:get_value(log_file, RawConf, undefined),
@@ -373,9 +373,13 @@ generate_and_load_suite(Conf) ->
                 auth => maps:get(auth, Conf, undefined),
                 timeout => maps:get(timeout, Conf, 5000)
             },
+            GenerationOpts = #{
+                max_string_length => maps:get(max_string_length, Conf, 255),
+                max_array_items => maps:get(max_array_items, Conf, 3)
+            },
             DTOs = maps:get(schemas, API, []),
             load_dtos(maps:to_list(DTOs)),
-            {SuiteName, Suite} = restcheck_suite:generate(API, generation_opts(Conf)),
+            {SuiteName, Suite} = restcheck_suite:generate(API, GenerationOpts),
             ok = restcheck_suite:load(Suite),
             Tests = lists:flatmap(
                 fun(Endpoint) ->
@@ -404,15 +408,6 @@ generate_and_load_suite(Conf) ->
         {error, Reason} ->
             {error, Reason}
     end.
-
--spec generation_opts(Conf) -> Opts when
-    Conf :: conf(),
-    Opts :: restcheck_pbt:opts().
-generation_opts(Conf) ->
-    maps:filter(
-        fun(_Key, Value) -> Value =/= undefined end,
-        maps:with([max_string_length, max_array_items], Conf)
-    ).
 
 -spec load_dtos(DTOs) -> Result when
     DTOs :: [{erf_parser:ref(), ndto:schema()}],
