@@ -20,7 +20,7 @@
 
 %%% EXTERNAL EXPORTS
 -export([
-    generate/1,
+    generate/2,
     load/1,
     load/2
 ]).
@@ -31,13 +31,14 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec generate(API) -> Result when
+-spec generate(API, Opts) -> Result when
     API :: erf_parser:api(),
+    Opts :: restcheck_pbt:opts(),
     Result :: {ModuleName, Suite},
     ModuleName :: module(),
     Suite :: t().
 %% @doc Generates a <code>restcheck</code> test suite from an API AST.
-generate(API) ->
+generate(API, Opts) ->
     ModuleHeader = erl_syntax:comment(?COPYRIGHT ++ [?NOTE]),
     ModuleName =
         erlang:binary_to_atom(
@@ -86,7 +87,8 @@ generate(API) ->
                                                 erl_syntax:atom(dto),
                                                 [
                                                     erl_syntax:variable('Backend'),
-                                                    Schema
+                                                    Schema,
+                                                    erl_syntax:abstract(Opts)
                                                 ]
                                             )
                                         ]
@@ -112,7 +114,8 @@ generate(API) ->
                                 erl_syntax:atom(dto),
                                 [
                                     erl_syntax:variable('Backend'),
-                                    RequestBodySchema
+                                    RequestBodySchema,
+                                    erl_syntax:abstract(Opts)
                                 ]
                             )
                         ]

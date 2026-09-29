@@ -17,7 +17,7 @@
 
 %%% EXTERNAL EXPORTS
 -export([
-    dto/2,
+    dto/3,
     forall/3,
     noshrink/2,
     quickcheck/3,
@@ -28,6 +28,7 @@
 -type backend() :: restcheck_backend:t().
 -type generator() :: term().
 -type num_tests() :: pos_integer().
+-type opts() :: restcheck_triq:opts().
 -type output_fun() :: fun((string(), [term()]) -> ok).
 -type prop() :: fun((term()) -> true | {false, Reason :: term()}).
 -type property() :: term().
@@ -38,6 +39,7 @@
     backend/0,
     generator/0,
     num_tests/0,
+    opts/0,
     output_fun/0,
     property/0,
     prop/0,
@@ -47,13 +49,15 @@
 %%%-----------------------------------------------------------------------------
 %%% EXTERNAL EXPORTS
 %%%-----------------------------------------------------------------------------
--spec dto(Backend, Schema) -> Generator when
+-spec dto(Backend, Schema, Opts) -> Generator when
     Backend :: backend(),
     Schema :: schema(),
+    Opts :: opts(),
     Generator :: generator().
-%% @doc Asks the given backend for a DTO generator from a given schema.
-dto(Backend, Schema) ->
-    Backend:dto(Schema).
+%% @doc Asks the given backend for a DTO generator from a given schema and
+%% generation options.
+dto(Backend, Schema, Opts) ->
+    Backend:dto(Schema, Opts).
 
 -spec forall(Backend, Generators, Prop) -> ForAll when
     Backend :: backend(),
