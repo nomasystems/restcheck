@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="dist/html-erlang-KCHZLXSC.css" />
 
-    <script defer src="dist/sidebar_items-8E22A302.js"></script>
+    <script defer src="dist/sidebar_items-041660F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-Y2MUTVIN.js"></script>
 
@@ -123,6 +123,14 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#t:opts/0" data-no-tooltip="" translate="no">opts/0</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#t:recursion_max_depth/0" data-no-tooltip="" translate="no">recursion_max_depth/0</a>
 
       </div>
@@ -137,21 +145,11 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#dto/1" data-no-tooltip="" translate="no">dto(Schema)</a>
+        <a href="#dto/2" data-no-tooltip="" translate="no">dto(Schema, Opts)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Equivalent to <a href="#dto/2">dto(Schema, 5)</a>.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#dto/2" data-no-tooltip="" translate="no">dto(Schema, MaxDepth)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</p></div>
+        <div class="summary-synopsis"><p>Returns a <code>triq</code> generator of DTOs from a given schema and generation options.</p></div>
 
     </div>
 
@@ -199,6 +197,37 @@ restcheck
     </h2>
 
     <div class="types-list">
+<section class="detail" id="t:opts/0">
+
+  <div class="detail-header">
+    <a href="#t:opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">opts/0</h1>
+
+
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L38" class="icon-action" rel="help nofollow" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">-type</span> opts() ::
+          #{recursion_max_depth := <a href="#t:recursion_max_depth/0">recursion_max_depth</a>(),
+            max_string_length := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:pos_integer/0">pos_integer</a>(),
+            max_array_items := <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:non_neg_integer/0">non_neg_integer</a>()}.</pre>
+
+      </div>
+
+
+  </section>
+</section>
 <section class="detail" id="t:recursion_max_depth/0">
 
   <div class="detail-header">
@@ -209,7 +238,7 @@ restcheck
       <h1 class="signature" translate="no">recursion_max_depth/0</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L38" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L37" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -240,35 +269,6 @@ restcheck
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="dto/1">
-
-  <div class="detail-header">
-    <a href="#dto/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">dto(Schema)</h1>
-
-
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L47" class="icon-action" rel="help nofollow" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">-spec</span> dto(Schema) -> Generator
-             when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
-
-      </div>
-
-<p>Equivalent to <a href="#dto/2">dto(Schema, 5)</a>.</p>
-  </section>
-</section>
 <section class="detail" id="dto/2">
 
   <div class="detail-header">
@@ -276,10 +276,10 @@ restcheck
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">dto(Schema, MaxDepth)</h1>
+      <h1 class="signature" translate="no">dto(Schema, Opts)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L55" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L57" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -290,15 +290,15 @@ restcheck
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> dto(Schema, MaxDepth) -> Generator
+          <pre translate="no"><span class="attribute">-spec</span> dto(Schema, Opts) -> Generator
              when
-                 MaxDepth :: <a href="#t:recursion_max_depth/0">recursion_max_depth</a>(),
                  Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(),
+                 Opts :: <a href="#t:opts/0">opts</a>(),
                  Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
 
       </div>
 
-<p>Returns a <code>triq</code> generator of DTOs from a given schema and maximum recursion depth.</p>
+<p>Returns a <code>triq</code> generator of DTOs from a given schema and generation options.</p>
   </section>
 </section>
 <section class="detail" id="forall/2">
@@ -311,7 +311,7 @@ restcheck
       <h1 class="signature" translate="no">forall(Generators, Prop)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L85" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L87" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -343,7 +343,7 @@ restcheck
       <h1 class="signature" translate="no">noshrink(Generator)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L93" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L95" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -374,7 +374,7 @@ restcheck
       <h1 class="signature" translate="no">quickcheck(Property, NumTests, OutputFun)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L103" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_triq.erl#L105" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 

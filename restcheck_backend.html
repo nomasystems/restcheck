@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="dist/html-erlang-KCHZLXSC.css" />
 
-    <script defer src="dist/sidebar_items-8E22A302.js"></script>
+    <script defer src="dist/sidebar_items-041660F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-Y2MUTVIN.js"></script>
 
@@ -139,7 +139,7 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:dto/1" data-no-tooltip="" translate="no">dto/1</a>
+        <a href="#c:dto/2" data-no-tooltip="" translate="no">dto/2</a>
 
       </div>
 
@@ -232,14 +232,14 @@ restcheck
     </h2>
 
     <div class="callbacks-list">
-<section class="detail" id="c:dto/1">
+<section class="detail" id="c:dto/2">
 
   <div class="detail-header">
-    <a href="#c:dto/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+    <a href="#c:dto/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">dto/1</h1>
+      <h1 class="signature" translate="no">dto/2</h1>
 
 
         <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L26" class="icon-action" rel="help nofollow" aria-label="View Source">
@@ -253,12 +253,15 @@ restcheck
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-callback</span> dto(Schema) -> Generator
-                 when Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(), Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
+          <pre translate="no"><span class="attribute">-callback</span> dto(Schema, Opts) -> Generator
+                 when
+                     Schema :: <a href="restcheck_pbt.html#t:schema/0">restcheck_pbt:schema</a>(),
+                     Opts :: <a href="restcheck_pbt.html#t:opts/0">restcheck_pbt:opts</a>(),
+                     Generator :: <a href="restcheck_pbt.html#t:generator/0">restcheck_pbt:generator</a>().</pre>
 
       </div>
 
-Returns a DTO generator from a given schema.
+Returns a DTO generator from a given schema and generation options.
   </section>
 </section>
 <section class="detail" id="c:forall/2">
@@ -271,7 +274,7 @@ Returns a DTO generator from a given schema.
       <h1 class="signature" translate="no">forall/2</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L31" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L32" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -303,7 +306,7 @@ Wraps a forall property.
       <h1 class="signature" translate="no">noshrink/1</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L37" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L38" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -334,7 +337,7 @@ Prevents a generator from shrinking.
       <h1 class="signature" translate="no">quickcheck/3</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L42" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_backend.erl#L43" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 

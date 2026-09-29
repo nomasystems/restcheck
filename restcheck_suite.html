@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="dist/html-erlang-KCHZLXSC.css" />
 
-    <script defer src="dist/sidebar_items-8E22A302.js"></script>
+    <script defer src="dist/sidebar_items-041660F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-Y2MUTVIN.js"></script>
 
@@ -141,7 +141,7 @@ restcheck
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#generate/1" data-no-tooltip="" translate="no">generate(API)</a>
+        <a href="#generate/2" data-no-tooltip="" translate="no">generate(API, Opts)</a>
 
       </div>
 
@@ -224,17 +224,17 @@ restcheck
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="generate/1">
+<section class="detail" id="generate/2">
 
   <div class="detail-header">
-    <a href="#generate/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#generate/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">generate(API)</h1>
+      <h1 class="signature" translate="no">generate(API, Opts)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L40" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L41" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -245,9 +245,10 @@ restcheck
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">-spec</span> generate(API) -> Result
+          <pre translate="no"><span class="attribute">-spec</span> generate(API, Opts) -> Result
                   when
                       API :: <a href="https://hexdocs.pm/erf/erf_parser.html#t:api/0">erf_parser:api</a>(),
+                      Opts :: <a href="restcheck_pbt.html#t:opts/0">restcheck_pbt:opts</a>(),
                       Result :: {ModuleName, Suite},
                       ModuleName :: <a href="https://www.erlang.org/doc/apps/erts/erlang.html#t:module/0">module</a>(),
                       Suite :: <a href="#t:t/0">t</a>().</pre>
@@ -267,7 +268,7 @@ restcheck
       <h1 class="signature" translate="no">load(Suite)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L193" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L196" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -300,7 +301,7 @@ restcheck
       <h1 class="signature" translate="no">load(Suite, Options)</h1>
 
 
-        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L203" class="icon-action" rel="help nofollow" aria-label="View Source">
+        <a href="https://github.com/nomasystems/restcheck/blob/0.1.0/src/restcheck_suite.erl#L206" class="icon-action" rel="help nofollow" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
