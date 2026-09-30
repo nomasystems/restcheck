@@ -569,24 +569,13 @@ intersection(#{type := object} = Schema1, #{type := object} = Schema2) ->
             {undefined, Properties2} ->
                 Properties2;
             {Properties1, Properties2} ->
-                CommonProperties =
-                    sets:to_list(
-                        sets:intersection(
-                            sets:from_list(maps:keys(Properties1)),
-                            sets:from_list(maps:keys(Properties2))
-                        )
-                    ),
-                PropertyList =
-                    lists:map(
-                        fun(PropertyName) ->
-                            PropertySchema1 = maps:get(PropertyName, Properties1),
-                            PropertySchema2 = maps:get(PropertyName, Properties2),
-                            PropertySchema = intersection([PropertySchema1, PropertySchema2]),
-                            {PropertyName, PropertySchema}
-                        end,
-                        CommonProperties
-                    ),
-                maps:from_list(PropertyList)
+                maps:merge_with(
+                    fun(_PropertyName, PropertySchema1, PropertySchema2) ->
+                        intersection([PropertySchema1, PropertySchema2])
+                    end,
+                    Properties1,
+                    Properties2
+                )
         end,
 
     Required1 = maps:get(required, Schema1, undefined),

@@ -256,6 +256,40 @@ prop_all_of() ->
         is_integer(Value) andalso Value >= 1 andalso Value < 2.5
     ).
 
+prop_all_of_objects() ->
+    Pet = #{
+        type => object,
+        properties => #{
+            <<"name">> => #{type => string},
+            <<"age">> => #{type => integer}
+        },
+        required => [<<"name">>, <<"age">>]
+    },
+    Dog = #{
+        all_of => [
+            Pet,
+            #{
+                type => object,
+                properties => #{
+                    <<"age">> => #{type => integer, minimum => 0},
+                    <<"bark">> => #{type => boolean}
+                },
+                required => [<<"bark">>]
+            }
+        ]
+    },
+    ?FORALL(
+        Value,
+        restcheck_triq:dto(Dog, ?OPTS),
+        case Value of
+            #{<<"name">> := Name, <<"age">> := Age, <<"bark">> := Bark} ->
+                is_binary(Name) andalso is_integer(Age) andalso Age >= 0 andalso
+                    is_boolean(Bark);
+            _Otherwise ->
+                false
+        end
+    ).
+
 prop_any_of() ->
     Schema = #{
         any_of => [
