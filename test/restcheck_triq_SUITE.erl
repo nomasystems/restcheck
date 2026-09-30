@@ -30,6 +30,7 @@ all() ->
         {group, array},
         {group, object},
         all_of,
+        all_of_objects,
         any_of,
         one_of,
         'not'
@@ -193,6 +194,12 @@ object_2(Conf) ->
 all_of(Conf) ->
     ct_property_test:quickcheck(
         restcheck_triq_properties:prop_all_of(),
+        Conf
+    ).
+
+all_of_objects(Conf) ->
+    ct_property_test:quickcheck(
+        restcheck_triq_properties:prop_all_of_objects(),
         Conf
     ).
 

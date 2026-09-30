@@ -82,6 +82,7 @@ all() ->
         {group, properties},
         complement,
         intersection,
+        object_intersection_disjoint_properties,
         union
     ].
 
@@ -348,6 +349,52 @@ intersection(_Conf) ->
     assert_invalid(complement_intersection:is_valid(true)),
     ?assertEqual(true, complement_intersection:is_valid(<<"foo">>)),
 
+    ok.
+
+object_intersection_disjoint_properties(_Conf) ->
+    Pet = #{
+        type => object,
+        properties => #{
+            <<"name">> => #{type => string},
+            <<"age">> => #{type => integer}
+        },
+        required => [<<"name">>, <<"age">>]
+    },
+    Dog = #{
+        type => object,
+        properties => #{
+            <<"age">> => #{type => integer, minimum => 0},
+            <<"bark">> => #{type => boolean}
+        },
+        required => [<<"bark">>]
+    },
+    Intersection = restcheck_schema:intersection([Pet, Dog]),
+    ?assertEqual(
+        [<<"age">>, <<"bark">>, <<"name">>],
+        lists:sort(maps:keys(maps:get(properties, Intersection)))
+    ),
+    ?assertEqual(
+        [<<"age">>, <<"bark">>, <<"name">>],
+        lists:sort(maps:get(required, Intersection))
+    ),
+
+    ok = generate_and_load(object_intersection_disjoint_properties, Intersection),
+    Valid = #{<<"name">> => <<"Rex">>, <<"age">> => 3, <<"bark">> => true},
+    ?assertEqual(true, object_intersection_disjoint_properties:is_valid(Valid)),
+    assert_invalid(object_intersection_disjoint_properties:is_valid(Valid#{<<"name">> => 1})),
+    assert_invalid(
+        object_intersection_disjoint_properties:is_valid(Valid#{<<"bark">> => <<"yes">>})
+    ),
+    assert_invalid(
+        object_intersection_disjoint_properties:is_valid(Valid#{<<"age">> => <<"3">>})
+    ),
+    assert_invalid(object_intersection_disjoint_properties:is_valid(Valid#{<<"age">> => -1})),
+    assert_invalid(
+        object_intersection_disjoint_properties:is_valid(maps:remove(<<"name">>, Valid))
+    ),
+    assert_invalid(
+        object_intersection_disjoint_properties:is_valid(maps:remove(<<"bark">>, Valid))
+    ),
     ok.
 
 union(_Conf) ->
